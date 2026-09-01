@@ -108,7 +108,7 @@ root.innerHTML = `
     <section id="runtime-state" class="runtime-state" role="status" aria-live="polite">
       <img class="runtime-splash" src="/game/game.png" alt="" />
       <progress id="runtime-progress" class="runtime-progress"></progress>
-      <div id="runtime-notice" class="runtime-notice"></div>
+      <div id="runtime-notice" class="runtime-notice" hidden></div>
     </section>
   </main>
 `;
