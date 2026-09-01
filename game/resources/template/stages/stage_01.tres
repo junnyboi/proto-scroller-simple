@@ -1,6 +1,9 @@
-[gd_resource type="Resource" script_class="StageDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="StageDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/template/stage_definition.gd" id="1_stage_definition"]
+[ext_resource type="Resource" path="res://resources/template/waves/stage_01_wave_01.tres" id="2_wave_01"]
+[ext_resource type="Resource" path="res://resources/template/waves/stage_01_wave_02.tres" id="3_wave_02"]
+[ext_resource type="Resource" path="res://resources/template/waves/stage_01_wave_03.tres" id="4_wave_03"]
 
 [resource]
 script = ExtResource("1_stage_definition")
@@ -8,6 +11,7 @@ stage_id = &"stage_01"
 display_name_key = &"STAGE 1 · COMPACT SHELL"
 background_id = &"business_panorama"
 foreground_id = &"shared_city_foreground"
+waves = Array[Resource]([ExtResource("2_wave_01"), ExtResource("3_wave_02"), ExtResource("4_wave_03")])
 spawn_interval_seconds = 1.0
 allowed_enemy_ids = PackedStringArray("soldier", "tank")
 objective_key = &"PROVE THE COMPACT RUN LIFECYCLE"

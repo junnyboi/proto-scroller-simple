@@ -178,11 +178,34 @@ Rollback: omit the runtime selector or remove the isolated template scene; legac
 
 **Purpose:** replace the stub with the independently shippable gameplay loop.
 
-- Extract compact movement, health, optional dodge, and chargeable melee from the existing robot behavior without carrying shop/upgrade/directive/overdrive dependencies.
-- Add one parameterized compact enemy controller and two definitions.
-- Add three deterministic finite waves and bounded pools.
-- Add one retained destructible, score, camera impulse, and fixed particle/debris pools.
-- Prove no post-warm node growth and no campaign nodes in the stage tree.
+Implementation:
+
+- Extract compact horizontal movement, health, dodge invulnerability/cooldown, and hold/release melee charge from the existing robot behavior without carrying shop, upgrade, directive, arsenal, overdrive, or campaign dependencies.
+- Render the player directly from the retained grunt atlas and render the two parameterized enemy definitions from the existing soldier and tank textures.
+- Author three finite waves through `CompactWaveDefinition` and `CompactSpawnRecord` resources. Keep Stage 1 allowlisted to `soldier` and `tank`.
+- Prewarm exactly eight `CompactEnemy` nodes and reuse them across the full run. A pool-capacity failure is counted and fails the focused regression.
+- Reuse the original car/wreck pair for one destructible and award its score through the same run-local score owner.
+- Prewarm exactly eight impact/debris slots from the existing impact flash and concrete chunk textures.
+- Route accepted combat impacts through one deterministic `CompactCameraImpulse` and update health, wave, score, victory, and defeat through `BasicHud` and `CompactRunLifecycle`.
+- Remove all user-facing lifecycle stub controls; tests finalize Phase 1 scenarios directly through the lifecycle authority.
+
+Focused checks:
+
+- A full charge reaches the configured maximum damage/radius and dodge rejects damage only during its bounded invulnerability window.
+- Soldier and tank share one controller while retaining distinct health, movement, range, damage, and score profiles.
+- All three waves finish deterministically without exhausting the eight-slot pool.
+- Victory freezes one summary with three cleared waves; defeat freezes one defeat summary and stops spawning.
+- Repeated effects reuse eight slots, the destructible swaps to its retained wreck, and the Stage 1 subtree has no post-warm node growth.
+- No campaign, directive, Project CHOIR, legacy tweak-service, shop, or upgrade owner exists in the compact stage tree.
+- Phase 1 lifecycle tests, Phase 2 combat tests, both headless scenarios, and template/legacy boots pass.
+
+Exit:
+
+- Stage 1 is playable with move, charged attack, dodge, finite enemy pressure, health, score, victory, defeat, retry, and title return.
+- Runtime assets are direct references to original game sources; Phase 2 generates no media.
+- Legacy remains the default rollback path until the UI/pause/profile phase passes.
+
+Rollback: revert the Phase 2 combat package; the Phase 1 shell remains available at its preceding revision.
 
 ### Phase 3 — Retained static presentation and optional Stage 2
 
@@ -305,7 +328,8 @@ These become enforced ceilings only after Phase 9 produces a clean measured expo
 |---:|---|---|
 | 0 | Completed | `archive/pre-template-f8b86d9` resolves to `f8b86d9`; revision-pinned inventory reproduced byte-for-byte across two runs; dynamic-resource manifest added |
 | 1 | Completed | Isolated selector, shell, allowlisted Stage 1, lifecycle, title/HUD/debrief, and stub flow added; 5 GUT tests / 42 assertions and the headless scenario pass; template and legacy boots pass |
-| 2–10 | Planned | Not started |
+| 2 | Completed | Three-wave combat kernel, retained player/enemy/destructible/presentation assets, eight-slot enemy and effect pools, score/health/camera feedback; 6 GUT tests / 48 assertions and headless scenario pass; Phase 1 regression remains green |
+| 3–10 | Planned | Not started |
 
 ## 10. Delivery rhythm
 

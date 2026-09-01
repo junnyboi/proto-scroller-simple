@@ -30,6 +30,15 @@ func validation_errors() -> PackedStringArray:
 		errors.append("objective_key is required")
 	if spawn_interval_seconds <= 0.0:
 		errors.append("spawn_interval_seconds must be positive")
+	if waves.is_empty():
+		errors.append("at least one wave is required")
+	for wave_resource: Resource in waves:
+		var wave: CompactWaveDefinition = wave_resource as CompactWaveDefinition
+		if wave == null:
+			errors.append("waves must use CompactWaveDefinition")
+			continue
+		for error: String in wave.validation_errors(allowed_enemy_ids):
+			errors.append(error)
 	if completion_mode == CompletionMode.FINALE_DEFEATED and finale_enemy_id.is_empty():
 		errors.append("finale_enemy_id is required for FINALE_DEFEATED")
 	return errors

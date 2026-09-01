@@ -69,8 +69,8 @@ func test_template_shell_supports_victory_retry_defeat_and_title() -> void:
 	assert_eq(_active_stage_count(runtime), 1)
 
 	var victory_stage: TemplateStage = runtime.current_stage
-	assert_true(victory_stage.request_stub_victory())
-	assert_false(victory_stage.request_stub_defeat())
+	assert_true(victory_stage.lifecycle.finish_victory(100, 3))
+	assert_false(victory_stage.lifecycle.finish_defeat(999, 9))
 	assert_true(victory_stage.debrief.visible)
 	assert_eq(victory_stage.lifecycle.finalization_count, 1)
 	assert_not_null(runtime.last_summary)
@@ -82,7 +82,7 @@ func test_template_shell_supports_victory_retry_defeat_and_title() -> void:
 	assert_eq(_active_stage_count(runtime), 1)
 
 	var defeat_stage: TemplateStage = runtime.current_stage
-	assert_true(defeat_stage.request_stub_defeat())
+	assert_true(defeat_stage.lifecycle.finish_defeat(25, 0))
 	assert_true(defeat_stage.debrief.visible)
 	assert_false(runtime.last_summary.completed)
 	defeat_stage.debrief.title_button.pressed.emit()

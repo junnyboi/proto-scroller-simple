@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CompactWaveDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/combat/compact_wave_definition.gd" id="1_wave"]
+[ext_resource type="Script" path="res://scripts/template/combat/compact_spawn_record.gd" id="2_spawn"]
+
+[sub_resource type="Resource" id="SpawnRecord_tanks"]
+script = ExtResource("2_spawn")
+enemy_id = &"tank"
+count = 2
+interval_seconds = 0.7
+marker_id = &"right_armor"
+
+[sub_resource type="Resource" id="SpawnRecord_soldiers"]
+script = ExtResource("2_spawn")
+enemy_id = &"soldier"
+count = 2
+interval_seconds = 0.3
+marker_id = &"right_ground"
+
+[resource]
+script = ExtResource("1_wave")
+start_delay_seconds = 0.65
+spawns = Array[ExtResource("2_spawn")]([SubResource("SpawnRecord_tanks"), SubResource("SpawnRecord_soldiers")])

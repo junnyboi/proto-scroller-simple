@@ -19,10 +19,10 @@ func _run() -> void:
 		return
 	await process_frame
 	var first_stage: TemplateStage = runtime.current_stage
-	if first_stage == null or not first_stage.request_stub_victory():
-		_fail("stub victory did not finalize")
+	if first_stage == null or not first_stage.lifecycle.finish_victory(100, 3):
+		_fail("victory did not finalize")
 		return
-	if first_stage.request_stub_defeat() or first_stage.lifecycle.finalization_count != 1:
+	if first_stage.lifecycle.finish_defeat(999, 9) or first_stage.lifecycle.finalization_count != 1:
 		_fail("duplicate terminal request was accepted")
 		return
 	first_stage.debrief.retry_button.pressed.emit()
@@ -31,8 +31,8 @@ func _run() -> void:
 	if retry_stage == null or retry_stage == first_stage:
 		_fail("retry did not replace the stage")
 		return
-	if not retry_stage.request_stub_defeat():
-		_fail("stub defeat did not finalize")
+	if not retry_stage.lifecycle.finish_defeat(25, 0):
+		_fail("defeat did not finalize")
 		return
 	retry_stage.debrief.title_button.pressed.emit()
 	await process_frame
