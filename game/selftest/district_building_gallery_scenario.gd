@@ -27,7 +27,7 @@ func _run() -> void:
 	root.add_child(_gallery_root)
 	await process_frame
 	var districts: Array[CityDistrictProfile] = CityDistrictCatalog.districts()
-	_check("catalog_complete", districts.size() == 5, "count=%d" % districts.size())
+	_check("catalog_complete", districts.size() == 2, "count=%d" % districts.size())
 	for district: CityDistrictProfile in districts:
 		await _render_district(district)
 	_report.done = true

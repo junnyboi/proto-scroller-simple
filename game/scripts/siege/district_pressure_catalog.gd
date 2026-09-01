@@ -47,7 +47,7 @@ static func validation_errors() -> PackedStringArray:
 			"pressure_profile_count=%d expected=%d"
 			% [_profiles.size(), CityDistrictCatalog.DISTRICT_COUNT]
 		)
-	var previous: DistrictPressureProfile
+	var previous: DistrictPressureProfile = null
 	for index: int in range(_profiles.size()):
 		var profile: DistrictPressureProfile = _profiles[index]
 		var city_district: CityDistrictProfile = CityDistrictCatalog.districts()[index]
@@ -79,9 +79,6 @@ static func _ensure_catalog() -> void:
 	_profiles = [
 		_profile(&"BUSINESS", 0, 0, 8, 1.00, 1.00, 0, 0, 0),
 		_profile(&"RESIDENTIAL", 1, 1, 11, 0.96, 1.00, 0, 1, 0),
-		_profile(&"ENTERTAINMENT", 2, 2, 14, 0.92, 0.96, 1, 2, 1),
-		_profile(&"MILITARY", 3, 3, 17, 0.88, 0.92, 1, 3, 1),
-		_profile(&"ROYAL", 4, 4, 20, 0.84, 0.88, 2, 4, 2),
 	]
 	_profiles_by_id.clear()
 	for profile: DistrictPressureProfile in _profiles:

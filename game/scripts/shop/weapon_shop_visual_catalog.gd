@@ -4,16 +4,10 @@ extends RefCounted
 const BACKPLATES: Dictionary = {
 	&"BUSINESS": preload("res://art/ui/weapon_shop/business_backplate.webp"),
 	&"RESIDENTIAL": preload("res://art/ui/weapon_shop/residential_backplate.webp"),
-	&"ENTERTAINMENT": preload("res://art/ui/weapon_shop/entertainment_backplate.webp"),
-	&"MILITARY": preload("res://art/ui/weapon_shop/military_backplate.webp"),
-	&"ROYAL": preload("res://art/ui/weapon_shop/royal_backplate.webp"),
 }
 const OPERATORS: Dictionary = {
 	&"BUSINESS": preload("res://art/ui/weapon_shop/business_operator.webp"),
 	&"RESIDENTIAL": preload("res://art/ui/weapon_shop/residential_operator.webp"),
-	&"ENTERTAINMENT": preload("res://art/ui/weapon_shop/entertainment_operator.webp"),
-	&"MILITARY": preload("res://art/ui/weapon_shop/military_operator.webp"),
-	&"ROYAL": preload("res://art/ui/weapon_shop/royal_operator.webp"),
 }
 const PRODUCT_ICONS: Dictionary = {
 	&"foreclosure_slugs": preload("res://art/ui/weapon_shop/foreclosure_slugs.webp"),
@@ -22,19 +16,6 @@ const PRODUCT_ICONS: Dictionary = {
 	&"patchwork_nanoweld": preload("res://art/ui/weapon_shop/patchwork_nanoweld.webp"),
 	&"scrapheap_magnetics": preload("res://art/ui/weapon_shop/scrapheap_magnetics.webp"),
 	&"borrowed_shock_coils": preload("res://art/ui/weapon_shop/borrowed_shock_coils.webp"),
-	&"encore_capacitors": preload("res://art/ui/weapon_shop/encore_capacitors.webp"),
-	&"jackpot_chamber": preload("res://art/ui/weapon_shop/jackpot_chamber.webp"),
-	&"backstage_triage": preload("res://art/ui/weapon_shop/backstage_triage.webp"),
-	&"siege_breaching_load": preload(
-		"res://art/ui/weapon_shop/siege_breaching_load.webp"
-	),
-	&"hunter_killer_link": preload("res://art/ui/weapon_shop/hunter_killer_link.webp"),
-	&"gantry_overhaul": preload("res://art/ui/weapon_shop/gantry_overhaul.webp"),
-	&"sovereign_aegis": preload("res://art/ui/weapon_shop/sovereign_aegis.webp"),
-	&"crownfire_protocol": preload("res://art/ui/weapon_shop/crownfire_protocol.webp"),
-	&"chronoseal_governor": preload(
-		"res://art/ui/weapon_shop/chronoseal_governor.webp"
-	),
 }
 const CONFIRMATION_FRAME: Texture2D = preload(
 	"res://art/ui/weapon_shop/confirmation_frame.webp"

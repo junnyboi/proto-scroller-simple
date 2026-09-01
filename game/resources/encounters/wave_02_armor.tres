@@ -1,29 +1,25 @@
-[gd_resource type="Resource" script_class="EnemyWave" format=3]
+[gd_resource type="Resource" script_class="EnemyWave" format=3 uid="uid://biofoq3hjbc72"]
 
-[ext_resource type="Script" path="res://scripts/encounter/enemy_wave.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/encounter/enemy_spawn_entry.gd" id="2"]
+[ext_resource type="Script" uid="uid://dhtx7rs30rvl7" path="res://scripts/encounter/enemy_wave.gd" id="1"]
+[ext_resource type="Script" uid="uid://cy6u4t0u1q5eo" path="res://scripts/encounter/enemy_spawn_entry.gd" id="2"]
 
 [sub_resource type="Resource" id="Tank"]
 script = ExtResource("2")
 kind = &"tank"
-delay = 0.0
 position = Vector2(1760, 551)
 
 [sub_resource type="Resource" id="SoldierA"]
 script = ExtResource("2")
-kind = &"soldier"
 delay = 0.35
 position = Vector2(1580, 542.5)
 
 [sub_resource type="Resource" id="SoldierB"]
 script = ExtResource("2")
-kind = &"soldier"
 delay = 0.7
 position = Vector2(1900, 542.5)
 
 [sub_resource type="Resource" id="SoldierC"]
 script = ExtResource("2")
-kind = &"soldier"
 delay = 1.05
 position = Vector2(2040, 542.5)
 

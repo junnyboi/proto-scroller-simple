@@ -4,10 +4,10 @@ extends GutTest
 const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
 
 
-func test_catalog_exactly_covers_twenty_variants_and_sixty_regions() -> void:
+func test_catalog_exactly_covers_eight_variants_and_twenty_four_regions() -> void:
 	assert_eq(EnemyAttackVfxCatalog.validation_errors(), PackedStringArray())
-	assert_eq(EnemyAttackVfxCatalog.SPECS.size(), 20)
-	assert_eq(EnemyAttackVfxCatalog.RANGED_IDS.size(), 9)
+	assert_eq(EnemyAttackVfxCatalog.SPECS.size(), 8)
+	assert_eq(EnemyAttackVfxCatalog.RANGED_IDS.size(), 3)
 	var projectile_deliveries: int = 0
 	var actor_deliveries: int = 0
 	for archetype_id: StringName in EnemyArchetypeCatalog.DISTRICT_VARIANT_IDS:
@@ -43,8 +43,8 @@ func test_catalog_exactly_covers_twenty_variants_and_sixty_regions() -> void:
 			projectile_deliveries += 1
 		else:
 			actor_deliveries += 1
-	assert_eq(projectile_deliveries, 9)
-	assert_eq(actor_deliveries, 11)
+	assert_eq(projectile_deliveries, 3)
+	assert_eq(actor_deliveries, 5)
 
 
 func test_ranged_projectile_specs_preserve_kind_radius_and_unique_impacts() -> void:
@@ -177,7 +177,7 @@ func test_hostile_impact_cursor_wraps_without_node_growth_or_gameplay_denial() -
 	add_child_autofree(pool)
 	await get_tree().process_frame
 	var child_count: int = pool.get_child_count()
-	var impact_key: StringName = EnemyAttackVfxCatalog.impact_key(&"regency_conservator")
+	var impact_key: StringName = EnemyAttackVfxCatalog.impact_key(&"rainvault_pressure_ward")
 	for impact_index: int in range(ProjectilePool.HOSTILE_IMPACT_CAPACITY * 3):
 		pool._on_impact_requested(
 			null,
@@ -196,7 +196,7 @@ func test_hostile_impact_cursor_wraps_without_node_growth_or_gameplay_denial() -
 	assert_eq(pool.get_child_count(), child_count)
 
 
-func test_all_twenty_variants_show_unique_fixed_sprite_anticipation() -> void:
+func test_all_eight_variants_show_unique_fixed_sprite_anticipation() -> void:
 	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
 	add_child_autofree(city)
 	await get_tree().process_frame
@@ -301,7 +301,7 @@ func test_actor_only_variants_complete_without_projectiles_or_mechanical_drift()
 	for archetype_id: StringName in EnemyArchetypeCatalog.DISTRICT_VARIANT_IDS:
 		if not EnemyAttackVfxCatalog.is_projectile_delivery(archetype_id):
 			actor_ids.append(archetype_id)
-	assert_eq(actor_ids.size(), 11)
+	assert_eq(actor_ids.size(), 5)
 	for archetype_id: StringName in actor_ids:
 		city.encounter_runtime.release_all()
 		city.projectile_root.release_all()

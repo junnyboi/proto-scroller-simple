@@ -31,7 +31,6 @@ const BOSS_REPAIR_DROP_OFFSETS: Array[Vector2] = [
 	Vector2(0.0, -126.0),
 	Vector2(82.0, -96.0),
 ]
-const CHOIR_PRIME_TEXTURE: Texture2D = preload("res://art/finale/choir-prime-core.png")
 var dependencies: UrbanSiegeDependencies
 var state: StringName = STATE_IDLE
 var boss: TankEnemy
@@ -146,8 +145,6 @@ func _start_encounter(definition: BossEncounterDefinition) -> bool:
 			active_definition.health * exposed_health_multiplier
 		)
 		_configure_campaign_runtime()
-	if _is_choir_prime():
-		_present_choir_prime()
 	if not boss.boss_armor_changed.is_connected(_on_boss_armor_changed):
 		boss.boss_armor_changed.connect(_on_boss_armor_changed)
 	if not boss.boss_armor_broken.is_connected(_on_boss_armor_broken):
@@ -377,13 +374,6 @@ func _on_boss_armor_broken() -> void:
 				generation_token
 			)
 	_set_state(STATE_EXPOSED)
-
-
-func _present_choir_prime() -> void:
-	if boss.visual != null:
-		boss.visual.texture = CHOIR_PRIME_TEXTURE
-		boss.visual.scale = Vector2(0.42, 0.42)
-		boss.visual.position = Vector2(0.0, -88.0)
 
 
 func _configure_campaign_runtime() -> void:

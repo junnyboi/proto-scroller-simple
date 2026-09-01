@@ -65,7 +65,7 @@ func test_cars_and_streetlamps_require_multiple_hits_then_fragment() -> void:
 		assert_eq(debris.material_id(), &"steel")
 
 
-func test_streamed_props_support_all_five_district_rubble_palettes() -> void:
+func test_streamed_props_support_both_district_rubble_palettes() -> void:
 	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
 	add_child_autofree(city)
 	await get_tree().process_frame
@@ -81,8 +81,7 @@ func test_streamed_props_support_all_five_district_rubble_palettes() -> void:
 		)
 		observed_tints[district.district_id] = city.car.terminal_rubble.piece_tint(0)
 	assert_eq(observed_tints.size(), CityDistrictCatalog.DISTRICT_COUNT)
-	assert_ne(observed_tints[&"BUSINESS"], observed_tints[&"ENTERTAINMENT"])
-	assert_ne(observed_tints[&"RESIDENTIAL"], observed_tints[&"ROYAL"])
+	assert_ne(observed_tints[&"BUSINESS"], observed_tints[&"RESIDENTIAL"])
 
 
 func test_ground_smash_blackens_props_then_next_hit_reduces_them_to_rubble() -> void:

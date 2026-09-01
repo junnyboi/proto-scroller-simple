@@ -15,7 +15,7 @@ const REPAIR_SUPPORT_PULSE: Texture2D = preload(
 	"res://art/city/enemies/effects/repair-support-pulse.png"
 )
 const NEMESIS_MELEE_LANCE: Texture2D = preload(
-	"res://art/city/enemies/attacks/nemesis_melee_lance.png"
+	"res://art/presentation/choir_contact_brace.png"
 )
 const CHOIR_CONTACT_BRACE: Texture2D = preload(
 	"res://art/presentation/choir_contact_brace.png"
@@ -30,10 +30,10 @@ const CHOIR_CONTACT_FOOTPRINT: Texture2D = preload(
 	"res://art/presentation/choir_contact_footprint.png"
 )
 const CONVENTIONAL_DEPLOYMENT: Texture2D = preload(
-	"res://art/city/enemies/deployment/conventional-reinforcement-deploy.png"
+	"res://art/presentation/choir_contact_footprint.png"
 )
 const CHOIR_INCUBATION_PAYLOAD: Texture2D = preload(
-	"res://art/city/enemies/effects/choir-incubation-payload.png"
+	"res://art/player/vfx/photon_core_orb.png"
 )
 const MULE_RAMP_OPEN_REGION: Rect2 = Rect2(316.0, 4.0, 96.0, 84.0)
 const SOLDIER_DISPATCH_REGION: Rect2 = Rect2(412.0, 16.0, 64.0, 64.0)

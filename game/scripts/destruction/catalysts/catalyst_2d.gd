@@ -72,7 +72,7 @@ func arm(
 	set_process(false)
 	_catalyst_seen_attacks.clear()
 	visual.texture = intact_texture
-	visual.modulate = Color("7de3d7") if profile.catalyst_id == &"GAS_MAIN" else Color.WHITE
+	visual.modulate = Color.WHITE
 	_fit_visual(intact_display_size)
 	_configure_terminal_rubble()
 	terminal_rubble.set_active(false)

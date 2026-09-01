@@ -29,30 +29,6 @@ const PROFILES: Dictionary = {
 		"traffic_speed": 24.0,
 		"carrier_mix": 0.18,
 	},
-	&"ENTERTAINMENT": {
-		"grade": Color("f1d8ff"),
-		"saturation": 1.08,
-		"traffic_tint": Color("98f3e8"),
-		"traffic_alpha": 0.76,
-		"traffic_speed": 58.0,
-		"carrier_mix": 0.10,
-	},
-	&"MILITARY": {
-		"grade": Color("e1dfbd"),
-		"saturation": 0.82,
-		"traffic_tint": Color("c7b48d"),
-		"traffic_alpha": 0.44,
-		"traffic_speed": 42.0,
-		"carrier_mix": 0.68,
-	},
-	&"ROYAL": {
-		"grade": Color("ffd9c6"),
-		"saturation": 0.94,
-		"traffic_tint": Color("e6bc83"),
-		"traffic_alpha": 0.34,
-		"traffic_speed": 18.0,
-		"carrier_mix": 0.76,
-	},
 }
 const TIME_KEYS: Array[Dictionary] = [
 	{

@@ -62,8 +62,6 @@ func test_new_game_plus_restarts_act_one_with_score_power_and_exact_double_enemi
 	city.telegraph_presenter.cancel_all()
 	city.urban_siege._withdraw_directive_presentation()
 	city.run_lifecycle._on_district_completed()
-	assert_true(city.weapon_shop_assembler.session.active)
-	city.weapon_shop_assembler.session.close_shop()
 	assert_true(city.gameplay_hud.continue_button.visible)
 	assert_true(city.gameplay_hud.new_game_plus_badge.visible)
 	assert_eq(city.gameplay_hud.continue_button.text, "START NEW GAME +")
@@ -121,8 +119,6 @@ func test_second_cycle_offers_extract_only_and_freezes_cycle_count() -> void:
 	var city: CitySlice = await _spawn_city()
 	city.urban_siege.cycle_count = 2
 	city.run_lifecycle._on_district_completed()
-	assert_true(city.weapon_shop_assembler.session.active)
-	city.weapon_shop_assembler.session.close_shop()
 	assert_true(city.gameplay_hud.extract_button.visible)
 	assert_false(city.gameplay_hud.continue_button.visible)
 	assert_false(city.gameplay_hud.new_game_plus_badge.visible)

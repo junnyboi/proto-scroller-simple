@@ -21,15 +21,6 @@ func test_catalog_has_three_unique_shop_only_products_per_district() -> void:
 		&"patchwork_nanoweld": 22400,
 		&"scrapheap_magnetics": 38400,
 		&"borrowed_shock_coils": 41600,
-		&"encore_capacitors": 49600,
-		&"jackpot_chamber": 54400,
-		&"backstage_triage": 30400,
-		&"siege_breaching_load": 65600,
-		&"hunter_killer_link": 72000,
-		&"gantry_overhaul": 40000,
-		&"sovereign_aegis": 96000,
-		&"crownfire_protocol": 108000,
-		&"chronoseal_governor": 88000,
 	}
 	var level_ids: Dictionary[StringName, bool] = {}
 	var level_catalog: UpgradeCatalog = load(
@@ -124,12 +115,11 @@ func test_every_boss_shop_waits_for_shared_defeat_celebration() -> void:
 		city.urban_siege.boss_session.utility_pool.defeat_spectacle
 	)
 	for definition: BossEncounterDefinition in BossCampaignCatalog.definitions():
-		var act_index: int = WeaponShopSession.ROYAL_ACT_INDEX
-		if definition.district_id != &"ROYAL":
-			for district: CityDistrictProfile in CityDistrictCatalog.districts():
-				if district.district_id == definition.district_id:
-					act_index = district.district_index
-					break
+		var act_index: int = 0
+		for district: CityDistrictProfile in CityDistrictCatalog.districts():
+			if district.district_id == definition.district_id:
+				act_index = district.district_index
+				break
 		assembler.session.visited_acts[StringName(
 			"%d:%d:%s" % [
 				city.urban_siege.cycle_count,
@@ -161,17 +151,6 @@ func test_every_boss_shop_waits_for_shared_defeat_celebration() -> void:
 			String(definition.boss_id)
 		)
 		assert_true(assembler.session.close_shop(), String(definition.boss_id))
-
-
-func test_royal_shop_is_terminal_only() -> void:
-	var city: CitySlice = await _spawn_city()
-	var session: WeaponShopSession = city.weapon_shop_assembler.session
-	assert_false(session.queue_act_completion(4, 1))
-	assert_true(city.weapon_shop_assembler.queue_royal_completion())
-	await get_tree().process_frame
-	assert_true(session.active)
-	assert_true(session.active_terminal)
-	assert_eq(session.active_district.district_id, &"ROYAL")
 
 
 func test_purchase_deducts_score_repairs_once_and_updates_hud() -> void:
@@ -281,16 +260,17 @@ func test_repair_confirmation_uses_distinct_audio_and_repair_particles() -> void
 	assert_gt(city.robot.current_health, 40.0)
 
 
-func test_shop_effects_scale_melee_weapons_cooldowns_and_incoming_damage() -> void:
+func test_retained_shop_effects_scale_weapons_structure_debris_and_melee_area() -> void:
 	var robot: GiantRobotController = GiantRobotController.new()
 	add_child_autofree(robot)
 	await get_tree().process_frame
 	var effects: WeaponShopUpgradeRuntime = WeaponShopUpgradeRuntime.new()
 	add_child_autofree(effects)
 	effects.setup(robot)
-	assert_true(effects.apply_product(_product(&"crownfire_protocol", &"ROYAL")))
-	assert_true(effects.apply_product(_product(&"chronoseal_governor", &"ROYAL")))
-	assert_true(effects.apply_product(_product(&"sovereign_aegis", &"ROYAL")))
+	for district_id: StringName in [&"BUSINESS", &"RESIDENTIAL"]:
+		for product: WeaponShopProduct in WeaponShopCatalog.products_for(district_id):
+			if not product.is_repair():
+				assert_true(effects.apply_product(product))
 	var base: AttackSpec = AttackSpec.new(
 		AttackSpec.Mode.GROUND_SMASH,
 		51,
@@ -306,24 +286,25 @@ func test_shop_effects_scale_melee_weapons_cooldowns_and_incoming_damage() -> vo
 		Vector2.ZERO
 	)
 	var decorated: AttackSpec = effects.decorate_attack(base)
-	assert_almost_eq(decorated.actor_damage, 125.0, 0.01)
-	assert_almost_eq(decorated.structural_damage, 150.0, 0.01)
-	assert_almost_eq(effects.scale_weapon_cooldown(1.0), 0.80, 0.001)
-	var before: float = robot.current_health
-	assert_true(robot.receive_damage(DamageEvent.new(99, null, 40.0)))
-	assert_almost_eq(robot.current_health, before - 34.0, 0.01)
-	var crownfire_preview: Array[Dictionary] = effects.preview_for(
-		_product(&"crownfire_protocol", &"ROYAL")
+	assert_almost_eq(decorated.actor_damage, 100.0, 0.01)
+	assert_almost_eq(decorated.hit_size.x, 141.6, 0.01)
+	assert_gt(decorated.kinetic_debris_bonus, 0.0)
+	assert_almost_eq(
+		effects.scale_weapon_damage(100.0, &"machine_gun", robot, 99),
+		128.8,
+		0.01
 	)
-	assert_eq(crownfire_preview.size(), 1)
-	assert_almost_eq(float(crownfire_preview[0].before), 1.25, 0.001)
-	assert_almost_eq(float(crownfire_preview[0].after), 1.5625, 0.001)
+	var leverage: WeaponShopProduct = WeaponShopCatalog.products_for(&"BUSINESS")[1]
+	var leverage_preview: Array[Dictionary] = effects.preview_for(leverage)
+	assert_eq(leverage_preview.size(), 1)
+	assert_almost_eq(float(leverage_preview[0].before), 1.12, 0.001)
+	assert_almost_eq(float(leverage_preview[0].after), 1.2544, 0.001)
 
 
 func test_portrait_overlay_keeps_dialogue_cards_and_continue_inside_viewport() -> void:
 	var city: CitySlice = await _spawn_city()
 	city.rampage_session.run_score.safe_score = 20_000
-	_open_act_shop(city, 2)
+	_open_act_shop(city, 1)
 	get_window().content_scale_size = Vector2i(720, 1280)
 	get_tree().root.size = Vector2i(720, 1280)
 	await get_tree().process_frame

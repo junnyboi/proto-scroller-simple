@@ -107,16 +107,16 @@ func test_highest_authored_combo_tier_survives_multiplier_cap_and_freezes() -> v
 		assert_true(session.publish(event))
 	assert_eq(session.current_multiplier(), RampageRewardTuning.MAX_MULTIPLIER)
 	assert_eq(session.combat_telemetry.highest_combo_tier, 12)
-	var summary: RunSummarySnapshot = session.freeze_summary(6, 2, {"completed": true})
+	var summary: RunSummarySnapshot = session.freeze_summary(2, 2, {"completed": true})
 	assert_eq(summary.highest_combo_tier, 12)
 	assert_eq(summary.total_enemies_defeated, 23)
 	assert_eq(summary.unique_enemy_types, 1)
 	var exposed_counts: Dictionary = summary.enemy_kills
 	exposed_counts[&"needle"] = 9999
 	assert_eq(int(summary.enemy_kills[&"needle"]), 23)
-	assert_true(session.publish(_kill_event(99, &"pale_engine", &"siege", &"LASER")))
+	assert_true(session.publish(_kill_event(99, &"reclaimed_breacher", &"infantry", &"LASER")))
 	assert_eq(summary.total_enemies_defeated, 23)
-	assert_false(summary.enemy_kills.has(&"pale_engine"))
+	assert_false(summary.enemy_kills.has(&"reclaimed_breacher"))
 	_record_test_execution()
 
 
@@ -140,7 +140,7 @@ func test_profile_persists_records_merges_totals_and_marks_personal_bests() -> v
 	store.setup(TEST_PROFILE_PATH)
 	var first: RunSummarySnapshot = _make_summary(7200, 10, true, {
 		&"needle": 4,
-		&"choir_siren": 2,
+		&"needle": 2,
 	}, {
 		&"MISSILE": 5,
 		&"JAB_CROSS": 1,
@@ -188,7 +188,7 @@ func test_schema_v1_profile_migrates_without_losing_records() -> void:
 		"best_score": 44_000,
 		"highest_combo_tier": 17,
 		"total_enemy_kills": 901,
-		"lifetime_enemy_kills": {"choir_siren": 8},
+		"lifetime_enemy_kills": {"needle": 8},
 		"lifetime_weapon_kills": {"LASER": 21},
 		"updated_unix_time": 42,
 	}))
@@ -257,7 +257,7 @@ func test_leaderboard_candidate_is_versioned_and_privacy_minimal() -> void:
 		8100,
 		7,
 		true,
-		{&"ninefold_witness": 3},
+		{&"covenant_warden": 3},
 		{&"GROUND_SMASH": 3}
 	))
 	var payload: Dictionary = store.leaderboard_candidate(summary, "revision-test")
@@ -304,8 +304,8 @@ func test_debrief_presents_bounded_rankings_and_both_responsive_layouts() -> voi
 		10,
 		true,
 		{
-			&"choir_siren": 8,
-			&"pale_engine": 6,
+			&"needle": 8,
+			&"reclaimed_breacher": 6,
 			&"covenant_warden": 5,
 			&"needle": 4,
 			&"tank": 3,
@@ -431,7 +431,7 @@ func test_fatal_damage_source_resolution_survives_summary_enrichment() -> void:
 	add_child_autofree(robot)
 	add_child_autofree(enemy)
 	enemy.add_child(attack_child)
-	enemy.set_meta(&"enemy_archetype", &"ninefold_witness")
+	enemy.set_meta(&"enemy_archetype", &"covenant_warden")
 	var fatal_event: DamageEvent = DamageEvent.new(
 		18_001,
 		attack_child,
@@ -440,7 +440,7 @@ func test_fatal_damage_source_resolution_survives_summary_enrichment() -> void:
 	assert_true(robot.receive_damage(fatal_event))
 	assert_eq(
 		DefeatSourceResolver.resolve(fatal_event),
-		&"ninefold_witness"
+		&"covenant_warden"
 	)
 	assert_eq(
 		DefeatSourceResolver.resolve(DamageEvent.new(
@@ -467,11 +467,11 @@ func test_fatal_damage_source_resolution_survives_summary_enrichment() -> void:
 		false,
 		{},
 		{},
-		&"ninefold_witness"
+		&"covenant_warden"
 	)
 	summary = summary.with_tuning_provenance({"status": &"BASELINE"})
 	summary = summary.with_career_result({"career_snapshot": {"total_runs": 1}})
-	assert_eq(summary.defeat_source_id, &"ninefold_witness")
+	assert_eq(summary.defeat_source_id, &"covenant_warden")
 	_record_test_execution()
 
 
@@ -762,7 +762,7 @@ func test_run_lifecycle_submits_profile_once_and_presents_enriched_dossier() -> 
 	assert_false(actors.is_empty())
 	var fatal_enemy: EnemyActor2D = actors[0]
 	fatal_enemy.set_meta(&"enemy_archetype", &"covenant_warden")
-	var event: GameplayEvent = _kill_event(501, &"choir_siren", &"air", &"LASER")
+	var event: GameplayEvent = _kill_event(501, &"needle", &"air", &"LASER")
 	assert_true(city.rampage_session.publish(event))
 	assert_true(city.robot.receive_damage(DamageEvent.new(
 		18_100,

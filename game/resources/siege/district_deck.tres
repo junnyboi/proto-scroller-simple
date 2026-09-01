@@ -1,15 +1,10 @@
-[gd_resource type="Resource" script_class="DistrictDeck" format=3]
+[gd_resource type="Resource" script_class="DistrictDeck" format=3 uid="uid://ifxqxdjs8edg"]
 
-[ext_resource type="Script" path="res://scripts/siege/district_deck.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/siege/district_recipe.gd" id="2"]
+[ext_resource type="Script" uid="uid://cbma1c32is38o" path="res://scripts/siege/district_deck.gd" id="1"]
+[ext_resource type="Script" uid="uid://cu88g4eccu5kg" path="res://scripts/siege/district_recipe.gd" id="2"]
 
 [sub_resource type="Resource" id="Forward"]
 script = ExtResource("2")
-recipe_id = &"FORWARD_PRESSURE"
-beat_rotation = 0
-reverse_alternate_acts = false
-transformer_position = Vector2(1880, 590)
-gas_main_position = Vector2(1340, 610)
 
 [sub_resource type="Resource" id="Pincer"]
 script = ExtResource("2")
@@ -17,15 +12,12 @@ recipe_id = &"PINCER_ROTATION"
 beat_rotation = 1
 reverse_alternate_acts = true
 transformer_position = Vector2(1610, 590)
-gas_main_position = Vector2(1120, 610)
 
 [sub_resource type="Resource" id="Rear"]
 script = ExtResource("2")
 recipe_id = &"REAR_ESCALATION"
 beat_rotation = 2
-reverse_alternate_acts = false
 transformer_position = Vector2(2050, 590)
-gas_main_position = Vector2(1510, 610)
 
 [resource]
 script = ExtResource("1")

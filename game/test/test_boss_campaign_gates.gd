@@ -1,7 +1,7 @@
 extends GutTest
 
 const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
-const EXPECTED_TRIGGERS: Array[int] = [6, 15, 24, 33, 42]
+const EXPECTED_TRIGGERS: Array[int] = [6, 15]
 const ARENA_WALL_LAYER: int = BossArenaBarrier2D.COLLISION_LAYER
 
 

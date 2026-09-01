@@ -15,7 +15,6 @@ const CATALYST_RUNTIME_SCRIPT: Script = preload(
 	"res://scripts/destruction/catalysts/catalyst_runtime.gd"
 )
 const HAZARD_RUNTIME_SCRIPT: Script = preload("res://scripts/hazards/hazard_runtime.gd")
-const GAS_MAIN_PROFILE: CatalystProfile = preload("res://resources/catalysts/gas_main.tres")
 const NEW_GAME_PLUS_ENEMY_MULTIPLIER: float = 2.0
 const ROLE_PROFILES: Array[EnemyRoleProfile] = [
 	preload("res://resources/roles/advancing_soldier.tres"),
@@ -298,17 +297,6 @@ func _on_phase_changed(index: int, display_name: String) -> void:
 func _on_milestone_reached(milestone: StringName) -> void:
 	if milestone == &"DIRECTIVE_CHOICE":
 		_offer_current_district_once()
-	elif milestone == &"GAS_MAIN":
-		var gas_main: Catalyst2D = catalysts.activate(
-			1,
-			GAS_MAIN_PROFILE,
-			dependencies.encounter_runtime.resolve_spawn_position(
-				selected_recipe.gas_main_position,
-				&"WORLD"
-			),
-			_current_district_id()
-		)
-		dependencies.encounter_runtime.set_catalyst_target(gas_main)
 
 
 func _on_directive_choices_offered(_profiles: Array[DirectiveProfile]) -> void:
@@ -380,7 +368,7 @@ func _withdraw_directive_presentation() -> void:
 
 func _on_arc_completed() -> void:
 	finale_arc_completed = true
-	_try_complete_finale_gate()
+	district_completed.emit()
 
 
 func _on_boss_completed(_elapsed_seconds: float) -> void:

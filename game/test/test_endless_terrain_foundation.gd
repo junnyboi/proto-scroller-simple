@@ -161,7 +161,7 @@ func test_out_of_order_district_clears_are_recorded_without_route_blocking() -> 
 	assert_eq(stream.district_clear_count(&"RESIDENTIAL"), 7)
 	_move_to_logical_chunk(city, 20)
 	assert_eq(stream.current_logical_chunk, 20)
-	assert_eq(stream.current_district_id, &"ENTERTAINMENT")
+	assert_eq(stream.current_district_id, &"RESIDENTIAL")
 	_record_test_execution()
 
 
@@ -265,22 +265,6 @@ func test_camera_and_enemy_spawns_follow_player_beyond_former_map_edge() -> void
 	assert_gt(spawn.x, 12000.0)
 	var bounds: Vector2 = city.world_stream.resident_bounds()
 	assert_between(spawn.x, bounds.x, bounds.y)
-	var final_act: DistrictAct = city.urban_siege.director.district.acts[5]
-	var hazard_plan: Array[Dictionary] = city.urban_siege.hazard_pressure.plan_for_beat(
-		5,
-		0,
-		final_act,
-		final_act.beats[0],
-		city.robot.global_position.x
-	)
-	assert_gt(hazard_plan.size(), 0)
-	for record: Dictionary in hazard_plan:
-		var hazard_x: float = (record.position as Vector2).x
-		assert_between(
-			absf(hazard_x - city.robot.global_position.x),
-			HazardPressureController.MINIMUM_DISTANCE - 1.0,
-			HazardPressureController.MAXIMUM_DISTANCE + 1.0
-		)
 	_record_test_execution()
 
 

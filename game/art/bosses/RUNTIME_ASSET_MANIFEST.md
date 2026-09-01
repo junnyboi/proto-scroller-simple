@@ -1,28 +1,15 @@
-# Project CHOIR Boss Runtime Asset Manifest
+# Boss Runtime Asset Manifest
 
 **Generated:** 2026-08-27
 
 **Engine:** Godot 4.7.2 stable, GL Compatibility, non-threaded Web export
 
-**Runtime source total:** 20,026,498 bytes
-
-**Measured source revision:** `524d36279a71fa943384cb4af1b6b09c10815e5b`
-
-**Measured 2× Web PCK:** 27,016,436 bytes
-
-**Legacy presentation ceiling:** 16,777,216 bytes
-
-**Explicit 2× fidelity override:** 10,239,220 bytes above the legacy presentation ceiling
-
-The five canonical animated boss atlases began with **GPT Image 2** 2560×1440 keyframes and locked-camera 1280×720 Veo carriers; the five instrumental themes were generated with **Lyria 3 Pro**. Every atlas cell is exactly twice its predecessor in both axes while the on-screen display envelope remains unchanged. Concept plates and generation masters remain outside the Web PCK. Runtime art is stored as transparent high-quality WebP atlases; music is loop-enabled mono Ogg Vorbis at 32 kHz. `BossMusicDirector` reuses one prewarmed player, switches themes by canonical boss ID, preserves music-bus user settings, and restores the city-pressure bed after the encounter. All five preloaded boss themes are explicitly retained by the Web preset; excluding their directory leaves the preloaded runtime script unable to compile.
+The two retained animated boss atlases began with **GPT Image 2** keyframes and locked-camera Veo carriers; their instrumental themes were generated with **Lyria 3 Pro**. Concept plates and generation masters remain outside the Web PCK. Runtime art is stored as transparent high-quality WebP atlases; music is loop-enabled mono Ogg Vorbis at 32 kHz. `BossMusicDirector` reuses one prewarmed player, switches themes by canonical boss ID, preserves music-bus user settings, and restores the city-pressure bed after the encounter.
 
 | Boss | Runtime art | Art bytes | Art SHA-256 | Runtime music | Music bytes | Duration | Music SHA-256 |
 |---|---|---:|---|---|---:|---:|---|
 | SETTLEMENT ENGINE S-04 | `animated/settlement-engine-s04-atlas.webp` | 2,919,740 | `fdc743acd7cdd381084444ec03fc4a0cacf1aae0c335b64d23a35359d7a98d16` | `settlement-engine-s04.ogg` | 216,798 | 43.00 s | `cbcb96809a9668955ff8e7fd6f21c7d8af9ea82aee99b624775d5b4c97532570` |
 | SAMARITAN-15 | `animated/samaritan-15-atlas.webp` | 3,269,904 | `aeba07697d7a12987f92fdbb0d901ec39e5c4b8e37fed07c0d5795d6cf479a19` | `samaritan-15.ogg` | 315,495 | 66.20 s | `958eafe78d7edd0f52a4571b991bee3ba50d0ce3e86a4ba4d7b8e6841311a5bd` |
-| MIMESIS-04 | `animated/mimesis-04-atlas.webp` | 4,020,566 | `4bcb21658e081f85395b2fde76b94fb0c3e86c370bc7cb8c67d2bd7f5b12e975` | `mimesis-04.ogg` | 228,550 | 41.90 s | `10aab4fbbe104a2bcb44d05634737c1724d8cabde6f85ae9cd1028fd3d0d8539` |
-| CANTOR-31 / PALE ENGINE | `animated/cantor-31-atlas.webp` | 3,216,424 | `0490f2c784cae6bf08d1394591cc1453ca1f54a2563576055fe5c3b3cb1d0822` | `cantor-31.ogg` | 354,924 | 66.80 s | `25870516f678a4766333284b84be06f3e7cb83c6684dfdf8549103c5890e5a0a` |
-| CHOIR PRIME | `animated/choir-prime-atlas.webp` | 4,329,232 | `efb37efbe92cf9648fe638af5ed5189b8390a1a4ccf095df6bcc5c42002efce8` | `choir-prime.ogg` | 199,916 | 44.10 s | `db3b3ad6d71421c6d88323f58ac04e619e8fa94a616d93fb56b9381054f95ed3` |
 
 ## Encounter splash
 
@@ -36,7 +23,7 @@ Settlement Engine S-04's single **Core Shockwave** adds no dedicated texture. It
 
 ## Defeat spectacle
 
-Every boss body defeat triggers one fixed-budget 2.95-second barrage: 12 timed explosion sprites, 10 timed fireworks, eight explosion particle emitters with 34 particles each, six firework emitters with 46 particles each, one positional sound player, and one camera kick. The **22 sprites, 14 emitters, and 548 particles** are prewarmed once in `BossUtilityPool`; generation cleanup never interrupts the body-to-wreck celebration, and retries stop any prior playback before reusing the same nodes. The spectacle emits one completion signal at its exact endpoint; `CommandBossSession` then automatically scraps the disabled hidden wreck, creates road-grounded rubble, drops repairs, commits evidence and the best valid Royal outcome, and advances salvage without accepting another player attack.
+Every boss body defeat triggers one fixed-budget 2.95-second barrage: 12 timed explosion sprites, 10 timed fireworks, eight explosion particle emitters with 34 particles each, six firework emitters with 46 particles each, one positional sound player, and one camera kick. The **22 sprites, 14 emitters, and 548 particles** are prewarmed once in `BossUtilityPool`; generation cleanup never interrupts the body-to-wreck celebration, and retries stop any prior playback before reusing the same nodes.
 
 The two particle textures were generated with **GPT Image 2**. `defeat_fx/boss-explosion-burst.webp` is 21,630 bytes with SHA-256 `30263eb98d01c874373ad6a6589e8efeb0d95b0e9c13c6855320d220c2a53ca7`; `defeat_fx/boss-firework-burst.webp` is 24,008 bytes with SHA-256 `f3890a7fec7e66cecb59db0900a21f57c23caac1e9467d05cabc8ef9bd3b8357`. The positional carrier-derived SFX is 14,795 bytes with SHA-256 `7c98b864e353207d847f858547aacc52fd35ea5718e0e867e3c407fe24e9361b`. Complete carrier and mastering provenance is recorded in `game/audio/sfx/boss/PROVENANCE.md`.
 

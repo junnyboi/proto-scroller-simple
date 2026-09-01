@@ -142,26 +142,10 @@ def process_sprite(job: SpriteJob) -> None:
         raise RuntimeError(f"Sprite has no transparent background: {job.output}")
 
 
-def downscale_jpeg(source: Path, output: Path, size: tuple[int, int], quality: int = 84) -> None:
-    image = Image.open(source).convert("RGB")
-    image.thumbnail(size, Image.Resampling.LANCZOS)
-    canvas = Image.new("RGB", size, (0, 0, 0))
-    offset = ((size[0] - image.width) // 2, (size[1] - image.height) // 2)
-    canvas.paste(image, offset)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    canvas.save(output, format="JPEG", quality=quality, optimize=True, progressive=True)
-
-
 def main() -> None:
     for job in SPRITE_JOBS:
         process_sprite(job)
         print(f"processed {job.output.relative_to(ROOT)}")
-
-    cradle = GAME / "art/narrative/continuity-cradle.jpg"
-    temp = cradle.with_suffix(".processed.jpg")
-    downscale_jpeg(cradle, temp, (1280, 720), 84)
-    temp.replace(cradle)
-    print("processed continuity panorama")
 
 
 if __name__ == "__main__":

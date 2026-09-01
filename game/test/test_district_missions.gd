@@ -17,10 +17,10 @@ func before_each() -> void:
 	siege.start_run(7703)
 
 
-func test_catalog_has_five_valid_pools_and_fifteen_unique_missions() -> void:
+func test_catalog_has_two_valid_pools_and_six_unique_missions() -> void:
 	assert_true(DistrictMissionCatalog.validation_errors().is_empty())
 	assert_eq(DistrictMissionCatalog.pools().size(), CityDistrictCatalog.DISTRICT_COUNT)
-	assert_eq(DistrictMissionCatalog.all_profiles().size(), 15)
+	assert_eq(DistrictMissionCatalog.all_profiles().size(), 6)
 	var mission_ids: Dictionary[StringName, bool] = {}
 	for district: CityDistrictProfile in CityDistrictCatalog.districts():
 		var profiles: Array[DirectiveProfile] = DistrictMissionCatalog.profiles_for(
@@ -33,17 +33,17 @@ func test_catalog_has_five_valid_pools_and_fifteen_unique_missions() -> void:
 			mission_ids[profile.directive_id] = true
 			assert_ne(L10n.t(profile.display_name), profile.display_name)
 			assert_ne(L10n.t(profile.instruction), profile.instruction)
-	assert_eq(mission_ids.size(), 15)
+	assert_eq(mission_ids.size(), 6)
 
 
 func test_district_choices_are_deterministic_unique_and_call_order_independent() -> void:
 	var expected: PackedStringArray = _choice_ids(
-		DistrictMissionCatalog.choices_for(&"MILITARY", 991, 2)
+		DistrictMissionCatalog.choices_for(&"RESIDENTIAL", 991, 2)
 	)
 	DistrictMissionCatalog.choices_for(&"BUSINESS", 4, 1)
-	DistrictMissionCatalog.choices_for(&"ROYAL", 181, 2)
+	DistrictMissionCatalog.choices_for(&"RESIDENTIAL", 181, 2)
 	var repeated: PackedStringArray = _choice_ids(
-		DistrictMissionCatalog.choices_for(&"MILITARY", 991, 2)
+		DistrictMissionCatalog.choices_for(&"RESIDENTIAL", 991, 2)
 	)
 	assert_eq(repeated, expected)
 	assert_eq(expected.size(), DistrictMissionCatalog.CHOICES_PER_DISTRICT)
@@ -90,11 +90,8 @@ func test_boundary_withdraws_without_penalty_and_offers_destination_once() -> vo
 
 
 func test_withdrawal_invalidates_deferred_effect_generation() -> void:
-	var aftershock: DirectiveProfile = DistrictMissionCatalog.profiles_for(
-		&"ENTERTAINMENT"
-	)[2]
-	assert_eq(aftershock.effect_kind, DirectiveProfile.EffectKind.AFTERSHOCK)
-	assert_true(session.select(aftershock))
+	var profile: DirectiveProfile = DistrictMissionCatalog.profiles_for(&"RESIDENTIAL")[0]
+	assert_true(session.select(profile))
 	var generation_before: int = session._generation
 	session.withdraw()
 	assert_gt(session._generation, generation_before)

@@ -17,9 +17,6 @@ const DISTRICT_TINT_BLEND: float = 0.34
 const DISTRICT_STYLE_TINTS: Dictionary = {
 	&"BUSINESS": Color("6f9ca8"),
 	&"RESIDENTIAL": Color("668c7b"),
-	&"ENTERTAINMENT": Color("a45f8f"),
-	&"MILITARY": Color("80795b"),
-	&"ROYAL": Color("a27e4e"),
 }
 
 var _pieces: Array[Sprite2D] = []

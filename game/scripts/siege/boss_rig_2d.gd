@@ -14,9 +14,6 @@ const SETTLEMENT_ROAD_CONTACT_Y: float = (
 	- SETTLEMENT_VISIBLE_BOTTOM_LOCAL_Y * SETTLEMENT_PRESENTATION_SCALE
 )
 const SAMARITAN_VISIBLE_BOTTOM_LOCAL_Y: float = 34.289
-const MIMESIS_VISIBLE_BOTTOM_LOCAL_Y: float = 8.409
-const CANTOR_VISIBLE_BOTTOM_LOCAL_Y: float = 32.056
-const CHOIR_PRIME_VISIBLE_BOTTOM_LOCAL_Y: float = 26.865
 const STATE_MOVING: StringName = &"MOVING"
 const STATE_ATTACKING: StringName = &"ATTACKING"
 const DIRECTION_EAST: StringName = &"E"
@@ -32,7 +29,7 @@ const SOCKET_NAMES: Array[StringName] = [
 	&"SUPPORT_LEFT",
 	&"SUPPORT_RIGHT",
 ]
-const WEAK_POINT_TEXTURE: Texture2D = preload("res://art/finale/choir-pylon.png")
+const WEAK_POINT_TEXTURE: Texture2D = preload("res://art/player/vfx/photon_core_orb.png")
 
 var parts: Array[Sprite2D] = []
 var sockets: Array[Marker2D] = []
@@ -85,9 +82,6 @@ static func presentation_scale_for_preset(preset: StringName) -> float:
 	return CAMPAIGN_PRESENTATION_SCALE if preset in [
 		&"SETTLEMENT_ENGINE",
 		&"SAMARITAN",
-		&"MIMESIS",
-		&"CANTOR_PALE_ENGINE",
-		&"CHOIR_PRIME",
 	] else 1.0
 
 
@@ -97,12 +91,6 @@ static func visible_bottom_local_y(preset: StringName) -> float:
 			return SETTLEMENT_VISIBLE_BOTTOM_LOCAL_Y
 		&"SAMARITAN":
 			return SAMARITAN_VISIBLE_BOTTOM_LOCAL_Y
-		&"MIMESIS":
-			return MIMESIS_VISIBLE_BOTTOM_LOCAL_Y
-		&"CANTOR_PALE_ENGINE":
-			return CANTOR_VISIBLE_BOTTOM_LOCAL_Y
-		&"CHOIR_PRIME":
-			return CHOIR_PRIME_VISIBLE_BOTTOM_LOCAL_Y
 	return 0.0
 
 
@@ -495,15 +483,6 @@ func _socket_position_for(preset: StringName, socket_name: StringName) -> Vector
 		&"SAMARITAN":
 			horizontal_scale = 0.92
 			vertical_shift = -12.0
-		&"MIMESIS":
-			horizontal_scale = 0.86
-			vertical_shift = 8.0
-		&"CANTOR_PALE_ENGINE":
-			horizontal_scale = 0.78
-			vertical_shift = -34.0
-		&"CHOIR_PRIME":
-			horizontal_scale = 1.08
-			vertical_shift = -18.0
 	var base_positions: Dictionary[StringName, Vector2] = {
 		&"CORE": Vector2(0.0, -116.0),
 		&"WEAK_POINT": Vector2(0.0, -138.0),

@@ -134,7 +134,7 @@ func test_hidden_authority_restores_when_tank_pool_slot_is_reused() -> void:
 
 
 func test_portrait_changes_presentation_only_not_mechanics_or_phase_timing() -> void:
-	var definition: BossEncounterDefinition = BossCampaignCatalog.definitions()[2]
+	var definition: BossEncounterDefinition = BossCampaignCatalog.definitions()[1]
 	assert_true(session.start_definition(definition))
 	var rig: BossRig2D = session.utility_pool.rig
 	rig.configure_orientation(false)
@@ -150,7 +150,7 @@ func test_portrait_changes_presentation_only_not_mechanics_or_phase_timing() -> 
 		assert_eq(phase.minimum_safe_gap, 192.0)
 
 
-func test_all_five_bound_facades_cover_all_64_masks_with_required_routes() -> void:
+func test_both_bound_facades_cover_all_64_masks_with_required_routes() -> void:
 	var adapter: BossStructuralAdapter = session.utility_pool.arena_adapter
 	var row_count: int = 0
 	for definition: BossEncounterDefinition in BossCampaignCatalog.definitions():
@@ -167,7 +167,7 @@ func test_all_five_bound_facades_cover_all_64_masks_with_required_routes() -> vo
 			if mask == BossStructuralAdapter.MASK_COUNT - 1:
 				assert_true(binding.fallback_conductor)
 			row_count += 1
-	assert_eq(row_count, 320)
+	assert_eq(row_count, 128)
 
 
 func test_phase_helpers_cleanup_support_projectiles_and_utility_reservations() -> void:
@@ -297,50 +297,6 @@ func test_wreck_rejects_all_player_damage_then_auto_scraps_after_spectacle() -> 
 	)
 	assert_eq(session.state, CommandBossSession.STATE_COMPLETE)
 	assert_eq(session.automatic_rubble_commit_count, 1)
-
-
-func test_royal_receivers_stay_disabled_and_automatic_outcome_commits_once() -> void:
-	var definition: BossEncounterDefinition = BossCampaignCatalog.definition(&"CHOIR_PRIME")
-	assert_true(session.start_definition(definition))
-	var host: TankEnemy = session.boss
-	for index: int in range(BossRoyalFinaleController.CONNECTION_COUNT):
-		assert_true(host.receive_damage(_charged_event(3500 + index, 3500 + index)))
-	assert_true(host.receive_damage(DamageEvent.new(
-		3600, city.robot, definition.health, &"impact"
-	)))
-	var default_receiver: BossWreckReceiver2D = session.utility_pool.default_wreck_receiver
-	var royal_receiver: BossWreckReceiver2D = session.utility_pool.royal_outcome_receiver
-	assert_false(default_receiver.active)
-	assert_false(royal_receiver.active)
-	assert_false(default_receiver.visible)
-	assert_false(royal_receiver.visible)
-	assert_false(default_receiver.receive_damage(DamageEvent.new(
-		3601, city.robot, 999.0, &"ground_smash", Vector2.ZERO, Vector2.RIGHT, 0.0, 4601
-	)))
-	session.utility_pool.defeat_spectacle.advance(
-		BossDefeatSpectacle2D.PRESENTATION_SECONDS
-	)
-	assert_eq(session.state, CommandBossSession.STATE_COMPLETE)
-	assert_eq(int(session.completion_payload().finale_outcome), BossOutcome.PURGE)
-	assert_eq(session.automatic_rubble_commit_count, 1)
-	assert_false(royal_receiver.receive_damage(DamageEvent.new(
-		3602, city.robot, 999.0, &"ground_smash", Vector2.ZERO, Vector2.RIGHT, 0.0, 4602
-	)))
-
-
-func _charged_event(attack_id: int, root_attack_id: int) -> DamageEvent:
-	return DamageEvent.new(
-		attack_id,
-		city.robot,
-		session.active_definition.armor_milestone_step,
-		&"jab_cross",
-		Vector2.ZERO,
-		Vector2.RIGHT,
-		0.0,
-		root_attack_id,
-		0,
-		DamageEvent.FLAG_FULL_CHARGE
-	)
 
 
 func _node_ids(values: Array) -> PackedInt64Array:

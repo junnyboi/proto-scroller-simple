@@ -1,8 +1,6 @@
 class_name WeaponShopAssembler
 extends Node
 
-signal royal_shop_closed
-
 var session: WeaponShopSession
 var effects: WeaponShopUpgradeRuntime
 var overlay: WeaponShopOverlay
@@ -53,10 +51,6 @@ func setup(city: Node) -> PackedStringArray:
 	return errors
 
 
-func queue_royal_completion() -> bool:
-	return session != null and session.queue_royal_completion(siege.cycle_count)
-
-
 func queue_boss_salvage(definition: BossEncounterDefinition) -> bool:
 	if (
 		definition == null
@@ -68,8 +62,6 @@ func queue_boss_salvage(definition: BossEncounterDefinition) -> bool:
 		)
 	):
 		return false
-	if definition.district_id == &"ROYAL":
-		return session.ensure_royal_completion(siege.cycle_count)
 	for district: CityDistrictProfile in CityDistrictCatalog.districts():
 		if district.district_id == definition.district_id:
 			return session.ensure_act_completion(
@@ -112,18 +104,13 @@ func _on_purchase_rejected(product: WeaponShopProduct, reason: StringName) -> vo
 func _on_shop_closed(
 	district: CityDistrictProfile,
 	_act_index: int,
-	terminal: bool
+	_terminal: bool
 ) -> void:
 	overlay.hide_shop()
 	music_duck.set_ducked(false)
 	upgrade_session.set_presentation_blocked(false)
-	var handoff_completed: bool = false
 	if siege.boss_campaign != null:
-		handoff_completed = siege.boss_campaign.complete_shop_handoff(
-			district.district_id
-		)
-	if terminal and not handoff_completed:
-		royal_shop_closed.emit()
+		siege.boss_campaign.complete_shop_handoff(district.district_id)
 
 
 func _on_pause_changed(paused: bool) -> void:

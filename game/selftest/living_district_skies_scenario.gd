@@ -6,9 +6,6 @@ const MAX_FRAMES: int = 900
 const DISTRICT_IDS: Array[StringName] = [
 	&"BUSINESS",
 	&"RESIDENTIAL",
-	&"ENTERTAINMENT",
-	&"MILITARY",
-	&"ROYAL",
 ]
 const TIME_STATES: Array[Dictionary] = [
 	{"id": "day", "phase": 0.53},

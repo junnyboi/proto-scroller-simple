@@ -23,7 +23,7 @@ const DEFAULT_DAMAGE: float = 16.0
 const LANE_PLATE_TEXTURE: Texture2D = preload(
 	"res://art/bosses/boss-lane-footprint.png"
 )
-const LINE_BEAM_TEXTURE: Texture2D = preload("res://art/bosses/boss-line-beam.png")
+const LINE_BEAM_TEXTURE: Texture2D = LANE_PLATE_TEXTURE
 const PHOTON_CORE_TEXTURE: Texture2D = preload(
 	"res://art/player/vfx/photon_core_orb.png"
 )

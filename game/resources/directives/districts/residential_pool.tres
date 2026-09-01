@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="DistrictMissionPool" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="DistrictMissionPool" format=3 uid="uid://cvgliusxg36mn"]
 
-[ext_resource type="Script" path="res://scripts/directives/district_mission_pool.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/directives/directive_profile.gd" id="2"]
-[ext_resource type="Texture2D" path="res://art/ui/directives/breach.png" id="3"]
-[ext_resource type="Texture2D" path="res://art/ui/directives/aftershock.png" id="4"]
+[ext_resource type="Script" uid="uid://bjkfr2tj1ibrf" path="res://scripts/directives/district_mission_pool.gd" id="1"]
+[ext_resource type="Script" uid="uid://d30gldvvy7fsl" path="res://scripts/directives/directive_profile.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://daijbg0xubn0j" path="res://art/ui/directives/breach.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://4jm2th75xrky" path="res://art/ui/directives/aftershock.png" id="4"]
 
 [sub_resource type="Resource" id="BlockClearance"]
 script = ExtResource("2")
@@ -12,7 +12,6 @@ district_id = &"RESIDENTIAL"
 display_name = "directive.residential.block_clearance.name"
 instruction = "directive.residential.block_clearance.instruction"
 duration_seconds = 18.0
-target_count = 1
 objective_kind = 5
 icon = ExtResource("4")
 

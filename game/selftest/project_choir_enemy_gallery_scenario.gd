@@ -2,8 +2,7 @@ extends SceneTree
 
 const ARTIFACT_DIR: String = "res://artifacts/project_choir_enemies"
 const HYBRID_IDS: Array[StringName] = [
-	&"reclaimed_breacher", &"graft_runner", &"choir_siren",
-	&"ossuary_crawler", &"seraph_carrier", &"pale_engine",
+	&"reclaimed_breacher", &"graft_runner",
 ]
 
 var checks: Array[Dictionary] = []
@@ -29,7 +28,7 @@ func _run() -> void:
 	var error: Error = image.save_png(ProjectSettings.globalize_path(shot_path))
 	_check("shot_saved", error == OK, "error=%s" % error)
 	_check("shot_geometry", image.get_size() == target_size, "size=%s" % image.get_size())
-	_check("six_hybrid_cards", _count_cards(gallery) == 6, "count=%d" % _count_cards(gallery))
+	_check("two_hybrid_cards", _count_cards(gallery) == 2, "count=%d" % _count_cards(gallery))
 	var report: Dictionary = {
 		"done": true,
 		"result": "PASS" if _all_passed() else "FAIL",
@@ -72,7 +71,7 @@ func _build_gallery(target_size: Vector2i, portrait: bool) -> Control:
 	title.add_theme_font_size_override("font_size", 28 if portrait else 32)
 	content.add_child(title)
 	var subtitle: Label = Label.new()
-	subtitle.text = "RECOVERED SILHOUETTES // SIX ACTIVE WARFORMS"
+	subtitle.text = "RECOVERED SILHOUETTES // TWO ACTIVE WARFORMS"
 	subtitle.add_theme_color_override("font_color", Color("a8b8c8"))
 	subtitle.add_theme_font_size_override("font_size", 16)
 	content.add_child(subtitle)

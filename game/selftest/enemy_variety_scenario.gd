@@ -84,7 +84,7 @@ func _run() -> void:
 		actor.cancel_telegraph()
 		city.encounter_runtime.release(actor)
 		exercised += 1
-	_check("all_twenty_six_exercised", exercised == 26, "count=%d" % exercised)
+	_check("all_eight_exercised", exercised == 8, "count=%d" % exercised)
 	_check(
 		"reservations_clean",
 		city.projectile_root.reservation_count() == 0
@@ -102,12 +102,12 @@ func _run() -> void:
 	var showcase: Array[Dictionary] = [
 		{"id": &"reclaimed_breacher", "trait": &"BRUTAL", "position": Vector2(860.0, 540.0)},
 		{"id": &"graft_runner", "trait": &"BLITZ", "position": Vector2(1040.0, 554.0)},
-		{"id": &"ossuary_crawler", "trait": &"PHASED", "position": Vector2(1260.0, 552.0)},
-		{"id": &"choir_siren", "trait": &"PHASED", "position": Vector2(1010.0, 210.0)},
-		{"id": &"seraph_carrier", "trait": &"BRUTAL", "position": Vector2(1540.0, 180.0)},
-		{"id": &"pale_engine", "trait": &"BLITZ", "position": Vector2(1730.0, 482.0)},
-		{"id": &"cinder", "trait": &"PHASED", "position": Vector2(620.0, 547.0)},
-		{"id": &"longbow", "trait": &"BRUTAL", "position": Vector2(1960.0, 544.0)},
+		{"id": &"needle", "trait": &"PHASED", "position": Vector2(1260.0, 175.0)},
+		{"id": &"bulwark", "trait": &"PHASED", "position": Vector2(1010.0, 540.0)},
+		{"id": &"jackal", "trait": &"BRUTAL", "position": Vector2(1540.0, 554.0)},
+		{"id": &"lobber", "trait": &"BLITZ", "position": Vector2(1730.0, 541.0)},
+		{"id": &"sapper", "trait": &"PHASED", "position": Vector2(620.0, 541.0)},
+		{"id": &"hound", "trait": &"BRUTAL", "position": Vector2(1960.0, 230.0)},
 	]
 	var showcase_count: int = 0
 	for item: Dictionary in showcase:
@@ -164,10 +164,10 @@ func _run_balanced_mixed_wave(city: CitySlice) -> void:
 	dash.apply_rank(3)
 	var loadout_health: float = city.robot.max_health
 	var wave: Array[Dictionary] = [
-		{"id": &"static", "trait": &"BLITZ", "position": Vector2(1320.0, 547.0)},
-		{"id": &"shrike", "trait": &"BRUTAL", "position": Vector2(1250.0, 195.0)},
-		{"id": &"lancer", "trait": &"PHASED", "position": Vector2(450.0, 547.5)},
-		{"id": &"lancer", "trait": &"BLITZ", "position": Vector2(540.0, 547.5)},
+		{"id": &"jackal", "trait": &"BLITZ", "position": Vector2(1320.0, 554.0)},
+		{"id": &"needle", "trait": &"BRUTAL", "position": Vector2(1250.0, 175.0)},
+		{"id": &"bulwark", "trait": &"PHASED", "position": Vector2(450.0, 540.0)},
+		{"id": &"lobber", "trait": &"BLITZ", "position": Vector2(540.0, 541.0)},
 		{"id": &"sapper", "trait": &"BRUTAL", "position": Vector2(1060.0, 541.0)},
 		{"id": &"sapper", "trait": &"PHASED", "position": Vector2(1150.0, 541.0)},
 	]

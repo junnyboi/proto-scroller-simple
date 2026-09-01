@@ -3,10 +3,8 @@ extends SceneTree
 const ARTIFACT_DIR: String = "res://artifacts/district_ruin_layering"
 const MAX_FRAMES: int = 1200
 const DISTRICT_CHUNKS: Dictionary[StringName, int] = {
-	&"RESIDENTIAL": 12,
-	&"ENTERTAINMENT": 24,
-	&"MILITARY": 36,
-	&"ROYAL": 48,
+	&"BUSINESS": 0,
+	&"RESIDENTIAL": 9,
 }
 
 var _elapsed_frames: int = 0

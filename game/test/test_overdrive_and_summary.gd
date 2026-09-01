@@ -126,8 +126,7 @@ func test_game_over_summary_omits_strongest_and_weakest_metrics() -> void:
 func test_district_completion_shows_frozen_summary_and_disables_play() -> void:
 	var city: CitySlice = await _spawn_city()
 	city.run_lifecycle._on_district_completed()
-	assert_true(city.weapon_shop_assembler.session.active)
-	city.weapon_shop_assembler.session.close_shop()
+	assert_false(city.weapon_shop_assembler.session.active)
 	assert_false(city.game_over_active)
 	assert_true(city.gameplay_hud.game_over_overlay.visible)
 	assert_eq(city.gameplay_hud.overlay_title.text, "NEW GAME + READY")
@@ -135,7 +134,7 @@ func test_district_completion_shows_frozen_summary_and_disables_play() -> void:
 	city.run_lifecycle._on_extract_pressed()
 	assert_true(city.game_over_active)
 	assert_eq(city.gameplay_hud.overlay_title.text, "DISTRICT CLEARED")
-	assert_true(city.gameplay_hud.overlay_summary.text.contains("ACTS 6/6"))
+	assert_true(city.gameplay_hud.overlay_summary.text.contains("ACTS 2/2"))
 	assert_true(city.gameplay_hud.overlay_summary.text.contains("GRADE"))
 	assert_false(city.mobile_controls.joystick_active)
 	assert_eq(city.projectile_root.active_count(), 0)

@@ -19,21 +19,6 @@ func test_catalog_has_exact_canonical_roster_triggers_and_campaign_results() -> 
 			"SAMARITAN-15 — The Last Evacuation",
 			&"ASHWATER_INTAKE_MANIFEST", &"NURSERY",
 		],
-		[
-			&"MIMESIS_04", &"ENTERTAINMENT", 24, 27,
-			"MIMESIS-04 — The Afterimage Conductor",
-			&"AUDIENCE_OF_ONE_0417_CONTINUITY", &"STAGE",
-		],
-		[
-			&"CANTOR_31_PALE_ENGINE", &"MILITARY", 33, 36,
-			"CANTOR-31 / PALE ENGINE — The Export Surgeon",
-			&"EXPORT_LITANY_31", &"ARSENAL",
-		],
-		[
-			&"CHOIR_PRIME", &"ROYAL", 42, -1,
-			"CHOIR Prime — The Last Sovereign",
-			&"CROWN_05_CONSENT_EXCISION_ORDER", &"CROWN",
-		],
 	]
 	for index: int in range(definitions.size()):
 		var definition: BossEncounterDefinition = definitions[index]
@@ -66,7 +51,7 @@ func test_catalog_has_exact_canonical_roster_triggers_and_campaign_results() -> 
 		assert_false(definition.arena_landmark_variant_id.is_empty())
 		assert_eq(BossCampaignCatalog.definition(definition.boss_id), definition)
 		assert_eq(BossCampaignCatalog.definition_for_trigger(definition.trigger_chunk), definition)
-	assert_eq(definitions.back().outcomes, BossOutcome.values())
+	assert_eq(definitions.back().outcomes, PackedInt32Array([BossOutcome.PURGE]))
 	assert_eq(BossOutcome.id_for(BossOutcome.PURGE), &"PURGE")
 	assert_eq(BossOutcome.id_for(BossOutcome.DISENTANGLE), &"DISENTANGLE")
 	assert_eq(BossOutcome.id_for(BossOutcome.ASCENSION_FAILURE), &"ASCENSION_FAILURE")
@@ -78,11 +63,11 @@ func test_catalog_validator_rejects_duplicate_ids_triggers_and_invalid_contracts
 		definitions.append(definition.duplicate(true) as BossEncounterDefinition)
 	definitions[1].boss_id = definitions[0].boss_id
 	definitions[1].trigger_chunk = definitions[0].trigger_chunk
-	definitions[2].district_id = &"UNKNOWN"
-	definitions[2].utility_requirements = {&"markers": 9}
-	definitions[3].direct_damage_route = false
-	definitions[3].exposed_damage_types = PackedStringArray()
-	definitions[4].wreck_receiver_offsets = PackedVector2Array([
+	definitions[0].district_id = &"UNKNOWN"
+	definitions[0].utility_requirements = {&"markers": 9}
+	definitions[0].direct_damage_route = false
+	definitions[0].exposed_damage_types = PackedStringArray()
+	definitions[1].wreck_receiver_offsets = PackedVector2Array([
 		Vector2.ZERO, Vector2(40.0, 0.0),
 	])
 	var errors: PackedStringArray = BossCampaignCatalog.validation_errors(definitions)

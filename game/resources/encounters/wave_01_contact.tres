@@ -1,23 +1,18 @@
-[gd_resource type="Resource" script_class="EnemyWave" format=3]
+[gd_resource type="Resource" script_class="EnemyWave" format=3 uid="uid://dswpkb1wgkogi"]
 
-[ext_resource type="Script" path="res://scripts/encounter/enemy_wave.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/encounter/enemy_spawn_entry.gd" id="2"]
+[ext_resource type="Script" uid="uid://dhtx7rs30rvl7" path="res://scripts/encounter/enemy_wave.gd" id="1"]
+[ext_resource type="Script" uid="uid://cy6u4t0u1q5eo" path="res://scripts/encounter/enemy_spawn_entry.gd" id="2"]
 
 [sub_resource type="Resource" id="SpawnA"]
 script = ExtResource("2")
-kind = &"soldier"
-delay = 0.0
 position = Vector2(1280, 542.5)
 
 [sub_resource type="Resource" id="SpawnB"]
 script = ExtResource("2")
-kind = &"soldier"
 delay = 0.35
 position = Vector2(1420, 542.5)
 
 [resource]
 script = ExtResource("1")
-display_name = "encounter.contact"
 opening_delay = 2.0
-minimum_respite = 1.0
 spawns = Array[ExtResource("2")]([SubResource("SpawnA"), SubResource("SpawnB")])

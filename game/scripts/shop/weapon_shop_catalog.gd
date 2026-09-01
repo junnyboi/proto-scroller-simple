@@ -55,21 +55,6 @@ static func _ensure_catalog() -> void:
 			_product(&"scrapheap_magnetics", &"RESIDENTIAL", 38400, &"debris_damage", 0.35),
 			_product(&"borrowed_shock_coils", &"RESIDENTIAL", 41600, &"melee_radius", 0.18),
 		],
-		&"ENTERTAINMENT": [
-			_product(&"encore_capacitors", &"ENTERTAINMENT", 49600, &"weapon_cooldown", 0.15),
-			_product(&"jackpot_chamber", &"ENTERTAINMENT", 54400, &"critical_chance", 0.20),
-			_product(&"backstage_triage", &"ENTERTAINMENT", 30400, &"repair", 0.0, 0.65),
-		],
-		&"MILITARY": [
-			_product(&"siege_breaching_load", &"MILITARY", 65600, &"structural_damage", 0.25),
-			_product(&"hunter_killer_link", &"MILITARY", 72000, &"elite_damage", 0.20),
-			_product(&"gantry_overhaul", &"MILITARY", 40000, &"repair", 0.0, 1.0),
-		],
-		&"ROYAL": [
-			_product(&"sovereign_aegis", &"ROYAL", 96000, &"aegis", 0.15, 1.0),
-			_product(&"crownfire_protocol", &"ROYAL", 108000, &"all_damage", 0.25),
-			_product(&"chronoseal_governor", &"ROYAL", 88000, &"weapon_cooldown", 0.20),
-		],
 	}
 
 

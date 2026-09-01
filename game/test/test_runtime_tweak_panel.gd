@@ -53,14 +53,14 @@ func test_modal_policy_rejects_existing_pause_owner_without_stealing_lease() -> 
 	add_child_autofree(city)
 	await get_tree().process_frame
 	var coordinator: RunPauseCoordinator = city.urban_siege.pause_coordinator
-	var field_token: int = coordinator.acquire(&"field_briefing")
+	var modal_token: int = coordinator.acquire(&"other_modal")
 	var status: Dictionary = RuntimeTweakModalPolicy.entry_status(city)
 	assert_false(bool(status.allowed))
-	assert_eq(status.reason, &"field_briefing")
+	assert_eq(status.reason, &"other_modal")
 	var adapter: RuntimeTweakPauseAdapter = RuntimeTweakPauseAdapter.new()
 	assert_false(adapter.acquire(city))
 	assert_eq(coordinator.lease_count(), 1)
-	assert_true(coordinator.release(field_token))
+	assert_true(coordinator.release(modal_token))
 
 
 func test_main_mounts_fixed_panel_and_space_cannot_activate_focused_close() -> void:

@@ -168,7 +168,6 @@ func _ready() -> void:
 	add_child(weapon_shop_assembler)
 	var shop_errors: PackedStringArray = weapon_shop_assembler.setup(self)
 	assert(shop_errors.is_empty(), "Shop setup failed: %s" % [shop_errors])
-	weapon_shop_assembler.royal_shop_closed.connect(run_lifecycle._on_royal_shop_closed)
 	if _web_gameplay_smoke_requested():
 		var smoke_probe: Node = WEB_GAMEPLAY_SMOKE_PROBE_SCRIPT.new() as Node
 		add_child(smoke_probe)
@@ -316,11 +315,6 @@ func _build_urban_siege() -> void:
 	urban_siege.name = "UrbanSiegeRuntime"
 	urban_siege.setup(dependencies, CONTACT_DISTRICT)
 	add_child(urban_siege)
-	gameplay_hud.field_briefing.configure(
-		urban_siege.pause_coordinator,
-		robot,
-		mobile_controls
-	)
 	encounter_director = urban_siege.director
 	if DisplayServer.get_name() != "headless":
 		var active_seed: int = (

@@ -13,7 +13,7 @@ static func select(
 	var contract_index: int = posmod(run_seed * 13 + cycle * 7, contracts.size())
 	var recipe: DistrictRecipe = deck.recipes[recipe_index]
 	var district: DistrictDefinition = base_district.duplicate(true) as DistrictDefinition
-	for act_index: int in range(district.acts.size() - 1):
+	for act_index: int in range(district.acts.size()):
 		var act: DistrictAct = district.acts[act_index]
 		var beats: Array[DistrictBeat] = act.beats.duplicate()
 		if not beats.is_empty():

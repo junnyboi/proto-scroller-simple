@@ -3,9 +3,6 @@ extends RefCounted
 
 const BUSINESS: StringName = &"BUSINESS"
 const RESIDENTIAL: StringName = &"RESIDENTIAL"
-const ENTERTAINMENT: StringName = &"ENTERTAINMENT"
-const MILITARY: StringName = &"MILITARY"
-const ROYAL: StringName = &"ROYAL"
 const VARIANT_SALT: int = 0x0C40112
 const VARIANT_ROLL_MODULUS: int = 100
 
@@ -71,15 +68,6 @@ static func eligible_hybrids(district_id: StringName) -> Array[StringName]:
 	match district_id:
 		RESIDENTIAL:
 			return [&"reclaimed_breacher", &"graft_runner"]
-		ENTERTAINMENT:
-			return [&"choir_siren", &"ossuary_crawler", &"graft_runner"]
-		MILITARY:
-			return [&"seraph_carrier", &"pale_engine", &"graft_runner"]
-		ROYAL:
-			return [
-				&"reclaimed_breacher", &"graft_runner", &"choir_siren",
-				&"ossuary_crawler", &"seraph_carrier", &"pale_engine",
-			]
 	return []
 
 

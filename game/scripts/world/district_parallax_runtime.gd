@@ -16,15 +16,6 @@ const BUSINESS_PANORAMA: Texture2D = preload(
 const RESIDENTIAL_PANORAMA: Texture2D = preload(
 	"res://art/city/parallax/districts/residential_panorama.webp"
 )
-const ENTERTAINMENT_PANORAMA: Texture2D = preload(
-	"res://art/city/parallax/districts/entertainment_panorama.webp"
-)
-const MILITARY_PANORAMA: Texture2D = preload(
-	"res://art/city/parallax/districts/military_panorama.webp"
-)
-const ROYAL_PANORAMA: Texture2D = preload(
-	"res://art/city/parallax/districts/royal_panorama.webp"
-)
 const FAR_TEXTURE: Texture2D = preload("res://art/city/parallax/far_skyline.png")
 const INFRA_TEXTURE: Texture2D = preload("res://art/city/parallax/infrastructure.png")
 const NEAR_TEXTURE: Texture2D = preload("res://art/city/parallax/near_buildings.png")
@@ -38,16 +29,10 @@ const SKY_LIFE_SCRIPT: Script = preload(
 const DISTRICT_TEXTURES: Dictionary = {
 	&"BUSINESS": BUSINESS_PANORAMA,
 	&"RESIDENTIAL": RESIDENTIAL_PANORAMA,
-	&"ENTERTAINMENT": ENTERTAINMENT_PANORAMA,
-	&"MILITARY": MILITARY_PANORAMA,
-	&"ROYAL": ROYAL_PANORAMA,
 }
 const DEPTH_TINTS: Dictionary = {
 	&"BUSINESS": [Color("a8bec4"), Color("99adb1"), Color("8c9ea1")],
 	&"RESIDENTIAL": [Color("90adac"), Color("849f9e"), Color("7b9190")],
-	&"ENTERTAINMENT": [Color("b28eac"), Color("a0809e"), Color("92758f")],
-	&"MILITARY": [Color("9d9a86"), Color("8e8c7a"), Color("807f71")],
-	&"ROYAL": [Color("b39d87"), Color("a28e7e"), Color("938274")],
 }
 
 var current_district_id: StringName = BUSINESS

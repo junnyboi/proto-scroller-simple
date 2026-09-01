@@ -5,9 +5,6 @@ const CHOICES_PER_DISTRICT: int = 3
 const POOLS: Array[DistrictMissionPool] = [
 	preload("res://resources/directives/districts/business_pool.tres"),
 	preload("res://resources/directives/districts/residential_pool.tres"),
-	preload("res://resources/directives/districts/entertainment_pool.tres"),
-	preload("res://resources/directives/districts/military_pool.tres"),
-	preload("res://resources/directives/districts/royal_pool.tres"),
 ]
 
 

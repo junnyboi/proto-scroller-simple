@@ -44,7 +44,7 @@ func _run() -> void:
 	var enemies: Array[Dictionary] = [
 		{"id": &"lobber", "position": Vector2(1040.0, 542.0)},
 		{"id": &"sapper", "position": Vector2(1160.0, 541.0)},
-		{"id": &"lancer", "position": Vector2(1490.0, 547.5)},
+		{"id": &"jackal", "position": Vector2(1490.0, 554.0)},
 		{"id": &"hound", "position": Vector2(1660.0, 230.0)},
 	]
 	var enemy_count: int = 0

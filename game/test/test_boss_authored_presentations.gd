@@ -1,10 +1,5 @@
 extends GutTest
 
-const CHOIR_TEST_TEXTURE: Texture2D = preload(
-	"res://art/city/enemies/archetypes/02-bulwark-riot-trooper.png"
-)
-
-
 func test_area_roles_keep_geometry_and_echo_presentation_collisionless() -> void:
 	var pool: BossUtilityPool = BossUtilityPool.new()
 	add_child_autofree(pool)
@@ -62,31 +57,6 @@ func test_area_roles_keep_geometry_and_echo_presentation_collisionless() -> void
 		assert_false(pod.uses_procedural_rendering())
 
 
-func test_mimesis_markers_reset_before_choir_reuse() -> void:
-	var pool: BossUtilityPool = BossUtilityPool.new()
-	add_child_autofree(pool)
-	var recorder: MotionEchoRecorder = pool.motion_echo_recorder
-	recorder.activate()
-	recorder.record_motion(Vector2(64.0, 128.0), 0.0)
-	var marker_sprite: Sprite2D = pool.marker_presentations[0]
-	assert_eq(marker_sprite.texture, BossUtilityPool.MIMESIS_AFTERIMAGE_TEXTURE)
-	assert_true(marker_sprite.visible)
-	assert_true(recorder.arm_marker(0, &"ARMED_AFTERIMAGE"))
-	assert_eq(
-		marker_sprite.scale,
-		MotionEchoRecorder.SELECTED_DISPLAY_SIZE
-		/ BossUtilityPool.MIMESIS_AFTERIMAGE_TEXTURE.get_size()
-	)
-	assert_true(pool.configure_royal_echo_presentation(
-		0, CHOIR_TEST_TEXTURE, Vector2.ZERO, Vector2(78.0, 112.0)
-	))
-	assert_eq(marker_sprite.texture, CHOIR_TEST_TEXTURE)
-	pool.hide_royal_echo_presentations()
-	assert_eq(marker_sprite.texture, BossUtilityPool.MIMESIS_AFTERIMAGE_TEXTURE)
-	assert_false(marker_sprite.visible)
-	assert_false(pool.markers[0].visible)
-
-
 func test_utility_records_are_prewarmed_collisionless_and_fully_reset() -> void:
 	var pool: BossUtilityPool = BossUtilityPool.new()
 	add_child_autofree(pool)
@@ -96,17 +66,10 @@ func test_utility_records_are_prewarmed_collisionless_and_fully_reset() -> void:
 		BossUtilityPool.UtilityPresentationRole.ARCHIVE_TREASURY,
 		BossUtilityPool.UtilityPresentationRole.EVACUATION_CRADLE,
 		BossUtilityPool.UtilityPresentationRole.EXTRACTION_CLAMP,
-		BossUtilityPool.UtilityPresentationRole.SHOW_CONTROL_CABINET,
 		BossUtilityPool.UtilityPresentationRole.RUBBLE_BED,
-		BossUtilityPool.UtilityPresentationRole.FREIGHT_RECLAMATION_ANCHOR,
-		BossUtilityPool.UtilityPresentationRole.SERAPH_PROJECTION,
 	]
 	for role: BossUtilityPool.UtilityPresentationRole in roles:
-		var record: Node2D = (
-			pool.projection_slots[0]
-			if role == BossUtilityPool.UtilityPresentationRole.SERAPH_PROJECTION
-			else pool.reclamation_anchor_records[0]
-		)
+		var record: Node2D = pool.reclamation_anchor_records[0]
 		assert_eq(record.get_child_count(), 1)
 		assert_true(pool.configure_utility_presentation(record, role))
 		var sprite: Sprite2D = record.get_child(0) as Sprite2D
@@ -126,15 +89,3 @@ func test_utility_records_are_prewarmed_collisionless_and_fully_reset() -> void:
 			int(record.get_meta(&"presentation_role")),
 			BossUtilityPool.UtilityPresentationRole.NONE
 		)
-
-
-func test_choir_pylon_preserves_existing_scale_and_tint_contract() -> void:
-	var pool: BossUtilityPool = BossUtilityPool.new()
-	add_child_autofree(pool)
-	var sprite: Sprite2D = pool.pylon_presentations[0].get_child(0) as Sprite2D
-	assert_eq(sprite.texture, BossUtilityPool.CHOIR_PYLON_TEXTURE)
-	assert_eq(sprite.scale, Vector2(0.68, 0.68))
-	assert_eq(sprite.modulate, Color(0.72, 1.0, 0.95, 0.96))
-	assert_true(pool.set_royal_pylon_active(0, true))
-	assert_eq(sprite.scale, Vector2(0.80, 0.80))
-	assert_eq(sprite.modulate, Color(1.0, 0.78, 0.28, 1.0))

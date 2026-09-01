@@ -53,13 +53,13 @@ func after_each() -> void:
 func test_launch_scene_contract() -> void:
 	var title_label: Label = screen.get_node("%TitleLabel") as Label
 	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
-	assert_eq(ProjectSettings.get_setting("application/config/name"), "Proto Scroller")
+	assert_eq(ProjectSettings.get_setting("application/config/name"), "Template - Scroller")
 	assert_eq(
 		ProjectSettings.get_setting("application/run/main_scene"),
 		"res://scenes/main/main.tscn"
 	)
 	assert_eq(title_label.text, L10n.t("title.command_heading"))
-	assert_true(initialize_button.text.contains(L10n.t("title.begin")))
+	assert_eq(initialize_button.text, L10n.t("title.begin"))
 	assert_eq(initialize_button.focus_mode, Control.FOCUS_ALL)
 	var launch_actions: int = 0
 	for button_node: Node in screen.find_children("*", "Button", true, false):
@@ -70,14 +70,14 @@ func test_launch_scene_contract() -> void:
 	var english_button: Button = screen.get_node("%EnglishButton") as Button
 	var chinese_button: Button = screen.get_node("%ChineseButton") as Button
 	assert_null(screen.get_node_or_null("%AutomaticButton"))
-	assert_eq(title_label.text, "PROTOS")
+	assert_eq(title_label.text, "2D Scroller")
 	var instruction_label: Label = screen.get_node("%InstructionLabel") as Label
 	assert_eq(
 		instruction_label.text,
-		"They killed everyone you loved, and used nanotechnology to replace body fluids "
-		+ "and tissue with cybernetics, calling it the evolution of the human race... "
-		+ "It's time to put an end to their reign of terror!"
+		"lightweight game template designed for rapid scaffolding and prototyping of "
+		+ "2d scroller style games"
 	)
+	assert_eq(initialize_button.text, "Start Game")
 	assert_eq(instruction_label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART)
 	assert_eq(instruction_label.get_visible_line_count(), instruction_label.get_line_count())
 	assert_null(screen.get_node_or_null("HintLabel"))
@@ -93,13 +93,12 @@ func test_launch_scene_contract() -> void:
 	assert_true(screen.select_language("zh-CN"))
 	assert_eq(L10n.current_locale(), "zh-CN")
 	assert_eq(L10n.preferred_locale(LANGUAGE_PREFERENCE_PATH), "zh-CN")
-	assert_eq(title_label.text, "PROTOS")
+	assert_eq(title_label.text, "2D Scroller")
 	assert_true(chinese_button.button_pressed)
 	assert_false(english_button.button_pressed)
 	assert_eq(
 		instruction_label.text,
-		"他们杀尽了你爱的人，并用纳米技术，以义体替代人体的体液与组织，"
-		+ "还将其称作人类进化……是时候终结他们的恐怖统治了！"
+		"专为高效构建和原型开发 2d 卷轴游戏而设计的精简游戏基础"
 	)
 	assert_eq(instruction_label.autowrap_mode, TextServer.AUTOWRAP_ARBITRARY)
 	assert_eq(instruction_label.get_visible_line_count(), instruction_label.get_line_count())
@@ -108,11 +107,8 @@ func test_launch_scene_contract() -> void:
 		(screen.get_node("%SettingsHeading") as Label).text,
 		L10n.t("title.settings_heading")
 	)
-	assert_null(screen.get_node_or_null("%BriefingArt"))
-	assert_gt(
-		(screen.get_node("%BriefingBackground") as ColorRect).color.a,
-		0.95
-	)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
+	assert_null(screen.get_node_or_null("%BriefingLayer"))
 	assert_true(screen.select_language("en"))
 	assert_eq(L10n.preferred_locale(LANGUAGE_PREFERENCE_PATH), "en")
 	assert_true(english_button.button_pressed)
@@ -153,27 +149,6 @@ func test_spacebar_does_not_activate_the_focused_launch_button() -> void:
 	_record_test_execution()
 
 
-func test_tab_opens_field_briefing_without_rotating_button_focus() -> void:
-	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
-	initialize_button.grab_focus()
-	assert_true(initialize_button.has_focus())
-	var tab_press: InputEventKey = InputEventKey.new()
-	tab_press.keycode = KEY_TAB
-	tab_press.physical_keycode = KEY_TAB
-	tab_press.pressed = true
-	Input.parse_input_event(tab_press)
-	await get_tree().process_frame
-	assert_true(screen.briefing_open)
-	assert_true((screen.get_node("%BriefingLayer") as Control).visible)
-	assert_true(initialize_button.has_focus())
-	assert_false((screen.get_node("%EnglishButton") as Button).has_focus())
-	assert_false((screen.get_node("%ChineseButton") as Button).has_focus())
-	var tab_release: InputEventKey = tab_press.duplicate() as InputEventKey
-	tab_release.pressed = false
-	Input.parse_input_event(tab_release)
-	_record_test_execution()
-
-
 func test_gamepad_melee_does_not_activate_the_focused_launch_button() -> void:
 	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
 	initialize_button.grab_focus()
@@ -211,7 +186,7 @@ func test_gamepad_melee_does_not_activate_the_focused_launch_button() -> void:
 	_record_test_execution()
 
 
-func test_command_deck_omits_controls_panel_and_briefing_preserves_full_intel() -> void:
+func test_command_deck_omits_controls_panel_and_preserves_semantic_intel() -> void:
 	var hook: String = (screen.get_node("%InstructionLabel") as Label).text
 	var briefing_controls: String = (
 		screen.get_node("SemanticContract/BriefingControlsLabel") as Label
@@ -241,10 +216,8 @@ func test_command_deck_omits_controls_panel_and_briefing_preserves_full_intel() 
 	assert_true(enemy_intel.contains("Armor + aircraft"))
 	assert_true(enemy_intel.contains("Reclaimed + carriers"))
 	assert_true(run_rule.contains("reset when you Retry"))
-	assert_true(screen.open_briefing())
-	assert_true((screen.get_node("%BriefingLayer") as Control).visible)
-	assert_true(screen.close_briefing())
-	assert_false((screen.get_node("%BriefingLayer") as Control).visible)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
+	assert_null(screen.get_node_or_null("%BriefingLayer"))
 	_record_test_execution()
 
 
@@ -262,6 +235,7 @@ func test_initialize_seam_transitions_once() -> void:
 	assert_true((screen.get_node("%ChineseButton") as Button).disabled)
 	assert_true((screen.get_node("%SettingsButton") as Button).disabled)
 	assert_true((screen.get_node("%LeaderboardButton") as Button).disabled)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
 	assert_false(screen.initialize_game(), "A second initialization must reject without mutation.")
 	assert_eq(status_label.text, L10n.t("title.expedition_active"))
 	_record_test_execution()
@@ -382,19 +356,6 @@ func test_settings_menu_applies_and_persists_the_complete_audio_mix() -> void:
 		)
 		assert_true(restored_mute_button.button_pressed)
 		assert_eq(restored_mute_button.text, L10n.t("title.audio_muted"))
-	_record_test_execution()
-
-
-func test_settings_and_briefing_are_mutually_exclusive() -> void:
-	assert_true(screen.open_briefing())
-	assert_true(screen.open_settings())
-	assert_false(screen.briefing_open)
-	assert_true(screen.settings_open)
-	assert_false((screen.get_node("%BriefingLayer") as Control).visible)
-	assert_true(screen.open_briefing())
-	assert_true(screen.briefing_open)
-	assert_false(screen.settings_open)
-	assert_false((screen.get_node("%SettingsLayer") as Control).visible)
 	_record_test_execution()
 
 
@@ -536,67 +497,6 @@ func test_title_leaderboard_layout_and_localization_cover_both_orientations() ->
 	_record_test_execution()
 
 
-func test_campaign_archive_shows_only_focus_safe_codex_button() -> void:
-	var archive_screen: TitleScreen = TITLE_SCREEN_SCENE.instantiate() as TitleScreen
-	archive_screen.configure_campaign({
-		"dossiers": PackedStringArray([
-			"dossier_business_mercy_exchange_annex",
-		]),
-		"dossier_count": 1,
-		"continuity_generation": 3,
-		"seen_endings": PackedStringArray(["PURGE", "DISENTANGLE"]),
-	})
-	archive_screen.locale_preference_path = LANGUAGE_PREFERENCE_PATH
-	archive_screen.audio_preference_path = AUDIO_PREFERENCE_PATH
-	archive_screen.input_preference_path = INPUT_PREFERENCE_PATH
-	add_child_autofree(archive_screen)
-	await get_tree().process_frame
-	assert_true(archive_screen.open_briefing())
-	assert_false(archive_screen.campaign_panel.panel.visible)
-	for summary_label: Label in [
-		archive_screen.campaign_panel.heading_label,
-		archive_screen.campaign_panel.progress_label,
-		archive_screen.campaign_panel.evidence_label,
-		archive_screen.campaign_panel.continuity_label,
-		archive_screen.campaign_panel.endings_label,
-	]:
-		assert_false(summary_label.visible)
-	assert_true(archive_screen.campaign_panel.codex_button.is_visible_in_tree())
-	assert_eq(
-		archive_screen.campaign_panel.codex_button.text,
-		L10n.t("narrative.campaign.open_codex")
-	)
-	archive_screen.campaign_panel.codex_button.pressed.emit()
-	assert_true(archive_screen.dossier_codex.visible)
-	assert_true(
-		archive_screen.dossier_codex.detail_title.text.contains("Mercy Exchange Annex")
-	)
-	assert_false(archive_screen.dossier_codex.detail_body.text.contains("encrypted"))
-	archive_screen.dossier_codex.dossier_list.select(1)
-	archive_screen.dossier_codex.dossier_list.item_selected.emit(1)
-	assert_eq(
-		archive_screen.dossier_codex.detail_title.text,
-		L10n.t("narrative.codex.locked_title")
-	)
-	var cancel_event: InputEventAction = InputEventAction.new()
-	cancel_event.action = &"ui_cancel"
-	cancel_event.pressed = true
-	archive_screen._unhandled_input(cancel_event)
-	assert_false(archive_screen.dossier_codex.visible)
-	await get_tree().process_frame
-	assert_eq(
-		get_viewport().gui_get_focus_owner(),
-		archive_screen.campaign_panel.codex_button
-	)
-	assert_true(archive_screen.select_language("zh-CN"))
-	assert_eq(
-		archive_screen.campaign_panel.codex_button.text,
-		L10n.t("narrative.campaign.open_codex")
-	)
-	assert_eq(int(archive_screen.campaign_snapshot.dossier_count), 1)
-	_record_test_execution()
-
-
 func test_all_ui_text_meets_the_32_pixel_rendered_height_pin() -> void:
 	var measured_controls: int = 0
 	var minimum_height: float = INF
@@ -619,30 +519,23 @@ func test_all_ui_text_meets_the_32_pixel_rendered_height_pin() -> void:
 	_record_test_execution()
 
 
-func test_launch_action_does_not_overlap_briefing_action() -> void:
+func test_launch_action_retains_language_selector_spacing() -> void:
 	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
 	var language_selector: HBoxContainer = screen.get_node("%LanguageSelector") as HBoxContainer
-	var briefing_toggle: Button = screen.get_node("%BriefingToggle") as Button
 	assert_gte(
 		language_selector.get_global_rect().position.y,
 		initialize_button.get_global_rect().end.y + 16.0,
 		"The launch action must retain at least 16 px of bottom spacing."
 	)
-	assert_false(
-		initialize_button.get_global_rect().intersects(briefing_toggle.get_global_rect()),
-		"Launch and briefing actions must remain spatially distinct."
-	)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
 	_record_test_execution()
 
 
-func test_generated_title_art_and_minimal_briefing_contract() -> void:
+func test_generated_title_art_and_removed_briefing_contract() -> void:
 	var background: TextureRect = screen.get_node("%BackgroundArt") as TextureRect
 	assert_true(background.texture.resource_path.contains("command_deck_landscape.jpg"))
-	assert_null(screen.get_node_or_null("%BriefingArt"))
-	var briefing_background: ColorRect = (
-		screen.get_node("%BriefingBackground") as ColorRect
-	)
-	assert_gt(briefing_background.color.a, 0.95)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
+	assert_null(screen.get_node_or_null("%BriefingLayer"))
 	var source_file: FileAccess = FileAccess.open("res://scripts/title_screen.gd", FileAccess.READ)
 	var source: String = source_file.get_as_text()
 	assert_false(source.contains("func _draw"), "Procedural title graphics are forbidden.")

@@ -1,8 +1,7 @@
 extends GutTest
 
 const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
-const GAS_MAIN: CatalystProfile = preload("res://resources/catalysts/gas_main.tres")
-const DISTRICT: DistrictDefinition = preload("res://resources/siege/district_contact.tres")
+const TRANSFORMER: CatalystProfile = preload("res://resources/catalysts/transformer.tres")
 
 var city: CitySlice
 var runtime: EncounterRuntime
@@ -59,7 +58,7 @@ func test_support_breaker_and_marker_show_honest_snapshot_targets() -> void:
 	))
 	tank.cancel_telegraph()
 	var gas: Catalyst2D = city.urban_siege.catalysts.activate(
-		1, GAS_MAIN, Vector2(1420.0, 610.0)
+		1, TRANSFORMER, Vector2(1420.0, 610.0)
 	)
 	runtime.set_catalyst_target(gas)
 	var marker: SoldierEnemy = runtime.acquire(
@@ -105,23 +104,3 @@ func test_volatile_pulse_is_single_and_causal_depth_bounded() -> void:
 		801, DamageEvent.MAX_CAUSAL_DEPTH
 	))
 	assert_eq(city.urban_siege.trait_runtime.volatile_pulse_count, 1)
-
-
-func test_gas_main_and_late_act_profiles_are_authored_within_caps() -> void:
-	city.urban_siege._on_milestone_reached(&"GAS_MAIN")
-	var gas: Catalyst2D = city.urban_siege.catalysts.slots[1]
-	assert_true(gas.armed)
-	assert_eq(gas.profile.catalyst_id, &"GAS_MAIN")
-	var role_count: int = 0
-	var elite_count: int = 0
-	for act: DistrictAct in DISTRICT.acts:
-		for beat: DistrictBeat in act.beats:
-			var beat_elites: int = 0
-			for entry: EnemySpawnEntry in beat.spawns:
-				role_count += 1 if not entry.role_id.is_empty() else 0
-				beat_elites += 1 if not entry.trait_id.is_empty() else 0
-			elite_count += beat_elites
-			assert_lte(beat_elites, 1)
-	assert_gt(role_count, 12)
-	assert_eq(elite_count, 3)
-	assert_eq(runtime.total_count(), RuntimeBudget.ROLE_BADGES)

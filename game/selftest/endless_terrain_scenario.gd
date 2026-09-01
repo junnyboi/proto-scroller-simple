@@ -183,11 +183,11 @@ func _run() -> void:
 		]
 	)
 	var sprint_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
-		&"ROYAL",
+		&"RESIDENTIAL",
 		city.rampage_session.run_experience.level
 	)
 	_check(
-		"royal_pressure_is_readiness_gated",
+		"residential_pressure_is_readiness_gated",
 		city.world_stream.progression_tier() == CityWorldStream.MAX_PROGRESSION_TIER
 		and sprint_profile.district_id == &"BUSINESS",
 		"distance_tier=%d level=%d effective=%s max_chunk=%d"
@@ -198,15 +198,15 @@ func _run() -> void:
 			city.world_stream.maximum_visited_chunk,
 		]
 	)
-	city.rampage_session.run_experience.level = 5
+	city.rampage_session.run_experience.level = 2
 	var ready_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
-		&"ROYAL",
+		&"RESIDENTIAL",
 		city.rampage_session.run_experience.level
 	)
 	_check(
-		"royal_pressure_unlocks_at_level_five",
-		ready_profile.district_id == &"ROYAL"
-		and ready_profile.live_threat_ceiling == DistrictPressureCatalog.MAX_LIVE_THREAT,
+		"residential_pressure_unlocks_at_level_two",
+		ready_profile.district_id == &"RESIDENTIAL"
+		and ready_profile.live_threat_ceiling == 11,
 		"level=%d effective=%s threat_ceiling=%d"
 		% [
 			city.rampage_session.run_experience.level,
@@ -222,7 +222,7 @@ func _run() -> void:
 	city.camera_rig.global_position = Vector2(city.robot.global_position.x, 360.0)
 	city.camera_rig.follow_speed = 10000.0
 	city.camera_rig.reset_after_origin_shift()
-	var enemy_kinds: Array[StringName] = [&"soldier", &"bulwark", &"lancer", &"helicopter"]
+	var enemy_kinds: Array[StringName] = [&"soldier", &"bulwark", &"lobber", &"helicopter"]
 	var enemy_offsets: Array[Vector2] = [
 		Vector2(-460.0, 542.5 - city.robot.global_position.y),
 		Vector2(-280.0, 542.5 - city.robot.global_position.y),

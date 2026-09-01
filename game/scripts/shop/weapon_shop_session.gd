@@ -13,10 +13,7 @@ signal shop_closed(district: CityDistrictProfile, act_index: int, terminal: bool
 const ACT_SHOP_DISTRICTS: Dictionary = {
 	0: &"BUSINESS",
 	1: &"RESIDENTIAL",
-	2: &"ENTERTAINMENT",
-	3: &"MILITARY",
 }
-const ROYAL_ACT_INDEX: int = 5
 
 var pause: RunPauseCoordinator
 var run_score: RunScore
@@ -71,10 +68,6 @@ func queue_act_completion(act_index: int, cycle: int) -> bool:
 	)
 
 
-func queue_royal_completion(cycle: int) -> bool:
-	return _queue_shop(&"ROYAL", ROYAL_ACT_INDEX, cycle, true)
-
-
 func ensure_act_completion(act_index: int, cycle: int) -> bool:
 	if not ACT_SHOP_DISTRICTS.has(act_index):
 		return false
@@ -84,10 +77,6 @@ func ensure_act_completion(act_index: int, cycle: int) -> bool:
 		cycle,
 		false
 	)
-
-
-func ensure_royal_completion(cycle: int) -> bool:
-	return _ensure_shop(&"ROYAL", ROYAL_ACT_INDEX, cycle, true)
 
 
 func purchase(product_id: StringName) -> bool:

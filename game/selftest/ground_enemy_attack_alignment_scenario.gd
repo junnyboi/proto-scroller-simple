@@ -7,21 +7,16 @@ const HUMANOID_SHOT_PREFIX: String = (
 )
 const HUMANOID_CASES_PER_PAGE: int = 4
 const HUMANOID_PROJECTILE_CASES: Array[StringName] = [
-	&"soldier", &"bulwark", &"lobber", &"lancer", &"covenant_warden",
+	&"soldier", &"bulwark", &"lobber", &"covenant_warden",
 ]
 const HUMANOID_AUDIT_CASES: Array[Dictionary] = [
 	{"id": &"soldier"},
 	{"id": &"bulwark"},
 	{"id": &"lobber"},
 	{"id": &"sapper"},
-	{"id": &"lancer"},
 	{"id": &"covenant_warden"},
 	{"id": &"intake_shepherd"},
-	{"id": &"memorial_usher"},
-	{"id": &"suture_marshal"},
-	{"id": &"privy_chirurgeon"},
 	{"id": &"reclaimed_breacher"},
-	{"id": &"nemesis"},
 ]
 
 var checks: Array[Dictionary] = []
@@ -50,12 +45,7 @@ func _run() -> void:
 	city.gameplay_hud.visible = false
 	var attack_cases: Array[Dictionary] = [
 		{"id": &"covenant_warden", "x": 800.0, "authored": true},
-		{
-			"id": &"goliath",
-			"support": &"reclaimed_breacher",
-			"x": 1040.0,
-			"authored": false,
-		},
+		{"id": &"reclaimed_breacher", "x": 1040.0, "authored": false},
 		{"id": &"soldier", "x": 1280.0, "authored": false},
 		{"id": &"lobber", "x": 1510.0, "authored": false},
 		{"id": &"tank", "x": 1810.0, "authored": false},
@@ -178,7 +168,7 @@ func _capture_humanoid_audit(city: CitySlice) -> Array[Dictionary]:
 	var shot_records: Array[Dictionary] = []
 	_check(
 		"humanoid_audit_roster",
-		HUMANOID_AUDIT_CASES.size() == 12,
+		HUMANOID_AUDIT_CASES.size() == 7,
 		"count=%d" % HUMANOID_AUDIT_CASES.size()
 	)
 	if DisplayServer.get_name() == "headless":

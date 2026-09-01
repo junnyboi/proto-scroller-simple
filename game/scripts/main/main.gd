@@ -533,7 +533,6 @@ func _show_title(restart_music: bool = false) -> void:
 			not OS.has_feature("web") and background_music_player.playing
 		)
 	title_screen = TITLE_SCENE.instantiate() as TitleScreen
-	title_screen.configure_campaign(campaign_progress.snapshot())
 	title_screen.configure_leaderboard(combat_profile)
 	title_screen.audio_activation_requested.connect(
 		_activate_title_music_from_interaction

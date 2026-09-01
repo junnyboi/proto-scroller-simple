@@ -21,16 +21,13 @@ func before_each() -> void:
 	pressure = city.urban_siege.hazard_pressure
 
 
-func test_catalog_matches_exact_monotonic_five_district_curve() -> void:
+func test_catalog_matches_exact_monotonic_two_district_curve() -> void:
 	assert_eq(DistrictPressureCatalog.validation_errors(), PackedStringArray())
 	var profiles: Array[DistrictPressureProfile] = DistrictPressureCatalog.profiles()
-	assert_eq(profiles.size(), 5)
+	assert_eq(profiles.size(), 2)
 	var expected: Array[Array] = [
 		[&"BUSINESS", 0, 8, 1.00, 1.00, 0, 0, 0, 1],
 		[&"RESIDENTIAL", 1, 11, 0.96, 1.00, 0, 1, 0, 2],
-		[&"ENTERTAINMENT", 2, 14, 0.92, 0.96, 1, 2, 1, 3],
-		[&"MILITARY", 3, 17, 0.88, 0.92, 1, 3, 1, 4],
-		[&"ROYAL", 4, 20, 0.84, 0.88, 2, 4, 2, 5],
 	]
 	for index: int in range(profiles.size()):
 		var profile: DistrictPressureProfile = profiles[index]
@@ -47,27 +44,25 @@ func test_catalog_matches_exact_monotonic_five_district_curve() -> void:
 
 
 func test_readiness_caps_sprinted_districts_and_unlocks_one_tier_per_level() -> void:
-	var district_ids: Array[StringName] = [
-		&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
-	]
+	var district_ids: Array[StringName] = [&"BUSINESS", &"RESIDENTIAL"]
 	for district_index: int in range(district_ids.size()):
-		for player_level: int in range(1, 6):
+		for player_level: int in range(1, 3):
 			var effective: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
 				district_ids[district_index],
 				player_level
 			)
 			assert_eq(effective.district_index, mini(district_index, player_level - 1))
 	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", 1).district_id,
+		DistrictPressureCatalog.effective_profile(&"RESIDENTIAL", 1).district_id,
 		&"BUSINESS"
 	)
 	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", 5).district_id,
-		&"ROYAL"
+		DistrictPressureCatalog.effective_profile(&"RESIDENTIAL", 2).district_id,
+		&"RESIDENTIAL"
 	)
 
 
-func test_five_district_by_six_act_matrix_is_deterministic_and_bounded() -> void:
+func test_two_district_by_two_act_matrix_is_deterministic_and_bounded() -> void:
 	for profile: DistrictPressureProfile in DistrictPressureCatalog.profiles():
 		city.world_stream.current_district_id = profile.district_id
 		city.world_stream.current_logical_chunk = (
@@ -126,30 +121,9 @@ func test_five_district_by_six_act_matrix_is_deterministic_and_bounded() -> void
 				_assert_hazard_windows_spaced(replay_hazards)
 
 
-func test_enemy_copy_planner_prefers_cheap_units_and_respects_live_saturation() -> void:
-	var beat: DistrictBeat = DistrictBeat.new()
-	beat.beat_id = &"PRESSURE_TEST"
-	beat.spawns = [
-		_spawn_entry("goliath"),
-		_spawn_entry("soldier"),
-		_spawn_entry("needle"),
-	]
-	city.world_stream.current_logical_chunk = 48
-	var royal: DistrictPressureProfile = DistrictPressureCatalog.profile_by_index(4)
-	var plan: Dictionary[int, int] = director._progression_copy_plan(beat, royal)
-	assert_false(plan.has(0))
-	assert_true(plan.has(1))
-	assert_true(plan.has(2))
-	assert_lte(_extra_threat(beat, plan), royal.threat_allowance)
-	assert_not_null(city.encounter_runtime.acquire(&"leviathan", Vector2(1200.0, 505.0)))
-	assert_not_null(city.encounter_runtime.acquire(&"goliath", Vector2(1320.0, 485.0)))
-	assert_eq(director._threat_weight(), 19)
-	assert_true(director._progression_copy_plan(beat, royal).is_empty())
-
-
 func test_pressure_profile_is_locked_for_the_duration_of_a_started_beat() -> void:
-	city.world_stream.current_district_id = &"ROYAL"
-	city.world_stream.current_logical_chunk = 48
+	city.world_stream.current_district_id = &"RESIDENTIAL"
+	city.world_stream.current_logical_chunk = CityDistrictCatalog.CHUNKS_PER_DISTRICT
 	city.rampage_session.run_experience.level = 1
 	director.running = true
 	director.completed = false
@@ -158,7 +132,7 @@ func test_pressure_profile_is_locked_for_the_duration_of_a_started_beat() -> voi
 	director.state = DistrictResponseDirector.STATE_WAITING
 	director._try_start_next_beat()
 	assert_eq(director.current_pressure_profile.district_id, &"BUSINESS")
-	city.rampage_session.run_experience.level = 5
+	city.rampage_session.run_experience.level = 2
 	assert_eq(director.current_pressure_profile.district_id, &"BUSINESS")
 	director._beat_pending.clear()
 	director.ledger.cancel_all()
@@ -197,22 +171,26 @@ func test_business_variant_trace_is_final_before_reservation_and_pending_spawns(
 	director.ledger.cancel_all()
 
 
-func test_absolute_threat_saturation_delays_and_then_releases_the_next_beat() -> void:
-	city.world_stream.current_district_id = &"ROYAL"
-	city.world_stream.current_logical_chunk = 48
-	city.rampage_session.run_experience.level = 5
+func test_capacity_saturation_delays_and_then_releases_the_next_beat() -> void:
+	city.world_stream.current_district_id = &"RESIDENTIAL"
+	city.world_stream.current_logical_chunk = CityDistrictCatalog.CHUNKS_PER_DISTRICT
+	city.rampage_session.run_experience.level = 2
 	director.running = true
 	director.completed = false
-	director.phase_index = 5
-	director.beat_index = 1
+	director.phase_index = 1
+	director.beat_index = -1
 	director.state = DistrictResponseDirector.STATE_WAITING
-	assert_not_null(city.encounter_runtime.acquire(&"soldier", Vector2(1180.0, 542.5)))
+	for index: int in range(RuntimeBudget.PROCEDURAL_INFANTRY):
+		assert_not_null(city.encounter_runtime.acquire(
+			&"lobber",
+			Vector2(1180.0 + float(index), 542.5)
+		))
 	director._try_start_next_beat()
-	assert_eq(director.beat_index, 1)
+	assert_eq(director.beat_index, -1)
 	assert_eq(director.pending_count(), 0)
 	city.encounter_runtime.release_all()
 	director._try_start_next_beat()
-	assert_eq(director.current_beat_id(), &"COMMAND_TEST")
+	assert_eq(director.current_beat_id(), &"ARMOR_ENTRY")
 	assert_lte(
 		director.progression_peak_threat,
 		EnemySpawnTuning.scaled_threat(DistrictPressureCatalog.MAX_LIVE_THREAT)
@@ -255,14 +233,16 @@ func test_run_experience_unlocks_readiness_at_existing_upgrade_cadence() -> void
 	experience.level_gained.connect(
 		func(level: int, _event_id: int) -> void: gained_levels.append(level)
 	)
-	for source_level: int in range(1, 5):
+	for source_level: int in range(1, 2):
 		var requirement: int = RunExperience.required_for_level(source_level)
 		assert_eq(experience.add_experience(requirement, source_level), 1)
 		assert_eq(experience.level, source_level + 1)
-	assert_eq(gained_levels, PackedInt32Array([2, 3, 4, 5]))
+	assert_eq(gained_levels, PackedInt32Array([2]))
 	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", experience.level).district_id,
-		&"ROYAL"
+		DistrictPressureCatalog.effective_profile(
+			&"RESIDENTIAL", experience.level
+		).district_id,
+		&"RESIDENTIAL"
 	)
 
 

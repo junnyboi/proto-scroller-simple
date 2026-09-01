@@ -298,7 +298,7 @@ func test_ground_boss_support_reskins_refresh_forward_center_for_warning() -> vo
 	var city: CitySlice = await _spawn_city()
 	city.encounter_runtime.release_all()
 	var support_cases: Array[Dictionary] = [
-		{"shell": &"goliath", "presentation": &"reclaimed_breacher"},
+		{"shell": &"bulwark", "presentation": &"reclaimed_breacher"},
 		{"shell": &"jackal", "presentation": &"graft_runner"},
 	]
 	for support_case: Dictionary in support_cases:

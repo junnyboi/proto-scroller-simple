@@ -48,7 +48,7 @@ func test_boss_completion_commits_capstone_evidence_result_and_reward_once() -> 
 	assert_true(store.has_evidence(&"NURSERY"))
 	assert_true(store.completed_boss_ids().has("SAMARITAN_15"))
 	assert_true(store.pending_reward_grants().has("boss:SAMARITAN_15:reward"))
-	assert_eq(int(store.snapshot().route_unlock_chunk), 24)
+	assert_eq(int(store.snapshot().route_unlock_chunk), -1)
 	assert_eq(int(store.snapshot().boss_results.SAMARITAN_15.pod_loss_count), 1)
 
 
@@ -67,7 +67,7 @@ func test_optional_archive_loss_preserves_capstone_and_route_but_not_ledger() ->
 	assert_false(store.has_evidence(&"LEDGER"))
 	assert_true(store.lost_evidence_ids().has("LEDGER"))
 	assert_true(store.completed_boss_ids().has("SETTLEMENT_ENGINE_S04"))
-	assert_eq(int(store.snapshot().route_unlock_chunk), 12)
+	assert_eq(int(store.snapshot().route_unlock_chunk), 9)
 	assert_false(bool(
 		store.snapshot().boss_results.SETTLEMENT_ENGINE_S04.archive_preserved
 	))
@@ -83,27 +83,6 @@ func test_missing_optional_event_cannot_silently_preserve_evidence() -> void:
 	))
 	assert_false(store.has_evidence(&"LEDGER"))
 	assert_true(store.has_dossier(&"B05_EASTBOUND_CONSIDERATION"))
-
-
-func test_crown_capstone_repeats_canon_without_premature_echo_resolution() -> void:
-	var store: CampaignProgressStore = _store()
-	var director: NarrativeDirector = NarrativeDirector.new()
-	director.setup(store)
-	add_child_autofree(director)
-	var definitions: Array[DossierDefinition] = DossierCatalog.definitions()
-	for index: int in range(18):
-		assert_true(store.collect_dossier(definitions[index].dossier_id))
-	var choir: ProjectChoirRuntime = ProjectChoirRuntime.new()
-	choir.campaign_progress = store
-	add_child_autofree(choir)
-	assert_true(choir.commit_crown_pylon_transaction())
-	assert_true(director.handle_boss_completed(BossCampaignCatalog.definition(&"CHOIR_PRIME")))
-	assert_true(store.has_evidence(&"CROWN"))
-	assert_eq(store.dossier_count(), 19)
-	assert_false(store.echo7_resolved())
-	assert_eq(director.echo7_status_key(), "narrative.echo7.ambiguous")
-	var capstone: DossierDefinition = DossierCatalog.capstone_for_boss(&"CHOIR_PRIME")
-	assert_true(L10n.t(capstone.body_secondary_key).contains("Below twenty dossiers"))
 
 
 func test_vertical_slice_keys_exist_in_both_locales() -> void:

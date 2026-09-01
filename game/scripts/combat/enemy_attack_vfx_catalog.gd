@@ -29,29 +29,17 @@ const HOSTILE_IMPACT_DURATION: float = 0.24
 const ATTACK_VISIBLE_CENTER_OFFSETS: Array[Vector2] = [
 	Vector2(-0.5, -3.5), Vector2(0.0, -8.0), Vector2(-2.0, -3.0),
 	Vector2(-2.0, -3.5), Vector2(-2.5, -2.0), Vector2(-1.0, -13.5),
-	Vector2(-0.5, -2.0), Vector2(-2.5, -1.0), Vector2(-2.5, -5.0),
-	Vector2(-0.5, -11.0), Vector2(-1.0, -3.0), Vector2(-1.5, -3.5),
-	Vector2(-1.5, -0.5), Vector2(-1.0, -3.5), Vector2(-0.5, -2.5),
-	Vector2(-0.5, -1.5), Vector2(-2.5, -0.5), Vector2(-3.0, -5.0),
-	Vector2(-1.0, 0.0), Vector2(-2.0, -1.0),
+	Vector2(-0.5, -2.0), Vector2(-2.5, -1.0),
 ]
 const PROJECTILE_VISIBLE_CENTER_OFFSETS: Array[Vector2] = [
 	Vector2(-5.0, -3.5), Vector2(-6.5, -2.0), Vector2(1.5, -2.5),
 	Vector2(1.0, -3.0), Vector2(3.5, -3.5), Vector2(0.0, -9.5),
-	Vector2(-2.5, -4.0), Vector2(-0.5, -2.0), Vector2(2.5, -2.5),
-	Vector2(-12.5, -1.0), Vector2(0.0, -2.0), Vector2(-1.0, -2.5),
-	Vector2(1.0, -1.5), Vector2(-4.5, -3.5), Vector2(-2.5, -2.5),
-	Vector2(-1.5, -3.0), Vector2(1.0, -1.0), Vector2(1.0, -4.5),
-	Vector2(0.5, -0.5), Vector2(0.0, -1.5),
+	Vector2(-2.5, -4.0), Vector2(-0.5, -2.0),
 ]
 const IMPACT_VISIBLE_CENTER_OFFSETS: Array[Vector2] = [
 	Vector2(-0.5, 0.0), Vector2(-3.0, 0.0), Vector2(-0.5, 0.0),
 	Vector2(-0.5, 0.0), Vector2(0.0, 0.0), Vector2(-0.5, -0.5),
-	Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(0.0, 0.0),
-	Vector2(-0.5, 0.0), Vector2(-0.5, 0.0), Vector2(-0.5, -0.5),
-	Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(-0.5, 0.0),
-	Vector2(0.0, 0.0), Vector2(-0.5, 0.0), Vector2(0.0, 0.0),
-	Vector2(0.0, 0.0), Vector2(-0.5, 0.0),
+	Vector2(0.0, 0.0), Vector2(0.0, 0.0),
 ]
 
 const CANONICAL_IMPACT_SPECS: Dictionary = {
@@ -113,12 +101,6 @@ const RANGED_IDS: Array[StringName] = [
 	&"covenant_warden",
 	&"mercy_recovery_cart",
 	&"rainvault_pressure_ward",
-	&"glassback_double",
-	&"marquee_anesthetist",
-	&"mercy_raker",
-	&"revetment_ward",
-	&"triage_kite",
-	&"regency_conservator",
 ]
 
 const SPECS: Dictionary = {
@@ -175,90 +157,6 @@ const SPECS: Dictionary = {
 		"projectile_display": Vector2(54.0, 92.0),
 		"impact_display": Vector2(116.0, 116.0),
 		"attack_display": Vector2(112.0, 138.0),
-	},
-	&"memorial_usher": {
-		"index": 8, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(58.0, 96.0),
-		"impact_display": Vector2(118.0, 118.0),
-		"attack_display": Vector2(106.0, 126.0),
-	},
-	&"glassback_double": {
-		"index": 9, "delivery": &"projectile", "kind": &"bullet",
-		"projectile_key": &"choir_glassback_double_shot",
-		"impact_key": &"choir_glassback_double_impact",
-		"projectile_display": Vector2(44.0, 18.0),
-		"impact_display": Vector2(116.0, 104.0),
-		"attack_display": Vector2(136.0, 104.0),
-	},
-	&"recall_lantern": {
-		"index": 10, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(88.0, 88.0),
-		"impact_display": Vector2(148.0, 148.0),
-		"attack_display": Vector2(142.0, 142.0),
-	},
-	&"marquee_anesthetist": {
-		"index": 11, "delivery": &"projectile", "kind": &"shell",
-		"projectile_key": &"choir_marquee_anesthetist_shot",
-		"impact_key": &"choir_marquee_anesthetist_impact",
-		"projectile_display": Vector2(52.0, 26.0),
-		"impact_display": Vector2(140.0, 124.0),
-		"attack_display": Vector2(142.0, 132.0),
-	},
-	&"suture_marshal": {
-		"index": 12, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(58.0, 96.0),
-		"impact_display": Vector2(112.0, 112.0),
-		"attack_display": Vector2(112.0, 126.0),
-	},
-	&"mercy_raker": {
-		"index": 13, "delivery": &"projectile", "kind": &"bullet",
-		"projectile_key": &"choir_mercy_raker_shot",
-		"impact_key": &"choir_mercy_raker_impact",
-		"projectile_display": Vector2(44.0, 18.0),
-		"impact_display": Vector2(112.0, 104.0),
-		"attack_display": Vector2(136.0, 104.0),
-	},
-	&"revetment_ward": {
-		"index": 14, "delivery": &"projectile", "kind": &"shell",
-		"projectile_key": &"choir_revetment_ward_shot",
-		"impact_key": &"choir_revetment_ward_impact",
-		"projectile_display": Vector2(52.0, 26.0),
-		"impact_display": Vector2(144.0, 126.0),
-		"attack_display": Vector2(154.0, 128.0),
-	},
-	&"triage_kite": {
-		"index": 15, "delivery": &"projectile", "kind": &"rocket",
-		"projectile_key": &"choir_triage_kite_shot",
-		"impact_key": &"choir_triage_kite_impact",
-		"projectile_display": Vector2(52.0, 22.0),
-		"impact_display": Vector2(138.0, 128.0),
-		"attack_display": Vector2(146.0, 126.0),
-	},
-	&"privy_chirurgeon": {
-		"index": 16, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(58.0, 98.0),
-		"impact_display": Vector2(118.0, 118.0),
-		"attack_display": Vector2(112.0, 132.0),
-	},
-	&"laureate_courser": {
-		"index": 17, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(112.0, 72.0),
-		"impact_display": Vector2(150.0, 110.0),
-		"attack_display": Vector2(152.0, 110.0),
-	},
-	&"ninefold_witness": {
-		"index": 18, "delivery": &"actor", "kind": &"support",
-		"projectile_display": Vector2(94.0, 94.0),
-		"impact_display": Vector2(154.0, 154.0),
-		"attack_display": Vector2(150.0, 150.0),
-	},
-	&"regency_conservator": {
-		"index": 19, "delivery": &"projectile", "kind": &"shell",
-		"projectile_key": &"choir_regency_conservator_shot",
-		"impact_key": &"choir_regency_conservator_impact",
-		"projectile_display": Vector2(56.0, 28.0),
-		"impact_display": Vector2(154.0, 140.0),
-		"attack_display": Vector2(158.0, 140.0),
 	},
 }
 
@@ -318,8 +216,8 @@ static func impact_spec_for_key(visual_key: StringName) -> Dictionary:
 
 static func validation_errors() -> PackedStringArray:
 	var errors: PackedStringArray = []
-	if SPECS.size() != 20:
-		errors.append("Expected exactly 20 district attack VFX specs")
+	if SPECS.size() != 8:
+		errors.append("Expected exactly 8 district attack VFX specs")
 	if ATTACK_VISIBLE_CENTER_OFFSETS.size() != SPECS.size():
 		errors.append("Attack visible-center metadata must cover every VFX spec")
 	if PROJECTILE_VISIBLE_CENTER_OFFSETS.size() != SPECS.size():
@@ -335,8 +233,8 @@ static func validation_errors() -> PackedStringArray:
 		if not expected.has(archetype_id):
 			errors.append("Unexpected district attack VFX spec: %s" % archetype_id)
 		_validate_item(archetype_id, SPECS[archetype_id] as Dictionary, errors)
-	if RANGED_IDS.size() != 9:
-		errors.append("Expected exactly nine ranged district attack VFX specs")
+	if RANGED_IDS.size() != 3:
+		errors.append("Expected exactly three ranged district attack VFX specs")
 	var projectile_count: int = 0
 	var actor_count: int = 0
 	var projectile_keys: Dictionary[StringName, bool] = {}
@@ -359,8 +257,8 @@ static func validation_errors() -> PackedStringArray:
 				errors.append("Actor-only VFX has projectile key: %s" % archetype_id)
 			if not StringName(item.get("impact_key", &"")).is_empty():
 				errors.append("Actor-only VFX has impact key: %s" % archetype_id)
-	if projectile_count != 9 or actor_count != 11:
-		errors.append("Expected 9 projectile and 11 actor attack VFX specs")
+	if projectile_count != 3 or actor_count != 5:
+		errors.append("Expected 3 projectile and 5 actor attack VFX specs")
 	return errors
 
 
@@ -411,7 +309,7 @@ static func _validate_item(
 	errors: PackedStringArray
 ) -> void:
 	var item_index: int = int(item.get("index", -1))
-	if item_index < 0 or item_index >= 20:
+	if item_index < 0 or item_index >= SPECS.size():
 		errors.append("Invalid atlas index for %s" % archetype_id)
 	var region: Rect2i = _region_for_index(item_index)
 	if region.position.x < 0 or region.position.y < 0:

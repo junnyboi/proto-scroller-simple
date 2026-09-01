@@ -197,48 +197,6 @@ func test_each_active_hazard_triggers_animates_and_releases_without_growth() -> 
 	assert_gt(city.camera_rig.impact_velocity.length(), 0.0)
 
 
-func test_late_pressure_budget_is_seeded_bounded_and_escalating() -> void:
-	var controller: HazardPressureController = city.urban_siege.hazard_pressure
-	assert_eq(DistrictRecipeValidator.validate(DISTRICT), PackedStringArray())
-	var first_trace: Array[Dictionary] = _pressure_trace(controller, 441)
-	var replay_trace: Array[Dictionary] = _pressure_trace(controller, 441)
-	var alternate_trace: Array[Dictionary] = _pressure_trace(controller, 442)
-	assert_eq(first_trace, replay_trace)
-	assert_ne(first_trace, alternate_trace)
-	assert_eq(DISTRICT.acts[3].hazard_pressure_budget, 2)
-	assert_eq(DISTRICT.acts[4].hazard_pressure_budget, 4)
-	assert_eq(DISTRICT.acts[5].hazard_pressure_budget, 10)
-	assert_eq(DISTRICT.acts[3].hazard_events_per_beat, 1)
-	assert_eq(DISTRICT.acts[4].hazard_events_per_beat, 2)
-	assert_eq(DISTRICT.acts[5].hazard_events_per_beat, 3)
-	for assignment: Dictionary in first_trace:
-		var act: DistrictAct = DISTRICT.acts[int(assignment.act_index)]
-		assert_lte(int(assignment.used_budget), act.hazard_pressure_budget)
-		assert_lte(int(assignment.event_count), act.hazard_events_per_beat)
-	assert_lte(controller.peak_used_budget, RuntimeBudget.HAZARD_PRESSURE)
-	assert_has(controller._eligible_ids(3), &"metro_vent")
-	assert_does_not_have(controller._eligible_ids(3), &"crane_drop")
-	assert_has(controller._eligible_ids(4), &"crane_drop")
-	assert_has(controller._eligible_ids(4), &"gas_fireline")
-	assert_has(controller._eligible_ids(4), &"facade_shear")
-	for hazard_id: StringName in EnvironmentalHazardCatalog.TIER2_IDS:
-		assert_has(controller._eligible_ids(5), hazard_id)
-	var scheduled_tier2: Dictionary[StringName, bool] = {}
-	for assignment: Dictionary in first_trace:
-		for record: Dictionary in assignment.plan:
-			var hazard_id: StringName = StringName(record.hazard_id)
-			if hazard_id in EnvironmentalHazardCatalog.TIER2_IDS:
-				scheduled_tier2[hazard_id] = true
-	assert_eq(scheduled_tier2.size(), EnvironmentalHazardCatalog.TIER2_IDS.size())
-	var scheduled_apex: Dictionary[StringName, bool] = {}
-	for assignment: Dictionary in first_trace:
-		for record: Dictionary in assignment.plan:
-			var hazard_id: StringName = StringName(record.hazard_id)
-			if hazard_id in EnvironmentalHazardCatalog.APEX_IDS:
-				scheduled_apex[hazard_id] = true
-	assert_eq(scheduled_apex.size(), EnvironmentalHazardCatalog.APEX_IDS.size())
-
-
 func test_apex_pair_propagates_one_bounded_causal_chain() -> void:
 	var target: EnvironmentalHazard2D = runtime.activate(
 		&"ammo_convoy",
@@ -340,69 +298,6 @@ func test_release_all_cancels_queued_hazard_damage() -> void:
 	runtime.release_all()
 	for record: Dictionary in city.destruction_director._queue:
 		assert_eq(int(record.effect_flags) & DamageEvent.FLAG_HAZARD, 0)
-
-
-func test_final_chaos_beat_schedules_hazards_without_spend_or_pending_overflow() -> void:
-	var director: DistrictResponseDirector = city.urban_siege.director
-	director.stop()
-	city.urban_siege.hazard_pressure.configure(991, 1)
-	director.running = true
-	director.completed = false
-	director.phase_index = 5
-	director.beat_index = 2
-	director.state = DistrictResponseDirector.STATE_WAITING
-	director.act_elapsed = 0.0
-	director._try_start_next_beat()
-	assert_eq(director.current_beat_id(), &"COMMAND_GAUNTLET")
-	assert_between(director.hazard_pending_count(), 2, RuntimeBudget.PENDING_HAZARDS)
-	assert_lte(
-		city.urban_siege.hazard_pressure.last_used_budget,
-		DISTRICT.acts[5].hazard_pressure_budget
-	)
-	for record: Dictionary in director._hazard_pending:
-		assert_between(
-			absf((record.position as Vector2).x - city.robot.global_position.x),
-			HazardPressureController.MINIMUM_DISTANCE,
-			HazardPressureController.MAXIMUM_DISTANCE
-		)
-	var pair_records: Array[Dictionary] = []
-	for record: Dictionary in director._hazard_pending:
-		if bool(record.get("chain_pair", false)):
-			pair_records.append(record)
-	assert_eq(pair_records.size(), 2)
-	assert_true(bool(pair_records[0].auto_trigger) != bool(pair_records[1].auto_trigger))
-	assert_lte(
-		(pair_records[0].position as Vector2).distance_to(
-			pair_records[1].position as Vector2
-		),
-		HazardPressureController.CHAIN_PAIR_SPACING + 0.01
-	)
-
-
-func _pressure_trace(
-	controller: HazardPressureController,
-	seed_value: int
-) -> Array[Dictionary]:
-	controller.configure(seed_value, 1)
-	var trace: Array[Dictionary] = []
-	for act_index: int in range(3, DISTRICT.acts.size()):
-		var act: DistrictAct = DISTRICT.acts[act_index]
-		for beat_index: int in range(act.beats.size()):
-			var plan: Array[Dictionary] = controller.plan_for_beat(
-				act_index,
-				beat_index,
-				act,
-				act.beats[beat_index],
-				760.0
-			)
-			trace.append({
-				"act_index": act_index,
-				"beat_index": beat_index,
-				"used_budget": controller.last_used_budget,
-				"event_count": plan.size(),
-				"plan": plan,
-			})
-	return trace
 
 
 func _assert_hazard_runtime_stream(stream: AudioStreamWAV) -> void:
