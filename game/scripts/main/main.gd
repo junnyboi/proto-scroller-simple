@@ -21,6 +21,9 @@ const COMBAT_PROFILE_SCRIPT: Script = preload(
 const RUNTIME_TWEAK_SERVICE_SCRIPT: Script = preload(
 	"res://scripts/tuning/runtime_tweak_service.gd"
 )
+const TEMPLATE_MAIN_SCENE: PackedScene = preload(
+	"res://scenes/template/template_main.tscn"
+)
 const DUMMY_AUDIO_DRIVER_NAME: String = "Dummy"
 const FADE_TO_BLACK_SECONDS: float = 0.45
 const FADE_FROM_BLACK_SECONDS: float = 0.35
@@ -40,6 +43,7 @@ var runtime_tweak_layer: CanvasLayer
 var runtime_tweak_panel: RuntimeTweakPanel
 var gameplay_settings_layer: CanvasLayer
 var gameplay_settings_screen: TitleScreen
+var template_runtime: TemplateMain
 var forced_next_run_seed: int = -1
 var forced_next_district_index: int = -1
 var title_transition_active: bool = false
@@ -66,6 +70,10 @@ var _settings_mobile_controls_were_enabled: bool = true
 
 
 func _ready() -> void:
+	if TemplateRuntimeSelector.requested():
+		template_runtime = TEMPLATE_MAIN_SCENE.instantiate() as TemplateMain
+		add_child(template_runtime)
+		return
 	InputBindingSettings.apply_saved()
 	AudioVolumeSettings.apply_saved()
 	combat_profile = COMBAT_PROFILE_SCRIPT.new() as PlayerCombatProfileStore
@@ -105,6 +113,8 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if template_runtime != null:
+		return
 	if not event.is_action_pressed(&"ui_cancel"):
 		return
 	if event is InputEventKey and (event as InputEventKey).echo:

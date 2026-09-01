@@ -1,0 +1,90 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/template_stage.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/template/compact_run_lifecycle.gd" id="2_lifecycle"]
+[ext_resource type="Texture2D" path="res://art/city/parallax/districts/business_panorama.webp" id="3_background"]
+[ext_resource type="PackedScene" path="res://scenes/template/basic_hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/template/compact_debrief.tscn" id="5_debrief"]
+
+[node name="TemplateStage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_stage")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.03, 0.05, 0.08, 0.3)
+
+[node name="CompactRunLifecycle" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_lifecycle")
+
+[node name="BasicHud" parent="." instance=ExtResource("4_hud")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="StubCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="StubCenter"]
+custom_minimum_size = Vector2(420, 230)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="StubCenter/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Heading" type="Label" parent="StubCenter/Panel/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "PHASE 1 LIFECYCLE STUB"
+horizontal_alignment = 1
+
+[node name="Instructions" type="Label" parent="StubCenter/Panel/Content"]
+layout_mode = 2
+text = "Exercise exactly-once victory and defeat before combat is ported."
+horizontal_alignment = 1
+
+[node name="StubVictoryButton" type="Button" parent="StubCenter/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "COMPLETE STUB"
+
+[node name="StubDefeatButton" type="Button" parent="StubCenter/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "DEFEAT STUB"
+
+[node name="CompactDebrief" parent="." instance=ExtResource("5_debrief")]
+unique_name_in_owner = true
+layout_mode = 1

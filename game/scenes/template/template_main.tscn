@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/template_main.gd" id="1_template_main"]
+
+[node name="TemplateMain" type="Node"]
+script = ExtResource("1_template_main")

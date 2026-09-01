@@ -1,0 +1,81 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/basic_title.gd" id="1_basic_title"]
+[ext_resource type="Texture2D" path="res://art/ui/title_screen/command_deck_landscape.jpg" id="2_title_art"]
+
+[node name="BasicTitle" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_basic_title")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_title_art")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.025, 0.045, 0.64)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(480, 280)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "LIGHTWEIGHT SCROLLER TEMPLATE"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="Center/Panel/Margin/Content"]
+layout_mode = 2
+text = "Phase 1 lifecycle shell · retained original presentation"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "START STAGE 1"
+
+[node name="PhaseStatus" type="Label" parent="Center/Panel/Margin/Content"]
+layout_mode = 2
+text = "Settings and leaderboard arrive in later phases"
+horizontal_alignment = 1
