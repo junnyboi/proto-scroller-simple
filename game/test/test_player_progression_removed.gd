@@ -53,11 +53,11 @@ func test_large_score_award_does_not_open_a_level_or_upgrade_modal() -> void:
 
 func test_district_pressure_is_authored_by_stage_not_player_level() -> void:
 	var first: DistrictPressureProfile = DistrictPressureCatalog.authored_profile(&"BUSINESS")
-	var final: DistrictPressureProfile = DistrictPressureCatalog.authored_profile(&"ROYAL")
+	var final: DistrictPressureProfile = DistrictPressureCatalog.authored_profile(&"RESIDENTIAL")
 	assert_not_null(first)
 	assert_not_null(final)
 	assert_eq(first.district_index, 0)
-	assert_eq(final.district_index, 4)
+	assert_eq(final.district_index, 1)
 	assert_gt(final.threat_allowance, first.threat_allowance)
 	assert_lt(final.cadence_scale, first.cadence_scale)
 

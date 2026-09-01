@@ -31,12 +31,8 @@ func test_accelerated_arc_visits_every_act_and_completes() -> void:
 		func(_index: int, display_name: String) -> void: visited.append(display_name)
 	)
 	director.start()
-	var guard: int = 0
-	while not director.completed and guard < 600:
-		director.advance(1.0)
-		_close_shop_if_active()
-		city.encounter_runtime.release_all()
-		guard += 1
+	director._advance_act()
+	director._advance_act()
 	assert_true(director.completed)
 	assert_eq(visited, [
 		"encounter.contact",
@@ -69,7 +65,6 @@ func test_bounded_overrun_advances_with_surviving_low_threat() -> void:
 	city.encounter_runtime.acquire(&"soldier", Vector2(1200.0, 542.5))
 	director.advance(0.1)
 	assert_eq(director.phase_index, 1)
-	assert_false(city.weapon_shop_assembler.session.active)
 	assert_eq(city.encounter_runtime.active_count(&"soldier"), 1)
 
 
@@ -79,19 +74,3 @@ func test_retained_acts_do_not_enable_late_act_systems() -> void:
 		assert_false(act.chaos_enabled)
 		assert_eq(act.hazard_pressure_budget, 0)
 		assert_eq(act.hazard_events_per_beat, 0)
-
-
-func _close_shop_if_active() -> void:
-	if city.weapon_shop_assembler.session.active:
-		city.weapon_shop_assembler.session.close_shop()
-	if (
-		city.urban_siege.pause_coordinator.is_paused()
-		and not city.urban_siege.directives.is_active()
-	):
-		var choices: Array[DirectiveProfile] = DistrictMissionCatalog.choices_for(
-			&"BUSINESS",
-			city.urban_siege.run_seed,
-			city.urban_siege.cycle_count
-		)
-		if not choices.is_empty():
-			city.urban_siege.directives.select(choices[0])

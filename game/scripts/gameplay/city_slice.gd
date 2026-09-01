@@ -73,8 +73,6 @@ var rampage_session: RampageSession
 var rampage_events: RampageEventAdapter
 var overdrive_session: OverdriveSession
 var run_lifecycle: CityRunLifecycle
-var upgrade_assembler: PlayerUpgradeAssembler
-var weapon_shop_assembler: WeaponShopAssembler
 var music_duck_controller: MusicDuckController
 var contextual_attacks: ContextualAttackController
 var air_target_lock_runtime: AirTargetLockRuntime
@@ -153,6 +151,7 @@ func _ready() -> void:
 	debris_pool.set_culling_camera(camera_rig)
 	enemy_scrap_pool.set_culling_camera(camera_rig)
 	_build_hud()
+	_bind_player_attack_feedback()
 	_build_leaderboard_bridge()
 	_build_urban_siege()
 	run_lifecycle = RUN_LIFECYCLE_SCRIPT.new() as CityRunLifecycle
@@ -160,14 +159,6 @@ func _ready() -> void:
 	run_lifecycle.setup(self)
 	add_child(run_lifecycle)
 	project_choir_runtime = ProjectChoirRuntime.mount(self, campaign_progress)
-	upgrade_assembler = PlayerUpgradeAssembler.new()
-	add_child(upgrade_assembler)
-	var upgrade_errors: PackedStringArray = upgrade_assembler.setup(self)
-	assert(upgrade_errors.is_empty(), "Upgrade setup failed: %s" % [upgrade_errors])
-	weapon_shop_assembler = WeaponShopAssembler.new()
-	add_child(weapon_shop_assembler)
-	var shop_errors: PackedStringArray = weapon_shop_assembler.setup(self)
-	assert(shop_errors.is_empty(), "Shop setup failed: %s" % [shop_errors])
 	if _web_gameplay_smoke_requested():
 		var smoke_probe: Node = WEB_GAMEPLAY_SMOKE_PROBE_SCRIPT.new() as Node
 		add_child(smoke_probe)
@@ -184,7 +175,7 @@ func _process(delta: float) -> void:
 func _web_gameplay_smoke_requested() -> bool:
 	if OS.has_feature("web"):
 		var query: String = String(JavaScriptBridge.eval("window.location.search"))
-		return query.contains("webSmoke=upgrade")
+		return query.contains("webSmoke=1")
 	return OS.get_environment("PROTO_SCROLLER_WEB_SMOKE") == "1"
 
 func trigger_test_stomp() -> int: return robot.request_stomp()
@@ -368,11 +359,6 @@ func _build_hud() -> void:
 	gameplay_hud.retry_pressed.connect(_on_retry_pressed)
 	gameplay_hud.title_pressed.connect(_on_title_pressed)
 	add_child(gameplay_hud)
-	var experience: RunExperience = rampage_session.run_experience
-	experience.experience_changed.connect(gameplay_hud._set_experience)
-	gameplay_hud._set_experience(
-		experience.level, experience.current_experience, experience.experience_required()
-	)
 	haptics_adapter = HAPTICS_SCRIPT.new() as HapticsAdapter
 	haptics_adapter.name = "HapticsAdapter"
 	haptics_adapter.setup(mobile_detection_override)
@@ -390,6 +376,14 @@ func _build_hud() -> void:
 		robot
 	)
 	add_child(impact_feedback_director)
+
+
+func _bind_player_attack_feedback() -> void:
+	impact_feedback_director.bind_player_attacks(contextual_attacks)
+	var reactions: PlayerAttackReactionRuntime = PlayerAttackReactionRuntime.new()
+	reactions.name = "PlayerAttackReactionRuntime"
+	reactions.setup(contextual_attacks, robot, encounter_runtime)
+	add_child(reactions)
 
 
 func _build_leaderboard_bridge() -> void:
@@ -410,7 +404,6 @@ func _on_robot_heavy_impact(
 	var options: DamageQueryOptions = DamageQueryOptions.new()
 	options.damage_type = &"ground_smash"
 	options.structural_damage_scale = structural_damage / maxf(actor_damage, 0.001)
-	upgrade_assembler.decorate_damage_options(options, contextual_attacks.current_spec)
 	_reduce_enemy_wrecks_to_rubble(
 		origin,
 		radius + GROUND_SMASH_WRECK_RADIUS_BONUS,

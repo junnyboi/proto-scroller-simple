@@ -300,6 +300,10 @@ static func xp_value(kind: StringName) -> int:
 	return int(profile(kind).get("xp", 500))
 
 
+static func score_value(kind: StringName) -> int:
+	return xp_value(kind)
+
+
 static func is_valid_kind(kind: StringName) -> bool:
 	return kind in BASE_KINDS or has(kind)
 

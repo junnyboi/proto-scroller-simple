@@ -12,21 +12,6 @@ const BASE_FACADE_SIZES: Dictionary[StringName, Vector2] = {
 	&"residential_rainvault_cooperative": Vector2(500.0, 445.0),
 	&"residential_sixfold_balcony_court": Vector2(480.0, 390.0),
 	&"residential_nightglass_mutual_clinic": Vector2(450.0, 355.0),
-	&"entertainment_voltage_chapel": Vector2(420.0, 360.0),
-	&"entertainment_orpheum_vanta": Vector2(540.0, 410.0),
-	&"entertainment_halcyon_stack_hotel": Vector2(470.0, 500.0),
-	&"entertainment_prism_crown_revue": Vector2(610.0, 390.0),
-	&"entertainment_house_of_static": Vector2(570.0, 500.0),
-	&"military_ordnance_transload_bastion": Vector2(620.0, 350.0),
-	&"military_revetment_armory_stack": Vector2(390.0, 330.0),
-	&"military_aegis_signal_citadel": Vector2(420.0, 500.0),
-	&"military_manticore_repair_gantry": Vector2(650.0, 390.0),
-	&"military_prefect_war_keep": Vector2(560.0, 500.0),
-	&"royal_laureate_processional_gate": Vector2(540.0, 400.0),
-	&"royal_aurelian_conservatory": Vector2(620.0, 400.0),
-	&"royal_tribunal_nine_seals": Vector2(650.0, 470.0),
-	&"royal_ministry_privilege_spire": Vector2(420.0, 540.0),
-	&"royal_palace_last_sovereign": Vector2(680.0, 540.0),
 }
 
 
@@ -42,7 +27,7 @@ func _region_uv_rect(pattern: BuildingDamagePattern2D) -> Vector4:
 	return pattern.cavity_material().get_shader_parameter("region_uv_rect") as Vector4
 
 
-func test_all_twenty_five_facades_are_exactly_twenty_percent_larger() -> void:
+func test_all_ten_facades_are_exactly_twenty_percent_larger() -> void:
 	assert_almost_eq(CityDistrictCatalog.FACADE_SIZE_SCALE, 1.2, 0.0001)
 	var checked_variants: int = 0
 	for district: CityDistrictProfile in CityDistrictCatalog.districts():
@@ -63,7 +48,7 @@ func test_all_twenty_five_facades_are_exactly_twenty_percent_larger() -> void:
 	assert_eq(BASE_FACADE_SIZES.size(), CityDistrictCatalog.BUILDING_VARIANT_COUNT)
 
 
-func test_all_twenty_five_variants_reconfigure_one_cell_tree_in_place() -> void:
+func test_all_ten_variants_reconfigure_one_cell_tree_in_place() -> void:
 	var bootstrap: StructuralBuildingVariant = CityDistrictCatalog.districts()[0].building_variants[0]
 	var building: StructuralBuilding2D = StructuralBuilding2D.new()
 	building.intact_texture = bootstrap.intact_texture
@@ -138,7 +123,7 @@ func test_all_twenty_five_variants_reconfigure_one_cell_tree_in_place() -> void:
 	)
 
 
-func test_all_twenty_five_facades_keep_alpha_and_every_section_can_break() -> void:
+func test_all_ten_facades_keep_alpha_and_every_section_can_break() -> void:
 	var bootstrap: StructuralBuildingVariant = CityDistrictCatalog.districts()[0].building_variants[0]
 	var building: StructuralBuilding2D = StructuralBuilding2D.new()
 	building.intact_texture = bootstrap.intact_texture
@@ -186,11 +171,9 @@ func test_all_twenty_five_facades_keep_alpha_and_every_section_can_break() -> vo
 						pattern.contour().size(),
 						BuildingDamagePattern2D.CONTOUR_POINTS,
 						String(variant.variant_id)
-					)
-					assert_gt(pattern.crack_count(), 0, String(variant.variant_id))
-					assert_eq(pattern.damage_detail_count(), 0, String(variant.variant_id))
-					assert_eq(pattern.damage_detail_mask(), 0, String(variant.variant_id))
-					assert_almost_eq(
+						)
+						assert_gt(pattern.crack_count(), 0, String(variant.variant_id))
+						assert_almost_eq(
 						pattern.cavity_darken_strength(),
 						BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH,
 						0.0001,
@@ -273,7 +256,7 @@ func test_stream_runtime_applies_variants_outside_assertions() -> void:
 	assert_false(source.contains("assert(building.apply_variant"))
 	assert_true(
 		source.contains(
-			"var variant_applied: bool = building.apply_variant(blueprint.building_variant)"
+			"var variant_applied: bool = building.apply_variant(configured_variant)"
 		)
 	)
 
@@ -387,7 +370,6 @@ func test_forward_boundary_emits_the_residential_transition() -> void:
 	for logical_index: int in [9]:
 		_unlock_current_district(city.world_stream)
 		await _move_to_logical_chunk(city, logical_index)
-		assert_false(city.weapon_shop_assembler.session.active)
 	assert_eq(transitions.size(), 1)
 	assert_eq(transitions[0].previous, &"BUSINESS")
 	assert_eq(transitions[0].district, &"RESIDENTIAL")

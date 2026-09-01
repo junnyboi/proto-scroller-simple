@@ -15,13 +15,4 @@ static func entry_status(city: CitySlice) -> Dictionary:
 			"allowed": false,
 			"reason": coordinator.lease_reasons()[0] if not coordinator.lease_reasons().is_empty() else &"modal_active",
 		}
-	if city.gameplay_hud != null:
-		if city.gameplay_hud.upgrade_choice_overlay != null and city.gameplay_hud.upgrade_choice_overlay.visible:
-			return {"allowed": false, "reason": &"upgrade_choice"}
-	if (
-		city.weapon_shop_assembler != null
-		and city.weapon_shop_assembler.overlay != null
-		and city.weapon_shop_assembler.overlay.visible
-	):
-		return {"allowed": false, "reason": &"weapon_shop"}
 	return {"allowed": true, "reason": &""}

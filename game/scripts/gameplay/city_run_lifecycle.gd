@@ -182,7 +182,6 @@ func _on_recovery_started(_duration: float) -> void:
 
 
 func _on_directive_selected(profile: DirectiveProfile) -> void:
-	city.upgrade_assembler.session.set_presentation_blocked(false)
 	city.gameplay_hud.show_directive(
 		profile,
 		0,
@@ -193,7 +192,6 @@ func _on_directive_selected(profile: DirectiveProfile) -> void:
 
 
 func _on_directive_choices_offered(profiles: Array[DirectiveProfile]) -> void:
-	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.gameplay_hud.directive_choice_overlay.show_choices(profiles)
 
 
@@ -268,7 +266,6 @@ func _on_continue_pressed() -> void:
 	city.prepare_new_game_plus_world()
 	if city.urban_siege.continue_cycle():
 		_pending_ending_id = &"NONE"
-		city.upgrade_assembler.session.continue_cycle()
 		city.gameplay_hud.hide_terminal_overlay()
 		var recipe_key: String = (
 			"siege.recipe.%s" % String(city.urban_siege.selected_recipe.recipe_id).to_lower()
@@ -306,7 +303,6 @@ func _finish_run(completed: bool, ending_id: StringName = &"NONE") -> void:
 	if city.game_over_active:
 		return
 	city.game_over_active = true
-	city.upgrade_assembler.session.stop_run()
 	var run_metrics: Dictionary = {"completed": completed}
 	if not completed:
 		run_metrics.defeat_source_id = city.last_player_damage_source_id
