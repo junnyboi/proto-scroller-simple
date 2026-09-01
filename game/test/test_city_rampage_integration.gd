@@ -23,11 +23,13 @@ func test_prop_destruction_updates_score_and_momentum_without_kill_combo() -> vo
 	var combo_ring: ComboDecayRing = city.get_node(
 		^"HUD/ComboDecayRing"
 	) as ComboDecayRing
-	var momentum_label: Label = city.get_node(^"HUD/MomentumLabel") as Label
 	assert_eq(score_label.text, "00000450")
 	assert_false(combo_label.visible)
 	assert_false(combo_ring.visible)
-	assert_eq(momentum_label.text, "MOMENTUM 012%")
+	assert_null(city.get_node_or_null(^"HUD/StatusLabel"))
+	assert_null(city.get_node_or_null(^"HUD/MomentumLabel"))
+	assert_null(city.get_node_or_null(^"HUD/MomentumTrack"))
+	assert_null(city.get_node_or_null(^"HUD/MomentumFill"))
 	_record_test_execution()
 
 

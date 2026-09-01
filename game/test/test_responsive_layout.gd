@@ -47,7 +47,7 @@ func test_ultrawide_layout_uses_full_available_width() -> void:
 	await get_tree().process_frame
 	city.gameplay_hud._apply_landscape_layout(Vector2(ULTRAWIDE_SIZE))
 	assert_eq(city.gameplay_hud.score_panel.get_rect().end.x, 2024.0)
-	assert_eq(city.gameplay_hud.momentum_panel.position.x, 774.0)
+	assert_eq(city.gameplay_hud.siege_progress.position.x, 774.0)
 	assert_eq(city.gameplay_hud.terminal_panel.position.x, 699.0)
 
 
@@ -141,10 +141,14 @@ func test_city_portrait_hud_camera_and_mobile_controls_use_safe_zones() -> void:
 	assert_gte(camera_rig.visible_world_size().x, 479.0)
 	assert_gte(camera_rig.visible_world_size().y, 853.0)
 	assert_eq(city.gameplay_hud.status_panel.position, Vector2.ZERO)
-	assert_eq(city.gameplay_hud.status_panel.size, Vector2(300.0, 48.0))
-	assert_lte(city.gameplay_hud.score_panel.get_rect().end.y, 172.0)
+	assert_eq(city.gameplay_hud.status_panel.size, Vector2(300.0, 34.0))
+	assert_lte(city.gameplay_hud.score_panel.get_rect().end.y, 108.0)
+	assert_null(city.gameplay_hud.get_node_or_null(^"StatusLabel"))
+	assert_null(city.gameplay_hud.get_node_or_null(^"MomentumLabel"))
+	assert_null(city.gameplay_hud.get_node_or_null(^"MomentumTrack"))
+	assert_null(city.gameplay_hud.get_node_or_null(^"MomentumFill"))
 	assert_null(city.gameplay_hud.get_node_or_null(^"DodgeCooldownIndicator"))
-	var hud_footprint: Rect2 = Rect2(Vector2.ZERO, Vector2(300.0, 172.0))
+	var hud_footprint: Rect2 = Rect2(Vector2.ZERO, Vector2(300.0, 108.0))
 	assert_lt(
 		hud_footprint.get_area() / (float(PORTRAIT_SIZE.x) * float(PORTRAIT_SIZE.y)),
 		0.08

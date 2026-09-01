@@ -80,7 +80,7 @@ func test_leaderboard_bridge_blocks_unranked_summary_before_environment_branch()
 	assert_eq(int(bridge.debug_snapshot().request_counter), 0)
 
 
-func test_debrief_discloses_status_and_compact_configuration_hash() -> void:
+func test_debrief_omits_tuning_provenance_annotation() -> void:
 	var panel: MatchDebriefPanel = MatchDebriefPanel.new()
 	add_child_autofree(panel)
 	await get_tree().process_frame
@@ -91,11 +91,8 @@ func test_debrief_discloses_status_and_compact_configuration_hash() -> void:
 		"catalog_revision": "test-catalog",
 		"reasons": PackedStringArray(["enemy.outgoing_damage_multiplier"]),
 	})
-	panel.present(tuned, "MISSION COMPLETE", 5, 2)
-	assert_string_contains(panel.run_meta_label.text, "TUNED")
-	assert_string_contains(panel.run_meta_label.text, "0123456789")
-	assert_string_contains(panel.run_meta_label.tooltip_text, "enemy.outgoing_damage_multiplier")
-	assert_eq(panel.run_meta_label.modulate, MatchDebriefPanel.AMBER)
+	panel.present(tuned, "MISSION COMPLETE")
+	assert_null(panel.content_root.get_node_or_null("RunMeta"))
 
 
 func _make_summary() -> RunSummarySnapshot:

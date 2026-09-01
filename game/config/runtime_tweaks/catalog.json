@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_revision": "2026.09.01.1",
+  "catalog_revision": "2026.09.01.2",
   "descriptors": [
     {
       "id": "boss.animation_moving_fps",
@@ -1515,7 +1515,7 @@
       "id": "player.health.max_health",
       "category": "PLAYER",
       "type": "float",
-      "default": 120.0,
+      "default": 500.0,
       "unit": "HP",
       "apply_mode": "NEXT_RUN",
       "integrity": "GAMEPLAY",
@@ -1523,7 +1523,7 @@
         "health"
       ],
       "minimum": 60.0,
-      "maximum": 300.0,
+      "maximum": 1000.0,
       "step": 10.0,
       "label_key": "tuning.param.player_health_max_health",
       "description_key": "tuning.desc.player_health_max_health",

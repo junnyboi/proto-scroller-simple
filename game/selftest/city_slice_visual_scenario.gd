@@ -90,7 +90,7 @@ func _tweak_disclaimer_valid(city: CitySlice, viewport_size: Vector2) -> bool:
 	return (
 		disclaimer.visible
 		and disclaimer.text == "tweaks active, leaderboard disabled"
-		and disclaimer.position.y >= button.position.y + button.size.y
+		and disclaimer.position.y + disclaimer.size.y <= button.position.y
 		and disclaimer.position.x + disclaimer.size.x <= viewport_size.x
 		and disclaimer.position.y + disclaimer.size.y <= viewport_size.y
 	)

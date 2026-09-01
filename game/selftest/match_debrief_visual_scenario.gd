@@ -59,14 +59,12 @@ func _run() -> void:
 		await process_frame
 	var panel: MatchDebriefPanel = city.gameplay_hud.match_debrief
 	var page_name: String = OS.get_environment("PROTO_SCROLLER_DEBRIEF_PAGE").to_lower()
-	if page_name == "career":
-		panel.set_page(MatchDebriefPanel.Page.CAREER)
-	elif page_name == "global":
+	if page_name == "global":
+		panel.set_page(MatchDebriefPanel.Page.GLOBAL)
 		panel.set_global_state(&"online", _global_rows(), {
 			"rank": 4,
 			"callsign": "ECHO-7",
 		})
-		panel.set_page(MatchDebriefPanel.Page.GLOBAL)
 	else:
 		page_name = "overview"
 		panel.set_page(MatchDebriefPanel.Page.AFTER_ACTION)
@@ -221,13 +219,6 @@ func _page_valid(
 	game_over: bool,
 	skill_affinity: bool
 ) -> bool:
-	if page_name == "career":
-		return (
-			String(snapshot.page) == "CAREER"
-			and String(snapshot.callsign) == "ECHO-7"
-			and int((snapshot.chart as Dictionary).history_size) == 8
-			and (snapshot.local_rows as PackedStringArray).size() == 5
-		)
 	if page_name == "global":
 		return (
 			String(snapshot.page) == "GLOBAL"
@@ -298,13 +289,10 @@ func _json_safe_snapshot(snapshot: Dictionary) -> Dictionary:
 		"killed_by": String(snapshot.killed_by),
 		"combo": String(snapshot.combo),
 		"personal_best": bool(snapshot.personal_best),
-		"callsign": String(snapshot.callsign),
 		"global_state": String(snapshot.global_state),
 		"weapon_rows": Array(snapshot.weapon_rows as PackedStringArray),
 		"enemy_rows": Array(snapshot.enemy_rows as PackedStringArray),
-		"local_rows": Array(snapshot.local_rows as PackedStringArray),
 		"global_rows": Array(snapshot.global_rows as PackedStringArray),
-		"chart": snapshot.chart,
 		"panel_rect": _rect_dictionary(snapshot.panel_rect as Rect2),
 		"retry_rect": _rect_dictionary(snapshot.retry_rect as Rect2),
 		"title_rect": _rect_dictionary(snapshot.title_rect as Rect2),

@@ -107,6 +107,14 @@ func test_bottom_right_hud_button_opens_pause_safe_tuning_panel() -> void:
 	assert_true(button.visible)
 	assert_eq(button.size, Vector2(138.0, 24.0))
 	assert_eq(button.get_theme_font_size(&"font_size"), 9)
+	assert_eq(button.z_index, GameplayHud.TWEAK_BUTTON_Z_INDEX)
+	assert_gt(button.z_index, hud.game_over_overlay.z_index)
+	assert_gt(button.z_index, hud.directive_choice_overlay.z_index)
+	assert_eq(button.self_modulate.a, GameplayHud.TWEAK_BUTTON_IDLE_OPACITY)
+	button.mouse_entered.emit()
+	assert_eq(button.self_modulate.a, GameplayHud.TWEAK_BUTTON_HOVER_OPACITY)
+	button.mouse_exited.emit()
+	assert_eq(button.self_modulate.a, GameplayHud.TWEAK_BUTTON_IDLE_OPACITY)
 	hud._set_tuning_provenance({"ranked_eligible": true})
 	assert_false(disclaimer.visible)
 	assert_lte(button.position.x + button.size.x, viewport_size.x)
@@ -122,7 +130,18 @@ func test_bottom_right_hud_button_opens_pause_safe_tuning_panel() -> void:
 			button.get_theme_font_size(&"font_size"),
 			8 if size.y > size.x else 9
 		)
-		assert_gte(disclaimer.position.y, button.position.y + button.size.y)
+		assert_eq(
+			button.position.x + button.size.x,
+			size.x - GameplayHud.TWEAK_BUTTON_RIGHT_MARGIN
+		)
+		assert_eq(
+			button.position.y + button.size.y,
+			size.y - GameplayHud.TWEAK_BUTTON_BOTTOM_MARGIN
+		)
+		assert_lte(
+			disclaimer.position.y + disclaimer.size.y,
+			button.position.y
+		)
 		assert_lte(disclaimer.position.x + disclaimer.size.x, size.x)
 		assert_lte(disclaimer.position.y + disclaimer.size.y, size.y)
 	assert_false(panel.is_open())

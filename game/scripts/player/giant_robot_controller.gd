@@ -54,7 +54,7 @@ enum LocomotionState {
 @export var landing_speed_for_impact: float = 520.0
 
 @export_group("Durability")
-@export var max_health: float = 120.0
+@export var max_health: float = 500.0
 
 @export_group("References")
 @export var visual_root_path: NodePath = ^"VisualRoot"

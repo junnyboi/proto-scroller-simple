@@ -6,7 +6,7 @@ signal title_pressed
 signal global_refresh_requested
 signal callsign_saved(callsign: String)
 
-enum Page { AFTER_ACTION, CAREER, GLOBAL }
+enum Page { AFTER_ACTION, GLOBAL }
 
 const CREST: Texture2D = preload("res://art/ui/match_debrief/dossier_crest.png")
 const BACKGROUND: Color = Color(0.012, 0.025, 0.034, 0.985)
@@ -29,7 +29,6 @@ const PORTRAIT_SIZE: Vector2 = Vector2(
 )
 const WEAPON_ROW_COUNT: int = 3
 const ENEMY_ROW_COUNT: int = 4
-const LOCAL_ROW_COUNT: int = 5
 const GLOBAL_ROW_COUNT: int = 10
 const CONTROL_GROUP_MARGIN: float = 24.0
 
@@ -45,7 +44,6 @@ var result_label: Label
 var grade_label: Label
 var score_label: Label
 var killer_label: Label
-var run_meta_label: Label
 var crest: TextureRect
 var combo_header_label: Label
 var combo_value_label: Label
@@ -59,23 +57,8 @@ var weapon_rows: Array[Label] = []
 var enemy_header_label: Label
 var enemy_total_label: Label
 var enemy_rows: Array[Label] = []
-var recommendation_label: Label
 var retry_button: Button
 var title_button: Button
-
-var career_profile_panel: ColorRect
-var callsign_header_label: Label
-var callsign_edit: LineEdit
-var callsign_save_button: Button
-var callsign_status_label: Label
-var chart_panel: ColorRect
-var chart_header_label: Label
-var chart_kills_button: Button
-var chart_share_button: Button
-var weapon_history_chart: CareerWeaponHistoryChart
-var local_board_panel: ColorRect
-var local_board_header_label: Label
-var local_board_rows: Array[Label] = []
 
 var global_panel: ColorRect
 var global_header_label: Label
@@ -97,7 +80,6 @@ var callsign_uplink_state: StringName = &"idle"
 var _global_entries: Array[Dictionary] = []
 var _personal_rank: Dictionary = {}
 var _after_action_controls: Array[Control] = []
-var _career_controls: Array[Control] = []
 var _global_controls: Array[Control] = []
 
 
@@ -113,14 +95,12 @@ func _ready() -> void:
 func configure_profile(store: PlayerCombatProfileStore) -> void:
 	profile_store = store
 	if store != null:
-		_sync_callsign_edits(store.callsign())
+		_sync_callsign_edit(store.callsign())
 
 
 func present(
 	summary: RunSummarySnapshot,
-	result_text: String,
-	dossier_count: int,
-	continuity_generation: int
+	result_text: String
 ) -> void:
 	if summary == null:
 		hide_panel()
@@ -136,29 +116,6 @@ func present(
 		var killer_name: String = _killer_name(summary.defeat_source_id)
 		killer_label.text = L10n.t("debrief.killed_by", {"killer": killer_name})
 		killer_label.tooltip_text = killer_label.text
-	run_meta_label.text = L10n.t("debrief.run_meta", {
-		"acts": summary.waves_cleared,
-		"cycle": summary.cycle_count,
-		"dossiers": dossier_count,
-		"total": CityDistrictCatalog.BUILDING_VARIANT_COUNT,
-		"generation": continuity_generation,
-	})
-	var compact_hash: String = (
-		summary.tuning_configuration_hash.left(10)
-		if not summary.tuning_configuration_hash.is_empty()
-		else "DEFAULT"
-	)
-	run_meta_label.text += L10n.t("debrief.tuning_meta", {
-		"status": L10n.t(
-			"tuning.status.%s" % String(summary.tuning_status).to_lower()
-		),
-		"hash": compact_hash,
-	})
-	run_meta_label.tooltip_text = "%s\n%s" % [
-		summary.tuning_configuration_hash,
-		", ".join(summary.tuning_reasons),
-	]
-	run_meta_label.modulate = MUTED if summary.tuning_ranked_eligible else AMBER
 	var combo_title: String = _combo_title(summary.highest_combo_tier)
 	combo_value_label.text = "%s\n%s" % [
 		combo_title,
@@ -181,11 +138,7 @@ func present(
 	_update_career(summary.career_snapshot)
 	_update_weapons(summary)
 	_update_enemies(summary)
-	_update_career_page(summary.career_snapshot)
 	_update_global_page()
-	recommendation_label.text = L10n.t("debrief.recommendation", {
-		"objective": L10n.t(summary.retry_objective),
-	})
 	visible = true
 	set_page(Page.AFTER_ACTION)
 	apply_responsive_layout(get_viewport_rect().size)
@@ -200,7 +153,6 @@ func hide_panel() -> void:
 func set_page(page: Page) -> void:
 	current_page = page
 	_set_controls_visible(_after_action_controls, page == Page.AFTER_ACTION)
-	_set_controls_visible(_career_controls, page == Page.CAREER)
 	_set_controls_visible(_global_controls, page == Page.GLOBAL)
 	for index: int in range(tab_buttons.size()):
 		tab_buttons[index].button_pressed = index == page
@@ -211,11 +163,9 @@ func set_page(page: Page) -> void:
 		)
 		_update_weapons(presented_summary)
 		_update_enemies(presented_summary)
-	elif page == Page.CAREER and presented_summary != null:
-		_update_career_page(presented_summary.career_snapshot)
 	elif page == Page.GLOBAL:
 		if profile_store != null:
-			_sync_callsign_edits(profile_store.callsign())
+			_sync_callsign_edit(profile_store.callsign())
 		_update_global_page()
 	apply_responsive_layout(get_viewport_rect().size)
 	if page == Page.GLOBAL:
@@ -268,10 +218,8 @@ func debug_snapshot() -> Dictionary:
 		"personal_best": personal_best_label.visible if personal_best_label != null else false,
 		"weapon_rows": _visible_row_text(weapon_rows),
 		"enemy_rows": _visible_row_text(enemy_rows),
-		"local_rows": _visible_row_text(local_board_rows),
 		"global_rows": _visible_row_text(global_rows),
 		"global_state": String(global_state),
-		"callsign": callsign_edit.text if callsign_edit != null else "",
 		"global_callsign": (
 			global_callsign_edit.text if global_callsign_edit != null else ""
 		),
@@ -282,7 +230,6 @@ func debug_snapshot() -> Dictionary:
 		),
 		"callsign_uplink_state": String(callsign_uplink_state),
 		"highlighted_global_rows": _highlighted_global_row_indexes(),
-		"chart": weapon_history_chart.debug_snapshot() if weapon_history_chart != null else {},
 		"panel_rect": Rect2(
 			content_root.position,
 			main_panel.size * content_root.scale
@@ -292,7 +239,6 @@ func debug_snapshot() -> Dictionary:
 		"bottom_content_rect": _bottom_content_rect(),
 		"retry_rect": _scaled_rect(retry_button),
 		"title_rect": _scaled_rect(title_button),
-		"callsign_rect": _scaled_rect(callsign_edit),
 		"global_callsign_rect": _scaled_rect(global_callsign_edit),
 		"global_callsign_save_rect": _scaled_rect(global_callsign_save_button),
 		"refresh_rect": _scaled_rect(global_refresh_button),
@@ -310,10 +256,9 @@ func _build_controls() -> void:
 	content_root.name = "Content"
 	add_child(content_root)
 	main_panel = _panel("DossierBackground", BACKGROUND)
-	for index: int in range(3):
+	for index: int in range(2):
 		var key: String = [
 			"debrief.tab.after_action",
-			"debrief.tab.career",
 			"debrief.tab.global",
 		][index]
 		var tab: Button = _button("DebriefTab%d" % index, key)
@@ -321,7 +266,6 @@ func _build_controls() -> void:
 		tab.pressed.connect(set_page.bind(index as Page))
 		tab_buttons.append(tab)
 	_build_after_action_controls()
-	_build_career_controls()
 	_build_global_controls()
 	retry_button = _button("DebriefRetryButton", "hud.retry")
 	retry_button.pressed.connect(retry_pressed.emit)
@@ -339,7 +283,6 @@ func _build_after_action_controls() -> void:
 	score_label = _label("Score", 34, AMBER, HORIZONTAL_ALIGNMENT_RIGHT)
 	killer_label = _label("KilledBy", 18, RED)
 	killer_label.clip_text = true
-	run_meta_label = _label("RunMeta", 16, MUTED)
 	combo_header_label = _section_label("ComboHeader", "debrief.highest_combo")
 	combo_value_label = _label("ComboValue", 28, AMBER)
 	combo_detail_label = _label("ComboDetail", 16, MUTED)
@@ -365,59 +308,15 @@ func _build_after_action_controls() -> void:
 		var row: Label = _label("EnemyRow%d" % index, 16, MUTED)
 		row.clip_text = true
 		enemy_rows.append(row)
-	recommendation_label = _label("Recommendation", 14, MUTED)
-	recommendation_label.clip_text = true
 	_after_action_controls.assign([
 		combo_panel, career_panel, weapon_panel, enemy_panel, result_label, grade_label,
-		score_label, killer_label, run_meta_label, combo_header_label, combo_value_label,
+		score_label, killer_label, combo_header_label, combo_value_label,
 		combo_detail_label, personal_best_label, crest, career_header_label,
 		career_value_label, weapon_header_label, weapon_preferred_label,
-		enemy_header_label, enemy_total_label, recommendation_label,
+		enemy_header_label, enemy_total_label,
 	])
 	_after_action_controls.append_array(weapon_rows)
 	_after_action_controls.append_array(enemy_rows)
-
-
-func _build_career_controls() -> void:
-	career_profile_panel = _panel("OperatorProfileCard", CARD)
-	callsign_header_label = _section_label("CallsignHeader", "debrief.callsign.header")
-	callsign_edit = LineEdit.new()
-	callsign_edit.name = "CallsignEdit"
-	callsign_edit.placeholder_text = L10n.t("debrief.callsign.placeholder")
-	callsign_edit.max_length = PlayerCombatProfileStore.MAX_CALLSIGN_LENGTH
-	callsign_edit.add_theme_font_size_override(&"font_size", 19)
-	content_root.add_child(callsign_edit)
-	callsign_save_button = _button("CallsignSaveButton", "debrief.callsign.save")
-	callsign_save_button.pressed.connect(_save_callsign)
-	callsign_edit.text_submitted.connect(func(_value: String) -> void: _save_callsign())
-	callsign_status_label = _label("CallsignStatus", 14, MUTED)
-	chart_panel = _panel("WeaponHistoryCard", CARD_ALT)
-	chart_header_label = _section_label("ChartHeader", "debrief.history.header")
-	chart_kills_button = _button("ChartKillsButton", "debrief.history.kills")
-	chart_kills_button.toggle_mode = true
-	chart_kills_button.button_pressed = true
-	chart_kills_button.pressed.connect(
-		_set_chart_mode.bind(CareerWeaponHistoryChart.DisplayMode.KILLS)
-	)
-	chart_share_button = _button("ChartShareButton", "debrief.history.share")
-	chart_share_button.toggle_mode = true
-	chart_share_button.pressed.connect(
-		_set_chart_mode.bind(CareerWeaponHistoryChart.DisplayMode.SHARE)
-	)
-	weapon_history_chart = CareerWeaponHistoryChart.new()
-	content_root.add_child(weapon_history_chart)
-	local_board_panel = _panel("LocalBoardCard", CARD)
-	local_board_header_label = _section_label("LocalBoardHeader", "debrief.local.header")
-	for index: int in range(LOCAL_ROW_COUNT):
-		var row: Label = _label("LocalBoardRow%d" % index, 14, MUTED)
-		row.clip_text = true
-		local_board_rows.append(row)
-	_career_controls.assign([
-		career_profile_panel, callsign_header_label, callsign_edit, callsign_save_button,
-		callsign_status_label, chart_panel, chart_header_label, chart_kills_button,
-		chart_share_button, weapon_history_chart, local_board_panel, local_board_header_label,
-	])
-	_career_controls.append_array(local_board_rows)
 
 
 func _build_global_controls() -> void:
@@ -511,47 +410,37 @@ func _button(button_name: String, key: String) -> Button:
 	return button
 
 
-func _save_callsign(
-	source_edit: LineEdit = null,
-	status_label: Label = null
-) -> void:
-	var active_edit: LineEdit = source_edit if source_edit != null else callsign_edit
-	var active_status: Label = status_label if status_label != null else callsign_status_label
+func _save_callsign(source_edit: LineEdit, status_label: Label) -> void:
 	callsign_uplink_state = &"idle"
 	if profile_store == null:
-		active_status.text = L10n.t("debrief.callsign.unavailable")
-		active_status.modulate = RED
+		status_label.text = L10n.t("debrief.callsign.unavailable")
+		status_label.modulate = RED
 		return
-	var result: StringName = profile_store.set_callsign(active_edit.text)
+	var result: StringName = profile_store.set_callsign(source_edit.text)
 	if result != &"ok":
-		active_status.text = L10n.t("debrief.callsign.%s" % String(result))
-		active_status.modulate = RED
+		status_label.text = L10n.t("debrief.callsign.%s" % String(result))
+		status_label.modulate = RED
 		return
 	var saved_callsign: String = profile_store.callsign()
-	_sync_callsign_edits(saved_callsign)
+	_sync_callsign_edit(saved_callsign)
 	if OS.has_feature("web"):
 		set_callsign_uplink_state(&"pending")
 	else:
 		_sync_callsign_status(L10n.t("debrief.callsign.saved"), CYAN)
 	_update_global_callsign(saved_callsign)
-	_update_career_page(profile_store.snapshot())
 	_update_global_page()
 	callsign_saved.emit(saved_callsign)
 
 
-func _sync_callsign_edits(value: String) -> void:
-	if callsign_edit != null:
-		callsign_edit.text = value
+func _sync_callsign_edit(value: String) -> void:
 	if global_callsign_edit != null:
 		global_callsign_edit.text = value
 
 
 func _sync_callsign_status(message: String, color: Color) -> void:
-	var labels: Array[Label] = [callsign_status_label, global_callsign_status_label]
-	for label: Label in labels:
-		if label != null:
-			label.text = message
-			label.modulate = color
+	if global_callsign_status_label != null:
+		global_callsign_status_label.text = message
+		global_callsign_status_label.modulate = color
 
 
 func _update_global_callsign(saved_callsign: String) -> void:
@@ -566,12 +455,6 @@ func _update_global_callsign(saved_callsign: String) -> void:
 			return
 
 
-func _set_chart_mode(mode: CareerWeaponHistoryChart.DisplayMode) -> void:
-	chart_kills_button.button_pressed = mode == CareerWeaponHistoryChart.DisplayMode.KILLS
-	chart_share_button.button_pressed = mode == CareerWeaponHistoryChart.DisplayMode.SHARE
-	weapon_history_chart.set_display_mode(mode)
-
-
 func _update_career(career: Dictionary) -> void:
 	if career.is_empty():
 		career_value_label.text = L10n.t("debrief.career.local_record_unavailable")
@@ -583,31 +466,6 @@ func _update_career(career: Dictionary) -> void:
 		"runs": int(career.get("total_runs", 0)),
 		"victories": int(career.get("victories", 0)),
 	})
-
-
-func _update_career_page(career: Dictionary) -> void:
-	var history: Array[Dictionary] = []
-	var local_rows: Array[Dictionary] = []
-	if profile_store != null:
-		_sync_callsign_edits(profile_store.callsign())
-		history = profile_store.chart_history()
-		local_rows = profile_store.local_leaderboard(LOCAL_ROW_COUNT)
-	else:
-		_sync_callsign_edits(String(career.get("callsign", "")))
-		var raw_history: Array = career.get("run_history", []) as Array
-		for entry: Variant in raw_history:
-			if entry is Dictionary:
-				history.append((entry as Dictionary).duplicate(true))
-		local_rows = _rank_history_locally(history, LOCAL_ROW_COUNT)
-	weapon_history_chart.set_history(history)
-	for index: int in range(local_board_rows.size()):
-		var row: Label = local_board_rows[index]
-		row.visible = index < local_rows.size()
-		row.text = _ranking_row(local_rows[index], true) if row.visible else ""
-	if local_rows.is_empty():
-		local_board_rows[0].visible = true
-		local_board_rows[0].text = L10n.t("debrief.local.empty")
-
 
 func _update_global_page() -> void:
 	if global_status_label == null:
@@ -724,36 +582,14 @@ func _combo_title(tier: int) -> String:
 	return L10n.t(String(profile.get(&"title_key", "debrief.combo.single")))
 
 
-func _ranking_row(entry: Dictionary, compact: bool = false) -> String:
-	return L10n.t(
-		"debrief.ranking_row_compact" if compact else "debrief.ranking_row",
-		{
+func _ranking_row(entry: Dictionary) -> String:
+	return L10n.t("debrief.ranking_row", {
 		"rank": int(entry.get("rank", 0)),
 		"callsign": String(entry.get("callsign", "UNKNOWN")),
 		"tier": int(entry.get("highest_combo_tier", 0)),
 		"score": "%08d" % int(entry.get("best_score", entry.get("score", 0))),
 		"weapon": _weapon_name(StringName(entry.get("preferred_weapon", "UNKNOWN"))),
-		}
-	)
-
-
-func _rank_history_locally(history: Array[Dictionary], limit: int) -> Array[Dictionary]:
-	var ranked: Array[Dictionary] = []
-	for entry: Dictionary in history:
-		ranked.append(entry.duplicate(true))
-	ranked.sort_custom(func(first: Dictionary, second: Dictionary) -> bool:
-		var first_tier: int = int(first.get("highest_combo_tier", 0))
-		var second_tier: int = int(second.get("highest_combo_tier", 0))
-		if first_tier != second_tier:
-			return first_tier > second_tier
-		return int(first.get("score", 0)) > int(second.get("score", 0))
-	)
-	if ranked.size() > limit:
-		ranked.resize(limit)
-	for index: int in range(ranked.size()):
-		ranked[index]["rank"] = index + 1
-		ranked[index]["callsign"] = callsign_edit.text
-	return ranked
+	})
 
 
 func _weapon_name(weapon_id: StringName) -> String:
@@ -805,8 +641,6 @@ func _apply_landscape_layout(viewport_size: Vector2) -> void:
 	score_label.size = Vector2(285.0, 48.0)
 	score_label.add_theme_font_size_override(&"font_size", 28)
 	_place_killer_inline(grade_label.position.x - 20.0)
-	run_meta_label.position = Vector2(30.0, 100.0 + body_offset)
-	run_meta_label.size = Vector2(1100.0, 24.0)
 	combo_panel.position = Vector2(20.0, 130.0 + body_offset)
 	combo_panel.size = Vector2(535.0, 190.0)
 	crest.position = Vector2(36.0, 153.0 + body_offset)
@@ -849,49 +683,14 @@ func _apply_landscape_layout(viewport_size: Vector2) -> void:
 			585.0, 358.0 + body_offset + float(index) * 34.0
 		)
 		enemy_rows[index].size = Vector2(535.0, 30.0)
-	_layout_career_landscape()
 	_layout_global_landscape()
-	recommendation_label.position = Vector2(30.0, 526.0)
-	recommendation_label.size = Vector2(1100.0, 24.0)
 	_apply_after_action_header_bottom_padding()
-	retry_button.position = Vector2(190.0, 574.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING)
+	var bottom: Control = global_panel if current_page == Page.GLOBAL else career_panel
+	var action_y: float = bottom.position.y + bottom.size.y + CONTROL_GROUP_MARGIN
+	retry_button.position = Vector2(190.0, action_y)
 	retry_button.size = Vector2(350.0, 60.0)
-	title_button.position = Vector2(620.0, 574.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING)
+	title_button.position = Vector2(620.0, action_y)
 	title_button.size = Vector2(350.0, 60.0)
-
-
-func _layout_career_landscape() -> void:
-	career_profile_panel.position = Vector2(20.0, 89.0)
-	career_profile_panel.size = Vector2(330.0, 186.0)
-	callsign_header_label.position = Vector2(38.0, 101.0)
-	callsign_header_label.size = Vector2(294.0, 26.0)
-	callsign_edit.position = Vector2(38.0, 135.0)
-	callsign_edit.size = Vector2(294.0, 44.0)
-	callsign_save_button.position = Vector2(38.0, 187.0)
-	callsign_save_button.size = Vector2(142.0, 48.0)
-	callsign_status_label.position = Vector2(188.0, 187.0)
-	callsign_status_label.size = Vector2(144.0, 48.0)
-	local_board_panel.position = Vector2(20.0, 285.0)
-	local_board_panel.size = Vector2(
-		330.0,
-		265.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING
-	)
-	local_board_header_label.position = Vector2(38.0, 295.0)
-	local_board_header_label.size = Vector2(294.0, 26.0)
-	for index: int in range(local_board_rows.size()):
-		local_board_rows[index].position = Vector2(38.0, 327.0 + float(index) * 43.0)
-		local_board_rows[index].size = Vector2(294.0, 38.0)
-		local_board_rows[index].add_theme_font_size_override(&"font_size", 12)
-	chart_panel.position = Vector2(360.0, 89.0)
-	chart_panel.size = Vector2(780.0, 461.0)
-	chart_header_label.position = Vector2(378.0, 99.0)
-	chart_header_label.size = Vector2(380.0, 26.0)
-	chart_kills_button.position = Vector2(900.0, 97.0)
-	chart_kills_button.size = Vector2(104.0, 36.0)
-	chart_share_button.position = Vector2(1012.0, 97.0)
-	chart_share_button.size = Vector2(104.0, 36.0)
-	weapon_history_chart.position = Vector2(378.0, 141.0)
-	weapon_history_chart.size = Vector2(744.0, 404.0)
 
 
 func _layout_global_landscape() -> void:
@@ -943,8 +742,6 @@ func _apply_portrait_layout(viewport_size: Vector2) -> void:
 	score_label.size = Vector2(432.0, 42.0)
 	score_label.add_theme_font_size_override(&"font_size", 26)
 	_place_killer_inline(652.0)
-	run_meta_label.position = Vector2(20.0, 160.0 + body_offset)
-	run_meta_label.size = Vector2(632.0, 24.0)
 	combo_panel.position = Vector2(16.0, 192.0 + body_offset)
 	combo_panel.size = Vector2(640.0, 180.0)
 	crest.position = Vector2(30.0, 220.0 + body_offset)
@@ -990,49 +787,14 @@ func _apply_portrait_layout(viewport_size: Vector2) -> void:
 	career_value_label.position = Vector2(32.0, 804.0 + body_offset)
 	career_value_label.size = Vector2(608.0, 110.0)
 	career_value_label.add_theme_font_size_override(&"font_size", 15)
-	_layout_career_portrait()
 	_layout_global_portrait()
-	recommendation_label.position = Vector2(24.0, 986.0)
-	recommendation_label.size = Vector2(624.0, 28.0)
 	_apply_after_action_header_bottom_padding()
-	retry_button.position = Vector2(24.0, 1038.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING)
+	var bottom: Control = global_panel if current_page == Page.GLOBAL else career_panel
+	var action_y: float = bottom.position.y + bottom.size.y + CONTROL_GROUP_MARGIN
+	retry_button.position = Vector2(24.0, action_y)
 	retry_button.size = Vector2(296.0, 66.0)
-	title_button.position = Vector2(352.0, 1038.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING)
+	title_button.position = Vector2(352.0, action_y)
 	title_button.size = Vector2(296.0, 66.0)
-
-
-func _layout_career_portrait() -> void:
-	career_profile_panel.position = Vector2(16.0, 91.0)
-	career_profile_panel.size = Vector2(640.0, 150.0)
-	callsign_header_label.position = Vector2(32.0, 101.0)
-	callsign_header_label.size = Vector2(608.0, 26.0)
-	callsign_edit.position = Vector2(32.0, 133.0)
-	callsign_edit.size = Vector2(392.0, 50.0)
-	callsign_save_button.position = Vector2(438.0, 133.0)
-	callsign_save_button.size = Vector2(202.0, 50.0)
-	callsign_status_label.position = Vector2(32.0, 189.0)
-	callsign_status_label.size = Vector2(608.0, 34.0)
-	chart_panel.position = Vector2(16.0, 251.0)
-	chart_panel.size = Vector2(640.0, 430.0)
-	chart_header_label.position = Vector2(32.0, 261.0)
-	chart_header_label.size = Vector2(340.0, 26.0)
-	chart_kills_button.position = Vector2(408.0, 257.0)
-	chart_kills_button.size = Vector2(108.0, 42.0)
-	chart_share_button.position = Vector2(524.0, 257.0)
-	chart_share_button.size = Vector2(116.0, 42.0)
-	weapon_history_chart.position = Vector2(32.0, 309.0)
-	weapon_history_chart.size = Vector2(608.0, 354.0)
-	local_board_panel.position = Vector2(16.0, 691.0)
-	local_board_panel.size = Vector2(
-		640.0,
-		323.0 + AFTER_ACTION_HEADER_BOTTOM_PADDING
-	)
-	local_board_header_label.position = Vector2(32.0, 701.0)
-	local_board_header_label.size = Vector2(608.0, 26.0)
-	for index: int in range(local_board_rows.size()):
-		local_board_rows[index].position = Vector2(32.0, 735.0 + float(index) * 54.0)
-		local_board_rows[index].size = Vector2(608.0, 48.0)
-		local_board_rows[index].add_theme_font_size_override(&"font_size", 13)
 
 
 func _layout_global_portrait() -> void:
@@ -1090,7 +852,10 @@ func _place_killer_inline(max_right: float) -> void:
 
 func _layout_tabs(x: float, y: float, total_width: float, height: float) -> void:
 	var gap: float = 8.0
-	var tab_width: float = (total_width - gap * 2.0) / 3.0
+	var tab_width: float = (
+		(total_width - gap * float(tab_buttons.size() - 1))
+		/ float(tab_buttons.size())
+	)
 	for index: int in range(tab_buttons.size()):
 		tab_buttons[index].position = Vector2(x + float(index) * (tab_width + gap), y)
 		tab_buttons[index].size = Vector2(tab_width, height)
@@ -1141,21 +906,15 @@ func _controls_union_rect(controls: Array[Button]) -> Rect2:
 
 
 func _page_content_rect() -> Rect2:
-	match current_page:
-		Page.CAREER:
-			return _scaled_rect(career_profile_panel)
-		Page.GLOBAL:
-			return _scaled_rect(global_panel)
+	if current_page == Page.GLOBAL:
+		return _scaled_rect(global_panel)
 	return _scaled_rect(result_label)
 
 
 func _bottom_content_rect() -> Rect2:
-	match current_page:
-		Page.CAREER:
-			return _scaled_rect(local_board_panel)
-		Page.GLOBAL:
-			return _scaled_rect(global_panel)
-	return _scaled_rect(recommendation_label)
+	if current_page == Page.GLOBAL:
+		return _scaled_rect(global_panel)
+	return _scaled_rect(career_panel)
 
 
 func _scaled_rect(control: Control) -> Rect2:

@@ -140,7 +140,7 @@ func test_profile_persists_records_merges_totals_and_marks_personal_bests() -> v
 	store.setup(TEST_PROFILE_PATH)
 	var first: RunSummarySnapshot = _make_summary(7200, 10, true, {
 		&"needle": 4,
-		&"needle": 2,
+		&"soldier": 2,
 	}, {
 		&"MISSILE": 5,
 		&"JAB_CROSS": 1,
@@ -240,7 +240,6 @@ func test_callsign_history_and_local_ranking_are_bounded_and_deterministic() -> 
 	assert_eq(int(board[0].highest_combo_tier), 25)
 	assert_eq(int(board[0].rank), 1)
 	assert_eq(String(board[0].callsign), "Echo Seven")
-	assert_eq(store.chart_history(12).size(), 12)
 	var reloaded: PlayerCombatProfileStore = PlayerCombatProfileStore.new()
 	add_child_autofree(reloaded)
 	reloaded.setup(TEST_PROFILE_PATH)
@@ -307,7 +306,7 @@ func test_debrief_presents_bounded_rankings_and_both_responsive_layouts() -> voi
 			&"needle": 8,
 			&"reclaimed_breacher": 6,
 			&"covenant_warden": 5,
-			&"needle": 4,
+			&"soldier": 4,
 			&"tank": 3,
 		},
 		{
@@ -327,9 +326,17 @@ func test_debrief_presents_bounded_rankings_and_both_responsive_layouts() -> voi
 			"victories": 4,
 		},
 	})
-	panel.present(summary, "DISTRICT CLEARED", 25, 2)
+	panel.present(summary, "DISTRICT CLEARED")
 	var state: Dictionary = panel.debug_snapshot()
 	assert_true(state.visible)
+	assert_eq(panel.tab_buttons.size(), 2)
+	assert_eq(panel.tab_buttons[0].text, "AFTER ACTION")
+	assert_eq(panel.tab_buttons[1].text, "GLOBAL NETWORK")
+	assert_null(panel.content_root.get_node_or_null("RunMeta"))
+	assert_null(panel.content_root.get_node_or_null("Recommendation"))
+	assert_null(panel.content_root.get_node_or_null("OperatorProfileCard"))
+	assert_null(panel.content_root.get_node_or_null("WeaponHistoryCard"))
+	assert_null(panel.content_root.get_node_or_null("LocalBoardCard"))
 	assert_true(String(state.combo).contains("EXTINCTION EVENT"))
 	assert_true(state.personal_best)
 	assert_eq(String(state.killed_by), "")
@@ -348,14 +355,14 @@ func test_debrief_presents_bounded_rankings_and_both_responsive_layouts() -> voi
 	_assert_touch_rect(landscape_state.retry_rect)
 	_assert_touch_rect(landscape_state.title_rect)
 	_assert_action_group_margins(panel, landscape_state)
-	_assert_after_action_header_bottom_padding(panel, 100.0, 58.0)
+	_assert_after_action_header_bottom_padding(panel, 130.0, 58.0)
 	panel.apply_responsive_layout(Vector2(720.0, 1280.0))
 	var portrait_state: Dictionary = panel.debug_snapshot()
 	_assert_rect_inside(portrait_state.panel_rect, Vector2(720.0, 1280.0))
 	_assert_touch_rect(portrait_state.retry_rect)
 	_assert_touch_rect(portrait_state.title_rect)
 	_assert_action_group_margins(panel, portrait_state)
-	_assert_after_action_header_bottom_padding(panel, 160.0, 70.0)
+	_assert_after_action_header_bottom_padding(panel, 192.0, 70.0)
 	var signal_counts: Dictionary = {"retry": 0, "title": 0}
 	panel.retry_pressed.connect(func() -> void: signal_counts.retry += 1)
 	panel.title_pressed.connect(func() -> void: signal_counts.title += 1)
@@ -379,7 +386,7 @@ func test_game_over_debrief_names_the_fatal_enemy_in_both_layouts() -> void:
 		{&"ENVIRONMENT": 9},
 		&"covenant_warden"
 	)
-	panel.present(summary, "GAME OVER", 2, 1)
+	panel.present(summary, "GAME OVER")
 	assert_eq(
 		String(panel.debug_snapshot().killed_by),
 		"KILLED BY 'COVENANT WARDEN'"
@@ -401,7 +408,7 @@ func test_game_over_debrief_names_the_fatal_enemy_in_both_layouts() -> void:
 	)
 	assert_lte(
 		panel.killer_label.position.y + panel.killer_label.size.y,
-		panel.run_meta_label.position.y
+		panel.combo_panel.position.y
 	)
 	panel.apply_responsive_layout(Vector2(720.0, 1280.0))
 	assert_almost_eq(
@@ -415,9 +422,9 @@ func test_game_over_debrief_names_the_fatal_enemy_in_both_layouts() -> void:
 	)
 	assert_lte(
 		panel.killer_label.position.y + panel.killer_label.size.y,
-		panel.run_meta_label.position.y
+		panel.combo_panel.position.y
 	)
-	panel.set_page(MatchDebriefPanel.Page.CAREER)
+	panel.set_page(MatchDebriefPanel.Page.GLOBAL)
 	assert_false(panel.killer_label.visible)
 	panel.set_page(MatchDebriefPanel.Page.AFTER_ACTION)
 	assert_true(panel.killer_label.visible)
@@ -475,7 +482,7 @@ func test_fatal_damage_source_resolution_survives_summary_enrichment() -> void:
 	_record_test_execution()
 
 
-func test_career_profile_chart_and_global_tabs_are_interactive() -> void:
+func test_global_tab_is_interactive() -> void:
 	L10n.set_locale("en")
 	var store: PlayerCombatProfileStore = PlayerCombatProfileStore.new()
 	add_child_autofree(store)
@@ -494,54 +501,39 @@ func test_career_profile_chart_and_global_tabs_are_interactive() -> void:
 	add_child_autofree(panel)
 	await get_tree().process_frame
 	panel.configure_profile(store)
-	panel.present(latest, "DISTRICT CLEARED", 25, 2)
-	panel.set_page(MatchDebriefPanel.Page.CAREER)
-	var career_state: Dictionary = panel.debug_snapshot()
-	assert_eq(String(career_state.page), "CAREER")
-	assert_eq(String(career_state.callsign), "Echo Seven")
-	assert_eq(int((career_state.chart as Dictionary).history_size), 4)
-	assert_eq((career_state.local_rows as PackedStringArray).size(), 4)
-	panel.chart_share_button.pressed.emit()
-	assert_eq(String(panel.weapon_history_chart.debug_snapshot().mode), "SHARE")
-	panel.weapon_history_chart.select_index(0)
-	assert_eq(int(panel.weapon_history_chart.debug_snapshot().selected_index), 0)
+	panel.present(latest, "DISTRICT CLEARED")
 	var signal_state: Dictionary = {"callsign": "", "count": 0}
 	panel.callsign_saved.connect(func(value: String) -> void:
 		signal_state.callsign = value
 		signal_state.count += 1
 	)
-	panel.callsign_edit.text = "Rook-7"
-	panel.callsign_save_button.pressed.emit()
-	assert_eq(store.callsign(), "Rook-7")
-	assert_eq(String(signal_state.callsign), "Rook-7")
-	assert_eq(int(signal_state.count), 1)
 	panel.set_global_state(&"online", [{
 		"rank": 1,
-		"callsign": "Rook-7",
+		"callsign": "Echo Seven",
 		"highest_combo_tier": 19,
 		"best_score": 88_000,
 		"preferred_weapon": "MISSILE",
-	}], {"rank": 1, "callsign": "Rook-7"})
+	}], {"rank": 1, "callsign": "Echo Seven"})
 	panel.set_page(MatchDebriefPanel.Page.GLOBAL)
 	var global_state: Dictionary = panel.debug_snapshot()
 	assert_eq(String(global_state.page), "GLOBAL")
 	assert_eq(String(global_state.global_state), "online")
-	assert_eq(String(global_state.global_callsign), "Rook-7")
+	assert_eq(String(global_state.global_callsign), "Echo Seven")
 	assert_eq((global_state.global_rows as PackedStringArray).size(), 1)
-	assert_true(String((global_state.global_rows as PackedStringArray)[0]).contains("Rook-7"))
+	assert_true(String((global_state.global_rows as PackedStringArray)[0]).contains("Echo Seven"))
 	assert_eq(global_state.highlighted_global_rows, PackedInt32Array([0]))
 	panel.global_callsign_edit.text = "x"
 	panel.global_callsign_save_button.pressed.emit()
-	assert_eq(store.callsign(), "Rook-7")
-	assert_eq(int(signal_state.count), 1)
+	assert_eq(store.callsign(), "Echo Seven")
+	assert_eq(int(signal_state.count), 0)
 	assert_eq(
 		String(panel.debug_snapshot().global_callsign_status),
 		L10n.t("debrief.callsign.too_short")
 	)
 	panel.global_callsign_edit.text = "f_u_c_k"
 	panel.global_callsign_save_button.pressed.emit()
-	assert_eq(store.callsign(), "Rook-7")
-	assert_eq(int(signal_state.count), 1)
+	assert_eq(store.callsign(), "Echo Seven")
+	assert_eq(int(signal_state.count), 0)
 	assert_eq(
 		String(panel.debug_snapshot().global_callsign_status),
 		L10n.t("debrief.callsign.inappropriate")
@@ -551,8 +543,7 @@ func test_career_profile_chart_and_global_tabs_are_interactive() -> void:
 	global_state = panel.debug_snapshot()
 	assert_eq(store.callsign(), "Nova Prime")
 	assert_eq(String(signal_state.callsign), "Nova Prime")
-	assert_eq(int(signal_state.count), 2)
-	assert_eq(String(global_state.callsign), "Nova Prime")
+	assert_eq(int(signal_state.count), 1)
 	assert_eq(String(global_state.global_callsign), "Nova Prime")
 	assert_eq(
 		String(global_state.global_callsign_status),
@@ -575,39 +566,6 @@ func test_career_profile_chart_and_global_tabs_are_interactive() -> void:
 	_assert_global_layout(panel)
 	_record_test_execution()
 
-
-func test_chinese_career_chart_draws_with_complete_cjk_font() -> void:
-	L10n.set_locale("zh-CN")
-	var panel: MatchDebriefPanel = MatchDebriefPanel.new()
-	add_child_autofree(panel)
-	await get_tree().process_frame
-	var chart: CareerWeaponHistoryChart = panel.weapon_history_chart
-	assert_true(chart.has_theme_font_override(&"font"))
-	var drawing_font: Font = chart._drawing_font()
-	assert_same(drawing_font, chart.get_theme_font(&"font"))
-	var chart_copy: String = L10n.t("debrief.history.empty")
-	chart_copy += L10n.t("debrief.history.tooltip", {
-		"run": 12,
-		"score": "00065269",
-		"tier": 3,
-		"weapon": L10n.t("debrief.weapon.missile"),
-	})
-	for weapon_id: String in [
-		"ground_smash", "jab_cross", "siege_drill", "gravity_crucible",
-		"machine_gun", "missile", "laser", "flamethrower", "tesla_tower",
-		"environment", "unknown",
-	]:
-		chart_copy += L10n.t("debrief.weapon.%s" % weapon_id)
-	var missing_codepoints: PackedInt32Array = []
-	for index: int in range(chart_copy.length()):
-		var codepoint: int = chart_copy.unicode_at(index)
-		if codepoint > 127 and not drawing_font.has_char(codepoint):
-			missing_codepoints.append(codepoint)
-	assert_eq(missing_codepoints, PackedInt32Array())
-	L10n.set_locale("en")
-	_record_test_execution()
-
-
 func test_async_global_rows_stay_hidden_on_after_action_page() -> void:
 	L10n.set_locale("en")
 	var panel: MatchDebriefPanel = MatchDebriefPanel.new()
@@ -620,7 +578,7 @@ func test_async_global_rows_stay_hidden_on_after_action_page() -> void:
 		{&"covenant_warden": 17},
 		{&"ENVIRONMENT": 9, &"FLAMETHROWER": 7, &"JAB_CROSS": 6}
 	)
-	panel.present(summary, "GAME OVER", 2, 1)
+	panel.present(summary, "GAME OVER")
 	panel.set_page(MatchDebriefPanel.Page.AFTER_ACTION)
 	panel.set_global_state(&"online", [{
 		"rank": 1,
@@ -886,17 +844,17 @@ func _assert_action_group_margins(panel: MatchDebriefPanel, state: Dictionary) -
 
 func _assert_after_action_header_bottom_padding(
 	panel: MatchDebriefPanel,
-	meta_base_y: float,
+	card_base_y: float,
 	body_base_y: float
 ) -> void:
-	var unpadded_meta_y: float = (
-		meta_base_y
+	var unpadded_card_y: float = (
+		card_base_y
 		+ panel._tabs_bottom()
 		+ MatchDebriefPanel.CONTROL_GROUP_MARGIN
 		- body_base_y
 	)
 	assert_almost_eq(
-		panel.run_meta_label.position.y - unpadded_meta_y,
+		panel.combo_panel.position.y - unpadded_card_y,
 		MatchDebriefPanel.AFTER_ACTION_HEADER_BOTTOM_PADDING,
 		0.01
 	)

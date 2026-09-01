@@ -13,10 +13,20 @@ signal tweak_controls_requested
 const PANEL_COLOR: Color = Color(0.03, 0.05, 0.08, 0.86)
 const ACCENT_COLOR: Color = Color("f1b36f")
 const MUTED_COLOR: Color = Color("b7c4cb")
+const HEALTH_GREEN_COLOR: Color = Color("63e67a")
+const HEALTH_ORANGE_COLOR: Color = Color("ff9a42")
+const HEALTH_RED_COLOR: Color = Color("ff4f4f")
+const HEALTH_ORANGE_THRESHOLD: float = 0.66
+const HEALTH_RED_THRESHOLD: float = 0.33
 const COMBO_GRACE_SECONDS: float = RampageRewardTuning.COMBO_GRACE_SECONDS
 const REAR_BARRIER_WARNING_DURATION: float = 0.72
 const TWEAK_BUTTON_WIDTH: float = 138.0
 const TWEAK_BUTTON_HEIGHT: float = 24.0
+const TWEAK_BUTTON_RIGHT_MARGIN: float = 24.0
+const TWEAK_BUTTON_BOTTOM_MARGIN: float = 18.0
+const TWEAK_BUTTON_IDLE_OPACITY: float = 0.5
+const TWEAK_BUTTON_HOVER_OPACITY: float = 1.0
+const TWEAK_BUTTON_Z_INDEX: int = 100
 const TWEAK_BUTTON_LANDSCAPE_FONT_SIZE: int = 9
 const TWEAK_BUTTON_PORTRAIT_FONT_SIZE: int = 8
 const REAR_BARRIER_WARNING_VOICE: AudioStream = preload(
@@ -47,17 +57,18 @@ const TRANSMISSION_TOAST_SCRIPT: Script = preload(
 const NEW_GAME_PLUS_BADGE_TEXTURE: Texture2D = preload(
 	"res://art/ui/new_game_plus/new_game_plus.webp"
 )
+const CHASSIS_HEART_TEXTURE: Texture2D = preload(
+	"res://art/ui/gameplay/chassis-heart.png"
+)
 
+var health_icon: TextureRect
 var health_label: Label
-var status_label: Label
 var objective_label: Label
 var score_label: Label
 var pending_score_label: Label
 var combo_label: Label
 var combo_ring: ComboDecayRing
 var combo_herald: ComboHerald
-var momentum_fill: ColorRect
-var momentum_label: Label
 var siege_progress: SiegeProgressStrip
 var directive_card: DirectiveCard
 var directive_choice_overlay: DirectiveChoiceOverlay
@@ -85,8 +96,6 @@ var purge_button: Button
 var disentangle_button: Button
 var rare_labels: Array[Label] = []
 var status_panel: ColorRect
-var momentum_panel: ColorRect
-var momentum_track: ColorRect
 var score_panel: ColorRect
 var score_caption: Label
 var terminal_panel: ColorRect
@@ -96,12 +105,7 @@ var rear_barrier_warning_play_count: int = 0
 var _robot: GiantRobotController
 var _contextual_attacks: ContextualAttackController
 var _combat_profile: PlayerCombatProfileStore
-var _pulse_age: float = 0.0
-var _overdrive_active: bool = false
-var _momentum_fill_width: float = 392.0
 var _displayed_combo_multiplier: int = -1
-var _displayed_overdrive_key: String = ""
-var _displayed_overdrive_seconds: String = ""
 var _campaign_dossier_count: int = 0
 var _continuity_generation: int = 0
 var _rear_barrier_warning_remaining: float = 0.0
@@ -111,6 +115,7 @@ var _hud_tuning_scale: float = 1.0
 var _hud_tuning_tint: Color = Color.WHITE
 var _hud_tuning_opacity: float = 1.0
 var _runtime_tweak_service: RuntimeTweakService
+var _tweak_controls_hovered: bool = false
 
 
 func setup(
@@ -146,7 +151,7 @@ func _ready() -> void:
 	layer = 20
 	_build_rear_barrier_warning()
 	_build_status_panel()
-	_build_momentum_panel()
+	_build_combo_indicator()
 	_build_score_panel()
 	_build_siege_progress()
 	_build_directive_card()
@@ -172,10 +177,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_apply_live_visual_tuning()
-	_pulse_age += delta
 	_update_rear_barrier_warning(delta)
-	if status_label != null:
-		status_label.modulate.a = 0.86 + sin(_pulse_age * 2.2) * 0.14
 
 
 func show_rear_barrier_warning() -> void:
@@ -196,6 +198,16 @@ func set_health(current: float, maximum: float) -> void:
 		"current": "%03d" % roundi(current),
 		"maximum": "%03d" % roundi(maximum),
 	})
+	health_label.modulate = health_color(current, maximum)
+
+
+static func health_color(current: float, maximum: float) -> Color:
+	var ratio: float = clampf(current / maxf(maximum, 1.0), 0.0, 1.0)
+	if ratio < HEALTH_RED_THRESHOLD:
+		return HEALTH_RED_COLOR
+	if ratio < HEALTH_ORANGE_THRESHOLD:
+		return HEALTH_ORANGE_COLOR
+	return HEALTH_GREEN_COLOR
 
 
 func set_score(value: int) -> void:
@@ -244,48 +256,12 @@ func dismiss_combo_herald() -> void:
 		combo_herald.dismiss()
 
 
-func set_momentum(value: float, band: int) -> void:
-	var clamped_value: float = clampf(value, 0.0, 100.0)
-	if momentum_fill != null:
-		var next_width: float = _momentum_fill_width * clamped_value / 100.0
-		if not is_equal_approx(momentum_fill.size.x, next_width):
-			momentum_fill.size.x = next_width
-		var next_color: Color = _momentum_color(band)
-		if momentum_fill.color != next_color:
-			momentum_fill.color = next_color
-	if momentum_label != null:
-		momentum_label.text = (
-			(
-				L10n.t("hud.overdrive_ready_portrait")
-				if _is_portrait_layout()
-				else L10n.t("hud.overdrive_ready_landscape")
-			)
-			if band == MomentumMeter.Band.READY
-			else L10n.t("hud.momentum", {"percent": "%03d" % roundi(clamped_value)})
-		)
+func set_momentum(_value: float, _band: int) -> void:
+	pass
 
 
-func set_overdrive(active: bool, remaining: float) -> void:
-	_overdrive_active = active
-	if momentum_label != null and active:
-		var key: String = (
-			"hud.overdrive_portrait" if _is_portrait_layout() else "hud.overdrive_landscape"
-		)
-		var displayed_seconds: String = "%.1f" % maxf(remaining, 0.0)
-		if key != _displayed_overdrive_key or displayed_seconds != _displayed_overdrive_seconds:
-			momentum_label.text = L10n.t(key, {"seconds": displayed_seconds})
-			_displayed_overdrive_key = key
-			_displayed_overdrive_seconds = displayed_seconds
-	elif not active:
-		_displayed_overdrive_key = ""
-		_displayed_overdrive_seconds = ""
-	if momentum_fill != null and active:
-		var next_width: float = _momentum_fill_width * clampf(remaining / 4.0, 0.0, 1.0)
-		if not is_equal_approx(momentum_fill.size.x, next_width):
-			momentum_fill.size.x = next_width
-		var overdrive_color: Color = Color("ff8a42")
-		if momentum_fill.color != overdrive_color:
-			momentum_fill.color = overdrive_color
+func set_overdrive(_active: bool, _remaining: float) -> void:
+	pass
 
 
 func set_rare_tags(tags: PackedStringArray) -> void:
@@ -294,9 +270,8 @@ func set_rare_tags(tags: PackedStringArray) -> void:
 		rare_labels[index].visible = index < tags.size()
 
 
-func set_status(key: String, placeholders: Dictionary = {}) -> void:
-	if status_label != null:
-		status_label.text = L10n.t(key, placeholders)
+func set_status(_key: String, _placeholders: Dictionary = {}) -> void:
+	pass
 
 
 func set_objective(key: String, placeholders: Dictionary = {}) -> void:
@@ -486,9 +461,7 @@ func _show_summary(summary: RunSummarySnapshot, completed: bool) -> void:
 	if summary != null and match_debrief != null:
 		match_debrief.present(
 			summary,
-			overlay_title.text,
-			_campaign_dossier_count,
-			_continuity_generation
+			overlay_title.text
 		)
 	else:
 		retry_button.grab_focus()
@@ -643,24 +616,24 @@ func _set_rear_barrier_warning_intensity(intensity: float) -> void:
 func _build_status_panel() -> void:
 	status_panel = ColorRect.new()
 	status_panel.position = Vector2(24.0, 22.0)
-	status_panel.size = Vector2(420.0, 112.0)
+	status_panel.size = Vector2(420.0, 88.0)
 	status_panel.color = PANEL_COLOR
 	add_child(status_panel)
-	status_label = Label.new()
-	status_label.name = "StatusLabel"
-	status_label.position = Vector2(48.0, 34.0)
-	status_label.text = L10n.t("hud.city_response_active")
-	status_label.add_theme_font_size_override(&"font_size", 24)
-	status_label.modulate = ACCENT_COLOR
-	add_child(status_label)
+	health_icon = TextureRect.new()
+	health_icon.name = "HealthIcon"
+	health_icon.texture = CHASSIS_HEART_TEXTURE
+	health_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	health_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	health_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(health_icon)
 	health_label = Label.new()
 	health_label.name = "HealthLabel"
-	health_label.position = Vector2(48.0, 68.0)
+	health_label.position = Vector2(78.0, 34.0)
 	health_label.add_theme_font_size_override(&"font_size", 25)
 	add_child(health_label)
 	objective_label = Label.new()
 	objective_label.name = "ObjectiveLabel"
-	objective_label.position = Vector2(48.0, 100.0)
+	objective_label.position = Vector2(48.0, 68.0)
 	objective_label.text = L10n.t(
 		"hud.move_hint",
 		InputBindingSettings.display_placeholders()
@@ -670,19 +643,7 @@ func _build_status_panel() -> void:
 	add_child(objective_label)
 
 
-func _build_momentum_panel() -> void:
-	momentum_panel = ColorRect.new()
-	momentum_panel.position = Vector2(466.0, 22.0)
-	momentum_panel.size = Vector2(500.0, 88.0)
-	momentum_panel.color = PANEL_COLOR
-	add_child(momentum_panel)
-	momentum_label = Label.new()
-	momentum_label.name = "MomentumLabel"
-	momentum_label.position = Vector2(490.0, 30.0)
-	momentum_label.size = Vector2(260.0, 28.0)
-	momentum_label.add_theme_font_size_override(&"font_size", 18)
-	momentum_label.modulate = MUTED_COLOR
-	add_child(momentum_label)
+func _build_combo_indicator() -> void:
 	combo_label = Label.new()
 	combo_label.name = "ComboLabel"
 	combo_label.position = Vector2(764.0, 28.0)
@@ -697,18 +658,6 @@ func _build_momentum_panel() -> void:
 	combo_ring.size = Vector2(38.0, 38.0)
 	combo_ring.visible = false
 	add_child(combo_ring)
-	momentum_track = ColorRect.new()
-	momentum_track.name = "MomentumTrack"
-	momentum_track.position = Vector2(490.0, 66.0)
-	momentum_track.size = Vector2(452.0, 18.0)
-	momentum_track.color = Color(0.11, 0.15, 0.18, 0.95)
-	add_child(momentum_track)
-	momentum_fill = ColorRect.new()
-	momentum_fill.name = "MomentumFill"
-	momentum_fill.position = Vector2(496.0, 71.0)
-	momentum_fill.size = Vector2(0.0, 8.0)
-	momentum_fill.color = Color("5dc9c2")
-	add_child(momentum_fill)
 
 
 func _build_combo_herald() -> void:
@@ -1016,6 +965,9 @@ func _apply_hud_child_modulation() -> void:
 	for child: Node in get_children():
 		if not child is CanvasItem:
 			continue
+		if child == tweak_controls_button:
+			_apply_tweak_controls_button_opacity()
+			continue
 		var child_modulate: Color = (
 			Color.WHITE if child == tweak_leaderboard_disclaimer else _hud_tuning_tint
 		)
@@ -1031,14 +983,21 @@ func _build_tweak_controls_button() -> void:
 	tweak_controls_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	tweak_controls_button.clip_text = true
 	tweak_controls_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	tweak_controls_button.z_index = 10
+	tweak_controls_button.z_index = TWEAK_BUTTON_Z_INDEX
 	RuntimeTweakTheme.style_button(tweak_controls_button, false, true)
 	tweak_controls_button.custom_minimum_size.y = TWEAK_BUTTON_HEIGHT
 	tweak_controls_button.add_theme_color_override(
 		&"font_color", RuntimeTweakTheme.ACCENT
 	)
 	tweak_controls_button.pressed.connect(tweak_controls_requested.emit)
+	tweak_controls_button.mouse_entered.connect(
+		_set_tweak_controls_button_hovered.bind(true)
+	)
+	tweak_controls_button.mouse_exited.connect(
+		_set_tweak_controls_button_hovered.bind(false)
+	)
 	add_child(tweak_controls_button)
+	_apply_tweak_controls_button_opacity()
 	tweak_leaderboard_disclaimer = Label.new()
 	tweak_leaderboard_disclaimer.name = "TweakLeaderboardDisclaimer"
 	tweak_leaderboard_disclaimer.text = L10n.t(
@@ -1048,7 +1007,7 @@ func _build_tweak_controls_button() -> void:
 	tweak_leaderboard_disclaimer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	tweak_leaderboard_disclaimer.clip_text = true
 	tweak_leaderboard_disclaimer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tweak_leaderboard_disclaimer.z_index = 10
+	tweak_leaderboard_disclaimer.z_index = TWEAK_BUTTON_Z_INDEX
 	tweak_leaderboard_disclaimer.add_theme_color_override(
 		&"font_color", Color("ff695c")
 	)
@@ -1064,14 +1023,13 @@ func _layout_tweak_controls_button(viewport_size: Vector2) -> void:
 	if tweak_controls_button == null or tweak_leaderboard_disclaimer == null:
 		return
 	var width: float = minf(TWEAK_BUTTON_WIDTH, viewport_size.x - 32.0)
-	var bottom_margin: float = 18.0
-	if DisplayServer.is_touchscreen_available():
-		bottom_margin = 274.0
 	var disclaimer_height: float = 22.0
-	var disclaimer_y: float = viewport_size.y - bottom_margin - disclaimer_height
+	var button_y: float = (
+		viewport_size.y - TWEAK_BUTTON_BOTTOM_MARGIN - TWEAK_BUTTON_HEIGHT
+	)
 	tweak_controls_button.position = Vector2(
-		viewport_size.x - width - 24.0,
-		disclaimer_y - 4.0 - TWEAK_BUTTON_HEIGHT
+		viewport_size.x - width - TWEAK_BUTTON_RIGHT_MARGIN,
+		button_y
 	)
 	tweak_controls_button.size = Vector2(width, TWEAK_BUTTON_HEIGHT)
 	tweak_controls_button.add_theme_font_size_override(
@@ -1081,12 +1039,30 @@ func _layout_tweak_controls_button(viewport_size: Vector2) -> void:
 		else TWEAK_BUTTON_LANDSCAPE_FONT_SIZE
 	)
 	tweak_leaderboard_disclaimer.position = Vector2(
-		viewport_size.x - width - 24.0,
-		disclaimer_y
+		viewport_size.x - width - TWEAK_BUTTON_RIGHT_MARGIN,
+		button_y - 4.0 - disclaimer_height
 	)
 	tweak_leaderboard_disclaimer.size = Vector2(width, disclaimer_height)
 	tweak_leaderboard_disclaimer.add_theme_font_size_override(
 		&"font_size", 12 if viewport_size.y > viewport_size.x else 13
+	)
+
+
+func _set_tweak_controls_button_hovered(hovered: bool) -> void:
+	_tweak_controls_hovered = hovered
+	_apply_tweak_controls_button_opacity()
+
+
+func _apply_tweak_controls_button_opacity() -> void:
+	if tweak_controls_button == null:
+		return
+	tweak_controls_button.self_modulate = Color(
+		1.0,
+		1.0,
+		1.0,
+		TWEAK_BUTTON_HOVER_OPACITY
+		if _tweak_controls_hovered
+		else TWEAK_BUTTON_IDLE_OPACITY
 	)
 
 
@@ -1099,34 +1075,24 @@ func _set_tuning_provenance(snapshot: Dictionary) -> void:
 
 
 func _apply_landscape_layout(viewport_size: Vector2) -> void:
-	var momentum_x: float = viewport_size.x * 0.5 - 250.0
+	var center_x: float = viewport_size.x * 0.5 - 250.0
 	var score_x: float = viewport_size.x - 292.0
 	status_panel.position = Vector2(24.0, 22.0)
-	status_panel.size = Vector2(420.0, 112.0)
-	status_label.position = Vector2(48.0, 34.0)
-	status_label.size = Vector2(380.0, 30.0)
-	status_label.add_theme_font_size_override(&"font_size", 24)
-	health_label.position = Vector2(48.0, 68.0)
-	health_label.size = Vector2(380.0, 30.0)
+	status_panel.size = Vector2(420.0, 88.0)
+	health_icon.position = Vector2(46.0, 36.0)
+	health_icon.size = Vector2(26.0, 26.0)
+	health_label.position = Vector2(78.0, 34.0)
+	health_label.size = Vector2(350.0, 30.0)
 	health_label.add_theme_font_size_override(&"font_size", 25)
-	objective_label.position = Vector2(48.0, 100.0)
+	objective_label.position = Vector2(48.0, 68.0)
 	objective_label.size = Vector2(380.0, 26.0)
 	objective_label.add_theme_font_size_override(&"font_size", 20)
-	momentum_panel.position = Vector2(momentum_x, 22.0)
-	momentum_panel.size = Vector2(500.0, 88.0)
-	momentum_label.position = Vector2(momentum_x + 24.0, 30.0)
-	momentum_label.size = Vector2(260.0, 28.0)
-	momentum_label.add_theme_font_size_override(&"font_size", 18)
-	combo_label.position = Vector2(momentum_x + 298.0, 28.0)
+	combo_label.position = Vector2(center_x + 298.0, 28.0)
 	combo_label.size = Vector2(176.0, 32.0)
 	combo_label.add_theme_font_size_override(&"font_size", 22)
 	combo_ring.custom_minimum_size = Vector2(38.0, 38.0)
-	combo_ring.position = Vector2(momentum_x + 246.0, 24.0)
+	combo_ring.position = Vector2(center_x + 246.0, 24.0)
 	combo_ring.size = Vector2(38.0, 38.0)
-	momentum_track.position = Vector2(momentum_x + 24.0, 66.0)
-	momentum_track.size = Vector2(452.0, 18.0)
-	momentum_fill.position = Vector2(momentum_x + 30.0, 71.0)
-	_momentum_fill_width = 392.0
 	score_panel.position = Vector2(score_x, 22.0)
 	score_panel.size = Vector2(268.0, 88.0)
 	_set_score_geometry(
@@ -1142,7 +1108,7 @@ func _apply_landscape_layout(viewport_size: Vector2) -> void:
 		rare_labels[index].size = Vector2(220.0, 22.0)
 		rare_labels[index].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		rare_labels[index].add_theme_font_size_override(&"font_size", 16)
-	siege_progress.position = Vector2(momentum_x, 112.0)
+	siege_progress.position = Vector2(center_x, 112.0)
 	siege_progress.size = Vector2(500.0, 32.0)
 	siege_progress.set_compact(false)
 	siege_progress.apply_width(500.0)
@@ -1167,44 +1133,34 @@ func _apply_landscape_layout(viewport_size: Vector2) -> void:
 func _apply_portrait_layout(viewport_size: Vector2) -> void:
 	var panel_width: float = minf(300.0, viewport_size.x * 0.46)
 	status_panel.position = Vector2.ZERO
-	status_panel.size = Vector2(panel_width, 48.0)
-	status_label.position = Vector2(8.0, 3.0)
-	status_label.size = Vector2(panel_width - 16.0, 16.0)
-	status_label.add_theme_font_size_override(&"font_size", 13)
-	health_label.position = Vector2(8.0, 18.0)
-	health_label.size = Vector2(panel_width - 16.0, 17.0)
+	status_panel.size = Vector2(panel_width, 34.0)
+	health_icon.position = Vector2(8.0, 3.0)
+	health_icon.size = Vector2(15.0, 15.0)
+	health_label.position = Vector2(27.0, 2.0)
+	health_label.size = Vector2(panel_width - 35.0, 17.0)
 	health_label.add_theme_font_size_override(&"font_size", 15)
-	objective_label.position = Vector2(8.0, 34.0)
+	objective_label.position = Vector2(8.0, 18.0)
 	objective_label.size = Vector2(panel_width - 16.0, 14.0)
 	objective_label.add_theme_font_size_override(&"font_size", 10)
 	objective_label.clip_text = true
-	momentum_panel.position = Vector2(0.0, 54.0)
-	momentum_panel.size = Vector2(panel_width, 44.0)
-	momentum_label.position = Vector2(8.0, 57.0)
-	momentum_label.size = Vector2(panel_width - 116.0, 16.0)
-	momentum_label.add_theme_font_size_override(&"font_size", 11)
-	combo_label.position = Vector2(panel_width - 102.0, 56.0)
+	combo_label.position = Vector2(panel_width + 28.0, 3.0)
 	combo_label.size = Vector2(94.0, 18.0)
 	combo_label.add_theme_font_size_override(&"font_size", 12)
 	combo_ring.custom_minimum_size = Vector2(16.0, 16.0)
-	combo_ring.position = Vector2(panel_width - 122.0, 57.0)
+	combo_ring.position = Vector2(panel_width + 8.0, 4.0)
 	combo_ring.size = Vector2(16.0, 16.0)
-	momentum_track.position = Vector2(8.0, 73.0)
-	momentum_track.size = Vector2(panel_width - 16.0, 8.0)
-	momentum_fill.position = Vector2(10.0, 75.0)
-	_momentum_fill_width = panel_width - 20.0
-	score_panel.position = Vector2(0.0, 104.0)
+	score_panel.position = Vector2(0.0, 40.0)
 	score_panel.size = Vector2(panel_width, 68.0)
-	_set_score_geometry(Vector2(8.0, 108.0), Vector2(136.0, 14.0), false, true)
+	_set_score_geometry(Vector2(8.0, 44.0), Vector2(136.0, 14.0), false, true)
 	score_caption.add_theme_font_size_override(&"font_size", 10)
 	score_label.add_theme_font_size_override(&"font_size", 20)
 	pending_score_label.add_theme_font_size_override(&"font_size", 9)
 	for index: int in range(rare_labels.size()):
-		rare_labels[index].position = Vector2(152.0, 109.0 + float(index) * 18.0)
+		rare_labels[index].position = Vector2(152.0, 45.0 + float(index) * 18.0)
 		rare_labels[index].size = Vector2(panel_width - 160.0, 16.0)
 		rare_labels[index].horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		rare_labels[index].add_theme_font_size_override(&"font_size", 9)
-	siege_progress.position = Vector2(0.0, 178.0)
+	siege_progress.position = Vector2(0.0, 114.0)
 	siege_progress.size = Vector2(panel_width, 24.0)
 	siege_progress.set_compact(true)
 	siege_progress.apply_width(panel_width)
@@ -1319,15 +1275,3 @@ func _hide_terminal_choices() -> void:
 	disentangle_button.visible = false
 	new_game_plus_badge.visible = false
 	_apply_responsive_layout()
-
-
-func _momentum_color(band: int) -> Color:
-	match band:
-		1:
-			return Color("f1b36f")
-		2:
-			return Color("ff815c")
-		3:
-			return Color("fff0a8")
-		_:
-			return Color("5dc9c2")

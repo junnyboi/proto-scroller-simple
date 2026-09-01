@@ -75,10 +75,6 @@ func history_snapshot(limit: int = MAX_HISTORY_ENTRIES) -> Array[Dictionary]:
 	return history
 
 
-func chart_history(limit: int = 12) -> Array[Dictionary]:
-	return history_snapshot(clampi(limit, 1, MAX_HISTORY_ENTRIES))
-
-
 func local_leaderboard(limit: int = 10) -> Array[Dictionary]:
 	var ranked: Array[Dictionary] = history_snapshot()
 	ranked.sort_custom(_history_precedes)
