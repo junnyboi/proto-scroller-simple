@@ -332,6 +332,7 @@ These become enforced ceilings only after Phase 9 produces a clean measured expo
 | 1 | Completed | Isolated selector, shell, allowlisted Stage 1, lifecycle, title/HUD/debrief, and stub flow added; 5 GUT tests / 42 assertions and the headless scenario pass; template and legacy boots pass |
 | 2 | Completed | Three-wave combat kernel, retained player/enemy/destructible/presentation assets, eight-slot enemy and effect pools, score/health/camera feedback; 6 GUT tests / 48 assertions and headless scenario pass; Phase 1 regression remains green |
 | Progression removal | Completed | Removed player XP/levels, upgrade offers and runtimes, shop economy/presentation, upgrade-bound automatic weapons, tuning knobs, assets, localization, and obsolete verification; score/combo, direct combat, district stage pressure, New Game+, and its original badge remain |
+| Recovery and Web delivery | Source/export complete; checkpoint pending | Recovered and semantically merged the discarded cleanup plus newer tuning/loader work; pushed GitHub source revision `8f9ddc9`; fresh Web PCK is 11,521,352 bytes; WebDev host commit `7a09a29` passes manifest, build, public-preview, desktop, mobile, title-media, and analytics-runtime checks, but the provider currently rejects the required guarded checkpoint push because its terminal working-directory binding is unavailable |
 | 3–10 | Planned | Not started |
 
 ### 9.1 Progression-removal pass
@@ -361,6 +362,30 @@ and service contracts, affected boss/district/HUD/runtime-budget tests, both run
 boots, and a fresh Web export. Historical baseline manifests remain immutable
 evidence for the archived revision; active runtime and verification paths must not
 reference removed progression resources.
+
+### 9.2 Discard recovery and Web delivery evidence
+
+The 2026-09-01 recovery operation protected the surviving worktree, discarded-cleanup
+stash tree, and prior compact-template history under recovery refs before merging. The
+combined source passed a clean Godot import, a 180-frame canonical boot, eleven direct
+script parse checks, and **66/66 focused GUT tests** covering progression removal,
+two-act/district reduction, structural variants, runtime tweaks, summaries, and title
+flow. Compatibility repairs removed stale shop, upgrade, and run-experience calls and
+broke a directive-resource export class cycle without reintroducing progression.
+
+The recovered gameplay and export anchor on GitHub is
+`8f9ddc915d6ebe71cca27afda6ae46404cee48ce`. Godot 4.7.2 exported and patched a
+non-threaded Web bundle from that exact pushed revision; `game.pck` is **11,521,352
+bytes** and the canonical TypeScript/Vite host typecheck and production build pass.
+
+The dedicated Manus WebDev project was synchronized to local commit `7a09a29`. Its
+14-file SHA-256 manifest, clean-archive static build rehearsal, stable public preview,
+desktop 1280×720 capture, mobile 390×844 capture, title-media MIME checks, READY state,
+and built-in analytics runtime all pass. This is not yet a durable WebDev checkpoint or
+published deployment: `git fetch origin main` and the mandatory exact
+`git push origin HEAD:main` are rejected before execution with `terminal working
+directory is unavailable`. Deployment must resume from the existing WebDev project
+once that provider-side project-directory binding is restored.
 
 ## 10. Delivery rhythm
 
