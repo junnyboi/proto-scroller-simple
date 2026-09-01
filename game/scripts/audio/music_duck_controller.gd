@@ -28,14 +28,27 @@ func set_ducked(value: bool, immediate: bool = false) -> void:
 	if _ducked == value and not immediate:
 		return
 	_ducked = value
+	var tuned_duck_db: float = float(RuntimeTweakAccess.live_value(
+		&"audio.music_duck.depth_db", duck_db
+	))
+	var tuned_attack_seconds: float = float(RuntimeTweakAccess.live_value(
+		&"audio.music_duck.attack_seconds", attack_seconds
+	))
+	var tuned_release_seconds: float = float(RuntimeTweakAccess.live_value(
+		&"audio.music_duck.release_seconds", release_seconds
+	))
 	if _volume_tween != null and _volume_tween.is_valid():
 		_volume_tween.kill()
 	var target_db: float = (
-		maxf(_base_volume_db + duck_db, SILENCE_FLOOR_DB)
+		maxf(_base_volume_db + tuned_duck_db, SILENCE_FLOOR_DB)
 		if value
 		else _base_volume_db
 	)
-	var duration: float = 0.0 if immediate else (attack_seconds if value else release_seconds)
+	var duration: float = (
+		0.0
+		if immediate
+		else (tuned_attack_seconds if value else tuned_release_seconds)
+	)
 	if duration <= 0.0:
 		_set_bus_volume(target_db)
 		return

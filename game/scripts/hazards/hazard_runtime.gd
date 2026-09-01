@@ -68,9 +68,30 @@ func activate(
 		return null
 	var position_value: Vector2 = world_position
 	position_value.y = CitySlice.LAND_VISUAL_BASELINE_Y
+	var tuned_profile: Dictionary = EnvironmentalHazardCatalog.profile(hazard_id).duplicate(true)
+	tuned_profile.telegraph = float(tuned_profile.telegraph) * float(
+		RuntimeTweakAccess.next_spawn_value(
+			&"environment.hazard.telegraph_multiplier", 1.0
+		)
+	)
+	tuned_profile.enemy_damage = float(tuned_profile.enemy_damage) * float(
+		RuntimeTweakAccess.next_spawn_value(
+			&"environment.hazard.damage_multiplier", 1.0
+		)
+	)
+	tuned_profile.radius = float(tuned_profile.radius) * float(
+		RuntimeTweakAccess.next_spawn_value(
+			&"environment.hazard.radius_multiplier", 1.0
+		)
+	)
+	tuned_profile.impulse = float(tuned_profile.impulse) * float(
+		RuntimeTweakAccess.next_spawn_value(
+			&"environment.hazard.impulse_multiplier", 1.0
+		)
+	)
 	actor.activate(
 		hazard_id,
-		EnvironmentalHazardCatalog.profile(hazard_id),
+		tuned_profile,
 		position_value,
 		facing,
 		auto_trigger

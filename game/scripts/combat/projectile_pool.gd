@@ -396,6 +396,7 @@ func _on_impact_requested(
 				&"projectile.hostile_impact_pitch_jitter",
 				HOSTILE_IMPACT_PITCH_VARIATION
 			)),
-			HOSTILE_IMPACT_VOLUME_VARIATION_DB
+			HOSTILE_IMPACT_VOLUME_VARIATION_DB,
+			float(RuntimeTweakAccess.live_value(&"audio.enemy.impact_gain_db", 0.0))
 		)
 	_hostile_impact_cursor = (_hostile_impact_cursor + 1) % hostile_impacts.size()

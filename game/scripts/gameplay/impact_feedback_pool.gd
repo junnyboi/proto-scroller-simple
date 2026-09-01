@@ -148,7 +148,8 @@ func play_cue(
 	cue: AudioCueRegistry.Cue,
 	origin: Vector2,
 	pitch_variation: float = 0.0,
-	volume_variation_db: float = 0.0
+	volume_variation_db: float = 0.0,
+	gain_db: float = 0.0
 ) -> AudioStreamPlayer2D:
 	var profile: Dictionary = AudioCueRegistry.profile(cue)
 	if profile.is_empty():
@@ -164,7 +165,7 @@ func play_cue(
 	player.stream = profile.stream as AudioStream
 	player.bus = profile.bus as StringName
 	player.global_position = origin
-	player.volume_db = float(profile.volume_db) + (
+	player.volume_db = float(profile.volume_db) + gain_db + (
 		0.0
 		if is_zero_approx(volume_variation_db)
 		else cue_volume_delta_for_sample(randf(), volume_variation_db)

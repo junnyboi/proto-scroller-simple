@@ -65,4 +65,7 @@ static func pending_bank_seconds() -> float:
 
 
 static func combo_progress_units_per_tier() -> int:
-	return EnemySpawnTuning.quantity_multiplier()
+	return int(RuntimeTweakAccess.run_value(
+		&"progression.combo.units_per_tier",
+		COMBO_PROGRESS_UNITS_PER_TIER
+	))

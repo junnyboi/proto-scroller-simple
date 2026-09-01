@@ -135,8 +135,18 @@ func _play_voice(stream: AudioStream) -> void:
 
 
 func _animate(intensity: float) -> void:
+	var duration_scale: float = (
+		float(RuntimeTweakAccess.live_value(
+			&"interface.combo_herald.duration_scale", 1.0
+		))
+		* float(RuntimeTweakAccess.live_value(&"interface.motion_scale", 1.0))
+	)
+	if duration_scale <= 0.0:
+		_finish_visual()
+		return
 	_active_tween = create_tween()
 	_active_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_active_tween.set_speed_scale(1.0 / duration_scale)
 	_active_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
 	_active_tween.set_parallel(true)
 	_active_tween.tween_property(insignia, "scale", Vector2.ONE * (1.12 * intensity), 0.14)

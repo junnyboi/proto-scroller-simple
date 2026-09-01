@@ -252,10 +252,20 @@ func _apply_motion_multiplier() -> void:
 	var multiplier: float = float(RuntimeTweakAccess.live_value(
 		&"world.parallax.motion_multiplier", 1.0
 	))
-	_set_band_motion(^"Sky", SKY_SCROLL_SCALE, multiplier)
-	_set_band_motion(^"FarSkyline", FAR_SCROLL_SCALE, multiplier)
-	_set_band_motion(^"Infrastructure", INFRA_SCROLL_SCALE, multiplier)
-	_set_band_motion(^"NearBuildings", NEAR_SCROLL_SCALE, multiplier)
+	_set_band_motion(^"Sky", SKY_SCROLL_SCALE, multiplier * float(
+		RuntimeTweakAccess.live_value(&"environment.parallax.sky_motion_multiplier", 1.0)
+	))
+	_set_band_motion(^"FarSkyline", FAR_SCROLL_SCALE, multiplier * float(
+		RuntimeTweakAccess.live_value(&"environment.parallax.far_motion_multiplier", 1.0)
+	))
+	_set_band_motion(^"Infrastructure", INFRA_SCROLL_SCALE, multiplier * float(
+		RuntimeTweakAccess.live_value(
+			&"environment.parallax.infrastructure_motion_multiplier", 1.0
+		)
+	))
+	_set_band_motion(^"NearBuildings", NEAR_SCROLL_SCALE, multiplier * float(
+		RuntimeTweakAccess.live_value(&"environment.parallax.near_motion_multiplier", 1.0)
+	))
 
 
 func _set_band_motion(path: NodePath, base: Vector2, multiplier: float) -> void:

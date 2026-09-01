@@ -78,6 +78,12 @@ func _process(delta: float) -> void:
 		clear_lock()
 		return
 	global_position = _target.global_position
+	scale = Vector2.ONE * float(RuntimeTweakAccess.live_value(
+		&"interface.reticle.scale", 1.0
+	))
+	modulate.a = float(RuntimeTweakAccess.live_value(
+		&"interface.reticle.opacity", 1.0
+	))
 	if is_release_imminent():
 		var urgency: float = inverse_lerp(
 			IMMINENT_START_PROGRESS,

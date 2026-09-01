@@ -55,7 +55,9 @@ var attack_gate_enabled: bool = true
 var role_id: StringName = &"BASE"
 var trait_id: StringName = &""
 var movement_multiplier: float = 1.0
+var acceleration_multiplier: float = 1.0
 var attack_interval_multiplier: float = 1.0
+var score_multiplier: float = 1.0
 var projectile_damage_multiplier: float = 1.0
 var telegraph_multiplier: float = 1.0
 var external_attack_interval_multiplier: float = 1.0
@@ -80,6 +82,7 @@ var last_dodge_wheel_slip_direction: int = 0
 var _base_max_health: float = 0.0
 var _profile_health_multiplier: float = 1.0
 var _boss_base_health: float = 0.0
+var _boss_health_multiplier: float = 1.0
 var _shield_available: bool = false
 var _shield_damage_ratio: float = 1.0
 var _seen_attacks: Dictionary[int, bool] = {}
@@ -99,6 +102,13 @@ var _telegraph_target: Vector2 = Vector2.ZERO
 var _projectile_reservation_id: int = 0
 var _attack_outgoing_multiplier: float = ENEMY_DAMAGE_MULTIPLIER
 var _attack_projectile_lifetime: float = 2.5
+var _attack_projectile_speed_multiplier: float = 1.0
+var _attack_anticipation_multiplier: float = 1.0
+var _attack_telegraph_duration_multiplier: float = 1.0
+var _spawn_health_multiplier: float = 1.0
+var _spawn_movement_multiplier: float = 1.0
+var _spawn_acceleration_multiplier: float = 1.0
+var _spawn_attack_interval_multiplier: float = 1.0
 var _player_reaction_tween: Tween
 
 @onready var visual: Sprite2D = get_node_or_null(^"Visual") as Sprite2D
@@ -133,13 +143,22 @@ func update_movement_bounce(delta: float) -> void:
 		1.0
 	)
 	if movement_bounce_enabled and speed_ratio > 0.08 and is_on_floor():
+		var frequency_multiplier: float = float(RuntimeTweakAccess.live_value(
+			&"enemy.visual.bounce_frequency_multiplier", 1.0
+		))
+		var height_multiplier: float = float(RuntimeTweakAccess.live_value(
+			&"enemy.visual.bounce_height_multiplier", 1.0
+		))
 		_bounce_phase = fmod(
-			_bounce_phase + delta * TAU * bounce_frequency * lerpf(0.75, 1.0, speed_ratio),
+			_bounce_phase + delta * TAU * bounce_frequency * frequency_multiplier
+				* lerpf(0.75, 1.0, speed_ratio),
 			TAU
 		)
 		var hop: float = absf(sin(_bounce_phase))
 		var contact: float = absf(cos(_bounce_phase))
-		visual.position.y = _visual_rest_position.y - hop * bounce_height * speed_ratio
+		visual.position.y = (
+			_visual_rest_position.y - hop * bounce_height * height_multiplier * speed_ratio
+		)
 		visual.scale = Vector2(
 			_visual_rest_scale.x * (1.0 + contact * bounce_squash * speed_ratio),
 			_visual_rest_scale.y * (1.0 - contact * bounce_squash * speed_ratio)
@@ -212,7 +231,10 @@ func receive_damage(event: DamageEvent) -> bool:
 	if accepted_event.damage_type in [&"jab_cross", &"ground_smash"]:
 		last_player_knockback_attack_id = accepted_event.attack_id
 	if visual != null:
-		visual.modulate = Color("ffd0a6")
+		var flash_intensity: float = float(RuntimeTweakAccess.live_value(
+			&"interface.flash_intensity", 1.0
+		))
+		visual.modulate = Color.WHITE.lerp(Color("ffd0a6"), flash_intensity)
 		var tween: Tween = create_tween()
 		tween.tween_property(visual, "modulate", Color.WHITE, 0.12)
 	if current_health <= 0.0:
@@ -256,7 +278,7 @@ func request_projectile(
 	projectile_requested.emit(
 		origin,
 		direction,
-		speed,
+		speed * _attack_projectile_speed_multiplier,
 		_scale_outgoing_damage(damage),
 		kind,
 		self
@@ -268,9 +290,11 @@ func _configure_cycle_difficulty(health_multiplier: float, attack_multiplier: fl
 	cycle_health_multiplier = maxf(health_multiplier, 1.0)
 	cycle_attack_multiplier = maxf(attack_multiplier, 1.0)
 	max_health = (
-		_boss_base_health * cycle_health_multiplier
+		_boss_base_health * _boss_health_multiplier * cycle_health_multiplier
+			* _spawn_health_multiplier
 		if boss_mode
 		else _base_max_health * _profile_health_multiplier * cycle_health_multiplier
+			* _spawn_health_multiplier
 	)
 	current_health = max_health * clampf(health_ratio, 0.0, 1.0)
 
@@ -285,6 +309,38 @@ func _capture_attack_tuning() -> void:
 	))
 	_attack_projectile_lifetime = float(RuntimeTweakAccess.next_attack_value(
 		&"projectile.hostile_lifetime", 2.5
+	))
+	_attack_projectile_speed_multiplier = float(RuntimeTweakAccess.next_attack_value(
+		&"enemy.projectile_speed_multiplier", 1.0
+	))
+	_attack_anticipation_multiplier = float(RuntimeTweakAccess.next_attack_value(
+		&"enemy.anticipation_multiplier", 1.0
+	))
+	_attack_telegraph_duration_multiplier = float(RuntimeTweakAccess.next_attack_value(
+		(
+			&"boss.telegraph.duration_multiplier"
+			if boss_mode
+			else &"enemy.telegraph.duration_multiplier"
+		),
+		1.0
+	))
+
+
+func _capture_spawn_tuning() -> void:
+	_spawn_health_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"enemy.health_multiplier", 1.0
+	))
+	_spawn_movement_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"enemy.movement_speed_multiplier", 1.0
+	))
+	_spawn_acceleration_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"enemy.acceleration_multiplier", 1.0
+	))
+	_spawn_attack_interval_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"enemy.attack_interval_multiplier", 1.0
+	))
+	score_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"enemy.score_multiplier", 1.0
 	))
 
 
@@ -406,9 +462,14 @@ func apply_profiles(
 ) -> void:
 	role_id = role_profile.role_id if role_profile != null else &"BASE"
 	trait_id = trait_profile.trait_id if trait_profile != null else &""
-	movement_multiplier = role_profile.movement_multiplier if role_profile != null else 1.0
+	movement_multiplier = (
+		(role_profile.movement_multiplier if role_profile != null else 1.0)
+		* _spawn_movement_multiplier
+	)
+	acceleration_multiplier = _spawn_acceleration_multiplier
 	attack_interval_multiplier = (
-		role_profile.attack_interval_multiplier if role_profile != null else 1.0
+		(role_profile.attack_interval_multiplier if role_profile != null else 1.0)
+		* _spawn_attack_interval_multiplier
 	)
 	projectile_damage_multiplier = (
 		role_profile.damage_multiplier if role_profile != null else 1.0
@@ -422,7 +483,8 @@ func apply_profiles(
 		attack_interval_multiplier *= trait_profile.attack_interval_multiplier
 		projectile_damage_multiplier *= trait_profile.projectile_damage_multiplier
 		telegraph_multiplier = trait_profile.telegraph_multiplier
-	max_health = _base_max_health * _profile_health_multiplier * cycle_health_multiplier
+	max_health = _base_max_health * _profile_health_multiplier * cycle_health_multiplier \
+		* _spawn_health_multiplier
 	current_health = max_health
 	_shield_available = trait_profile != null and trait_profile.first_hit_damage_ratio < 1.0
 	_shield_damage_ratio = (
@@ -436,6 +498,7 @@ func clear_profiles() -> void:
 	role_id = &"BASE"
 	trait_id = &""
 	movement_multiplier = 1.0
+	acceleration_multiplier = 1.0
 	attack_interval_multiplier = 1.0
 	projectile_damage_multiplier = 1.0
 	telegraph_multiplier = 1.0
@@ -457,9 +520,15 @@ func configure_boss(
 ) -> void:
 	boss_mode = true
 	_boss_base_health = maxf(exposed_health, 1.0)
-	boss_max_armor = maxf(armor, 1.0)
+	_boss_health_multiplier = float(RuntimeTweakAccess.next_spawn_value(
+		&"boss.health_multiplier", 1.0
+	))
+	boss_max_armor = maxf(armor, 1.0) * float(RuntimeTweakAccess.next_spawn_value(
+		&"boss.armor_multiplier", 1.0
+	))
 	boss_armor = boss_max_armor
-	max_health = _boss_base_health * cycle_health_multiplier
+	max_health = _boss_base_health * _boss_health_multiplier * cycle_health_multiplier \
+		* _spawn_health_multiplier
 	current_health = max_health
 	boss_armor_changed.emit(boss_armor, boss_max_armor)
 
@@ -467,6 +536,11 @@ func configure_boss(
 func activate(spawn_position: Vector2, p_target: GiantRobotController) -> void:
 	_cancel_player_reaction_tween()
 	clear_profiles()
+	_capture_spawn_tuning()
+	movement_multiplier = _spawn_movement_multiplier
+	acceleration_multiplier = _spawn_acceleration_multiplier
+	attack_interval_multiplier = _spawn_attack_interval_multiplier
+	max_health = _base_max_health * cycle_health_multiplier * _spawn_health_multiplier
 	activation_generation += 1
 	active = true
 	dead = false
@@ -499,6 +573,7 @@ func deactivate() -> void:
 	remove_meta(&"enemy_boss_id")
 	boss_mode = false
 	_boss_base_health = 0.0
+	_boss_health_multiplier = 1.0
 	boss_armor = 0.0
 	boss_max_armor = 0.0
 	hidden_authority = false
@@ -533,7 +608,8 @@ func begin_telegraph(
 			return false
 	_capture_attack_tuning()
 	var adjusted_duration: float = maxf(
-		duration * telegraph_multiplier,
+		duration * telegraph_multiplier * _attack_anticipation_multiplier
+			* _attack_telegraph_duration_multiplier,
 		MINIMUM_TELEGRAPH_SECONDS
 	)
 	if boss_mode:
@@ -671,7 +747,7 @@ func fire_telegraphed_projectile(
 			_projectile_reservation_id,
 			_telegraph_origin,
 			telegraph_direction(),
-			speed,
+			speed * _attack_projectile_speed_multiplier,
 			_scale_outgoing_damage(damage),
 			self,
 			projectile_target_mask,

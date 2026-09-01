@@ -696,4 +696,8 @@ func _on_enemy_died(enemy: EnemyActor2D, event: DamageEvent) -> void:
 		kind = &"tank"
 	elif enemy is HelicopterEnemy:
 		kind = &"helicopter"
-	enemy_died.emit(enemy, event, EnemyArchetypeCatalog.score_value(kind))
+	enemy_died.emit(
+		enemy,
+		event,
+		roundi(float(EnemyArchetypeCatalog.score_value(kind)) * enemy.score_multiplier)
+	)

@@ -87,6 +87,7 @@ var elapsed_seconds: float = 0.0
 var attack_elapsed: float = 0.0
 var attack_index: int = -1
 var attack_stage: StringName = &"IDLE"
+var _active_telegraph_multiplier: float = 1.0
 var active_attack: StringName = &""
 var armor_connections: int = 0
 var treasury_slab_available: bool = true
@@ -759,6 +760,9 @@ func _begin_next_attack() -> void:
 	boss_volley.cancel()
 	attack_elapsed = 0.0
 	attack_stage = &"TELEGRAPH"
+	_active_telegraph_multiplier = float(RuntimeTweakAccess.next_attack_value(
+		&"boss.telegraph.duration_multiplier", 1.0
+	))
 	var choices: Array[StringName] = active_attack_choices()
 	attack_index = posmod(attack_index + 1, choices.size())
 	active_attack = choices[attack_index]
@@ -795,7 +799,7 @@ func _configure_business_attack(attack: StringName) -> void:
 	utility_pool.radial_shockwave.configure_core_shockwave(
 		BUSINESS_SHOCKWAVE_TRAVEL_SECONDS,
 		SHOCKWAVE_BAND_THICKNESS,
-		BUSINESS_SHOCKWAVE_TELEGRAPH_SECONDS
+		_telegraph_seconds_for(attack)
 	)
 	utility_pool.radial_shockwave.configure_footprint(
 		_business_core_world_position(),
@@ -808,8 +812,8 @@ func _configure_business_attack(attack: StringName) -> void:
 func _telegraph_seconds_for(attack: StringName) -> float:
 	match attack:
 		BUSINESS_CORE_SHOCKWAVE_ATTACK:
-			return BUSINESS_SHOCKWAVE_TELEGRAPH_SECONDS
-	return TELEGRAPH_SECONDS
+			return BUSINESS_SHOCKWAVE_TELEGRAPH_SECONDS * _active_telegraph_multiplier
+	return TELEGRAPH_SECONDS * _active_telegraph_multiplier
 
 
 func _active_seconds_for(attack: StringName) -> float:
@@ -919,7 +923,7 @@ func _prepare_residential_projectile() -> bool:
 		RESIDENTIAL_PROJECTILE_SPEED,
 		RESIDENTIAL_PROJECTILE_DAMAGE,
 		RESIDENTIAL_PROJECTILE_SCALE,
-		TELEGRAPH_SECONDS
+		_telegraph_seconds_for(active_attack)
 	)
 
 

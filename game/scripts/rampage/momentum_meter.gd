@@ -32,16 +32,16 @@ func advance_motion(actual_speed_ratio: float, delta: float) -> void:
 		return
 	if actual_speed_ratio >= GAIN_SPEED_RATIO:
 		_idle_elapsed = 0.0
-		_set_value(value + MOTION_GAIN_PER_SECOND * delta)
+		_set_value(value + _motion_gain_per_second() * delta)
 	elif actual_speed_ratio < IDLE_SPEED_RATIO:
 		var previous_idle: float = _idle_elapsed
 		_idle_elapsed += delta
 		var decay_time: float = maxf(
-			_idle_elapsed - maxf(previous_idle, IDLE_GRACE_SECONDS),
+			_idle_elapsed - maxf(previous_idle, _idle_grace_seconds()),
 			0.0
 		)
 		if decay_time > 0.0:
-			_set_value(value - IDLE_LOSS_PER_SECOND * decay_time)
+			_set_value(value - _idle_loss_per_second() * decay_time)
 	else:
 		_idle_elapsed = 0.0
 
@@ -55,9 +55,9 @@ func apply_event(event: GameplayEvent) -> void:
 func band() -> Band:
 	if value >= MAX_VALUE:
 		return Band.READY
-	if value >= CRITICAL_THRESHOLD:
+	if value >= _critical_threshold():
 		return Band.CRITICAL
-	if value >= SURGE_THRESHOLD:
+	if value >= _surge_threshold():
 		return Band.SURGE
 	return Band.NORMAL
 
@@ -88,7 +88,37 @@ func set_overdrive_active(active: bool) -> void:
 
 
 func acceleration_multiplier() -> float:
-	return 1.08 if value >= SURGE_THRESHOLD else 1.0
+	return 1.08 if value >= _surge_threshold() else 1.0
+
+
+func _surge_threshold() -> float:
+	return float(RuntimeTweakAccess.run_value(
+		&"gameplay.momentum.surge_threshold", SURGE_THRESHOLD
+	))
+
+
+func _critical_threshold() -> float:
+	return float(RuntimeTweakAccess.run_value(
+		&"gameplay.momentum.critical_threshold", CRITICAL_THRESHOLD
+	))
+
+
+func _motion_gain_per_second() -> float:
+	return float(RuntimeTweakAccess.run_value(
+		&"gameplay.momentum.motion_gain_per_second", MOTION_GAIN_PER_SECOND
+	))
+
+
+func _idle_loss_per_second() -> float:
+	return float(RuntimeTweakAccess.run_value(
+		&"gameplay.momentum.idle_loss_per_second", IDLE_LOSS_PER_SECOND
+	))
+
+
+func _idle_grace_seconds() -> float:
+	return float(RuntimeTweakAccess.run_value(
+		&"gameplay.momentum.idle_grace_seconds", IDLE_GRACE_SECONDS
+	))
 
 
 func reset_run() -> void:

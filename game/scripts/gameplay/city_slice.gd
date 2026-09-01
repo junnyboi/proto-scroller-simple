@@ -342,6 +342,9 @@ func _on_spatial_district_changed(
 	_district_id: StringName,
 	logical_chunk: int
 ) -> void:
+	var tuning_service: RuntimeTweakService = RuntimeTweakAccess.service()
+	if tuning_service != null:
+		tuning_service.begin_district()
 	var district: CityDistrictProfile = CityDistrictCatalog.district_for_chunk(logical_chunk)
 	CityWorldBuilder.transition_environment(self, district.district_id)
 	district_transition_banner.present(district, logical_chunk)

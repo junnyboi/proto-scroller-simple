@@ -257,7 +257,11 @@ func _responsive_density_scale(viewport_size: Vector2) -> float:
 		maxf(viewport_size.x * viewport_size.y, 1.0) / BASE_VIEWPORT_AREA
 	)
 	var orientation_scale: float = (
-		PORTRAIT_DENSITY_SCALE if viewport_size.y > viewport_size.x else 1.0
+		PORTRAIT_DENSITY_SCALE * float(RuntimeTweakAccess.district_value(
+			&"environment.weather.portrait_density_scale", 1.0
+		))
+		if viewport_size.y > viewport_size.x
+		else 1.0
 	)
 	return clampf(area_scale * orientation_scale, 0.54, 1.25)
 

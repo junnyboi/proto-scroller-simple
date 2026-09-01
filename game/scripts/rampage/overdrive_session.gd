@@ -15,11 +15,27 @@ var active: bool = false
 var remaining: float = 0.0
 var activation_count: int = 0
 var _active_attack_id: int = 0
+var _duration_seconds: float = DURATION_SECONDS
+var _force_multiplier: float = FORCE_MULTIPLIER
+var _structure_multiplier: float = STRUCTURE_MULTIPLIER
+var _acceleration_multiplier: float = ACCELERATION_MULTIPLIER
 
 
 func setup(p_meter: MomentumMeter, p_robot: GiantRobotController) -> void:
 	momentum_meter = p_meter
 	robot = p_robot
+	_duration_seconds = float(RuntimeTweakAccess.run_value(
+		&"gameplay.overdrive.duration_seconds", DURATION_SECONDS
+	))
+	_force_multiplier = float(RuntimeTweakAccess.run_value(
+		&"gameplay.overdrive.force_multiplier", FORCE_MULTIPLIER
+	))
+	_structure_multiplier = float(RuntimeTweakAccess.run_value(
+		&"gameplay.overdrive.structure_multiplier", STRUCTURE_MULTIPLIER
+	))
+	_acceleration_multiplier = float(RuntimeTweakAccess.run_value(
+		&"gameplay.overdrive.acceleration_multiplier", ACCELERATION_MULTIPLIER
+	))
 
 
 func _ready() -> void:
@@ -39,7 +55,7 @@ func consume_ready_for_attack(attack_id: int) -> bool:
 	if active or momentum_meter == null or not momentum_meter.consume_ready():
 		return false
 	active = true
-	remaining = DURATION_SECONDS
+	remaining = _duration_seconds
 	activation_count += 1
 	_active_attack_id = attack_id
 	momentum_meter.set_overdrive_active(true)
@@ -50,15 +66,15 @@ func consume_ready_for_attack(attack_id: int) -> bool:
 
 
 func force_multiplier() -> float:
-	return FORCE_MULTIPLIER if active else 1.0
+	return _force_multiplier if active else 1.0
 
 
 func structure_multiplier() -> float:
-	return STRUCTURE_MULTIPLIER if active else 1.0
+	return _structure_multiplier if active else 1.0
 
 
 func acceleration_multiplier() -> float:
-	return ACCELERATION_MULTIPLIER if active else 1.0
+	return _acceleration_multiplier if active else 1.0
 
 
 func has_opening_compression(attack_id: int) -> bool:

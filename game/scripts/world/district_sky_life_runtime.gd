@@ -125,6 +125,9 @@ var _time_name: StringName = &"dusk"
 func _ready() -> void:
 	_build_fixed_bands()
 	apply_district(BUSINESS)
+	time_phase = float(RuntimeTweakAccess.district_value(
+		&"environment.sky.start_phase", time_phase
+	))
 	_sample_time()
 	_apply_life_style()
 	set_process(false)
@@ -158,6 +161,9 @@ func begin_district_transition(from_id: StringName, to_id: StringName) -> bool:
 	target_district_id = to_id
 	_current_profile = PROFILES[from_id] as Dictionary
 	_target_profile = PROFILES[to_id] as Dictionary
+	time_phase = float(RuntimeTweakAccess.district_value(
+		&"environment.sky.start_phase", time_phase
+	))
 	_district_weight = 0.0
 	_apply_life_style()
 	return true

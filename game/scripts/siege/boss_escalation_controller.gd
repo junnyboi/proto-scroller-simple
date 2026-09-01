@@ -83,6 +83,7 @@ var elapsed_seconds: float = 0.0
 var attack_elapsed: float = 0.0
 var attack_index: int = -1
 var attack_stage: StringName = &"IDLE"
+var _active_telegraph_seconds: float = TELEGRAPH_SECONDS
 var active_attack: StringName = &""
 var armor_connections: int = 0
 var direct_clear_seconds: float = DIRECT_CLEAR_SECONDS
@@ -244,8 +245,8 @@ func advance(delta: float) -> void:
 		siren_ring_remaining = maxf(siren_ring_remaining - delta, 0.0)
 		if is_zero_approx(siren_ring_remaining):
 			end_siren_ring()
-	if attack_stage == &"TELEGRAPH" and attack_elapsed >= TELEGRAPH_SECONDS:
-		attack_elapsed -= TELEGRAPH_SECONDS
+	if attack_stage == &"TELEGRAPH" and attack_elapsed >= _active_telegraph_seconds:
+		attack_elapsed -= _active_telegraph_seconds
 		attack_stage = &"ACTIVE"
 		_activate_attack()
 		boss_volley.commit()
@@ -739,6 +740,9 @@ func _begin_next_attack() -> void:
 	boss_volley.cancel()
 	attack_elapsed = 0.0
 	attack_stage = &"TELEGRAPH"
+	_active_telegraph_seconds = TELEGRAPH_SECONDS * float(
+		RuntimeTweakAccess.next_attack_value(&"boss.telegraph.duration_multiplier", 1.0)
+	)
 	var choices: Array[StringName] = active_attack_choices()
 	attack_index = posmod(attack_index + 1, choices.size())
 	active_attack = choices[attack_index]
@@ -883,12 +887,12 @@ func _prepare_entertainment_projectiles(player_snapshot: Vector2) -> bool:
 		return boss_volley.begin_from_origins(
 			&"shell", ENTERTAINMENT_PROJECTILE_VISUAL, origins, targets, delays,
 			ENTERTAINMENT_PROJECTILE_SPEED, ENTERTAINMENT_PROJECTILE_DAMAGE,
-			BOSS_PROJECTILE_SCALE, TELEGRAPH_SECONDS
+			BOSS_PROJECTILE_SCALE, _active_telegraph_seconds
 		)
 	return boss_volley.begin(
 		&"shell", ENTERTAINMENT_PROJECTILE_VISUAL, sockets, targets, delays,
 		ENTERTAINMENT_PROJECTILE_SPEED, ENTERTAINMENT_PROJECTILE_DAMAGE,
-		BOSS_PROJECTILE_SCALE, TELEGRAPH_SECONDS
+		BOSS_PROJECTILE_SCALE, _active_telegraph_seconds
 	)
 
 
@@ -912,7 +916,7 @@ func _prepare_military_projectiles(player_snapshot: Vector2) -> bool:
 	return boss_volley.begin(
 		&"shell", MILITARY_PROJECTILE_VISUAL, sockets, targets, delays,
 		speed, MILITARY_PROJECTILE_DAMAGE, BOSS_PROJECTILE_SCALE,
-		TELEGRAPH_SECONDS
+		_active_telegraph_seconds
 	)
 
 

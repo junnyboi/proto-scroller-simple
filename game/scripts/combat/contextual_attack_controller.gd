@@ -41,6 +41,7 @@ var _buffered_dodge_direction: int = 0
 var _charging: bool = false
 var _charge_duration: float = 0.0
 var _active_charge_limit: float = MAX_CHARGE_SECONDS
+var _active_charge_multiplier: float = MAX_CHARGE_DAMAGE_MULTIPLIER
 var _last_full_charge_hit_attack_id: int = 0
 
 
@@ -118,6 +119,18 @@ func begin_charge() -> int:
 	var attack_id: int = _robot.reserve_attack_id()
 	_active_charge_limit = float(RuntimeTweakAccess.next_attack_value(
 		&"player.melee.charge_duration", MAX_CHARGE_SECONDS
+	))
+	_active_charge_multiplier = float(RuntimeTweakAccess.next_attack_value(
+		&"player.melee.max_charge_multiplier", MAX_CHARGE_DAMAGE_MULTIPLIER
+	))
+	resolver.jab_cross_speed_threshold = float(RuntimeTweakAccess.next_attack_value(
+		&"player.jab.speed_threshold", resolver.jab_cross_speed_threshold
+	))
+	resolver.jab_cross_actor_damage = float(RuntimeTweakAccess.next_attack_value(
+		&"player.jab.actor_damage", resolver.jab_cross_actor_damage
+	))
+	resolver.jab_cross_structural_damage = float(RuntimeTweakAccess.next_attack_value(
+		&"player.jab.structural_damage", resolver.jab_cross_structural_damage
 	))
 	var tuned_ground_damage: float = float(RuntimeTweakAccess.next_attack_value(
 		&"player.melee.ground_smash_damage", _robot.stomp_damage
@@ -218,7 +231,7 @@ func charge_progress() -> float:
 
 
 func charge_damage_multiplier() -> float:
-	return lerpf(1.0, MAX_CHARGE_DAMAGE_MULTIPLIER, charge_progress())
+	return lerpf(1.0, _active_charge_multiplier, charge_progress())
 
 
 func report_enemy_hit(attack_id: int, world_position: Vector2, enemy_count: int) -> bool:

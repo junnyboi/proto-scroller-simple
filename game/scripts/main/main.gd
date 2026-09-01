@@ -21,6 +21,9 @@ const COMBAT_PROFILE_SCRIPT: Script = preload(
 const RUNTIME_TWEAK_SERVICE_SCRIPT: Script = preload(
 	"res://scripts/tuning/runtime_tweak_service.gd"
 )
+const RUNTIME_AUDIO_TUNING_SCRIPT: Script = preload(
+	"res://scripts/audio/runtime_audio_tuning.gd"
+)
 const TEMPLATE_MAIN_SCENE: PackedScene = preload(
 	"res://scenes/template/template_main.tscn"
 )
@@ -39,6 +42,7 @@ var responsive_viewport: ResponsiveViewport
 var campaign_progress: CampaignProgressStore
 var combat_profile: PlayerCombatProfileStore
 var runtime_tweak_service: RuntimeTweakService
+var runtime_audio_tuning: RuntimeAudioTuning
 var runtime_tweak_layer: CanvasLayer
 var runtime_tweak_panel: RuntimeTweakPanel
 var gameplay_settings_layer: CanvasLayer
@@ -93,6 +97,8 @@ func _ready() -> void:
 	add_child(runtime_tweak_service)
 	var tuning_errors: PackedStringArray = runtime_tweak_service.setup()
 	assert(tuning_errors.is_empty(), "Runtime tuning setup failed: %s" % [tuning_errors])
+	runtime_audio_tuning = RUNTIME_AUDIO_TUNING_SCRIPT.new() as RuntimeAudioTuning
+	add_child(runtime_audio_tuning)
 	runtime_tweak_layer = CanvasLayer.new()
 	runtime_tweak_layer.name = "RuntimeTweakLayer"
 	runtime_tweak_layer.layer = 200

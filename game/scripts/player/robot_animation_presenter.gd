@@ -147,6 +147,7 @@ var _full_charge_hit_flash_remaining: float = 0.0
 var _authored_sprite_scale: Vector2 = Vector2.ONE
 var _visual_tuning_scale: float = -1.0
 var _visual_tuning_tint: Color = Color.TRANSPARENT
+var _animation_speed_scale: float = 1.0
 
 
 func setup(p_robot: GiantRobotController, p_sprite: AnimatedSprite2D) -> void:
@@ -292,7 +293,7 @@ func _process(delta: float) -> void:
 			absf(robot.velocity.x) / WALK_REFERENCE_SPEED,
 			0.45,
 			1.35
-		)
+		) * _animation_speed_scale
 
 
 func _apply_live_visual_tuning() -> void:
@@ -304,6 +305,9 @@ func _apply_live_visual_tuning() -> void:
 	var tuned_tint: Color = RuntimeTweakAccess.live_color(
 		&"player.visual.tint", Color.WHITE
 	)
+	_animation_speed_scale = float(RuntimeTweakAccess.live_value(
+		&"player.visual.animation_speed", 1.0
+	))
 	if not is_equal_approx(tuned_scale, _visual_tuning_scale):
 		_visual_tuning_scale = tuned_scale
 		sprite.scale = _authored_sprite_scale * tuned_scale
@@ -334,7 +338,7 @@ func _on_locomotion_changed(state: int) -> void:
 func _on_attack_selected(mode: int, attack_id: int) -> void:
 	attacking = true
 	selected_attack_id = attack_id
-	sprite.speed_scale = 1.0
+	sprite.speed_scale = _animation_speed_scale
 	sprite.play(_attack_animation(mode), 1.0, false)
 	var pitch: float = 0.86 if mode == AttackSpec.Mode.GROUND_SMASH else 1.03
 	_play_mechanics(SERVO_SFX, &"attack_windup", 2.5, pitch)
@@ -424,7 +428,7 @@ func _on_charge_released(
 	if _charge_particles != null:
 		_charge_particles.emitting = false
 	_hide_charge_visuals()
-	sprite.speed_scale = 1.0
+	sprite.speed_scale = _animation_speed_scale
 	sprite.play()
 
 
@@ -535,7 +539,10 @@ func _on_health_changed(current: float, maximum: float) -> void:
 	if _critical_smoke == null:
 		return
 	var ratio: float = current / maxf(maximum, 1.0)
-	_critical_smoke.emitting = current > 0.0 and ratio <= CRITICAL_HEALTH_RATIO
+	var critical_ratio: float = float(RuntimeTweakAccess.live_value(
+		&"player.visual.critical_health_ratio", CRITICAL_HEALTH_RATIO
+	))
+	_critical_smoke.emitting = current > 0.0 and ratio <= critical_ratio
 
 
 func _on_dodge_cooldown_ready() -> void:
@@ -585,7 +592,7 @@ func _play_walk() -> void:
 func _show_idle() -> void:
 	if sprite == null or robot == null:
 		return
-	sprite.speed_scale = 1.0
+	sprite.speed_scale = _animation_speed_scale
 	sprite.play(&"idle_s")
 	sprite.pause()
 	sprite.set_frame_and_progress(0, 0.0)
@@ -792,7 +799,13 @@ func _spawn_dodge_dust(intensity: float) -> void:
 	var origin: Vector2 = (
 		ground_origin.global_position if ground_origin != null else robot.global_position
 	)
-	_dust_pool.spawn(origin, _dodge_facing, intensity * dust_intensity_scale)
+	_dust_pool.spawn(
+		origin,
+		_dodge_facing,
+		intensity * dust_intensity_scale * float(RuntimeTweakAccess.live_value(
+			&"player.visual.dust_intensity", 1.0
+		))
+	)
 
 
 func _spawn_afterimage() -> void:
@@ -806,7 +819,10 @@ func _spawn_afterimage() -> void:
 	ghost.texture = frame_texture
 	ghost.global_transform = sprite.global_transform
 	ghost.skew = sprite.skew
-	ghost.modulate = Color(0.35, 0.92, 1.0, AFTERIMAGE_ALPHA)
+	var tuned_alpha: float = AFTERIMAGE_ALPHA * float(RuntimeTweakAccess.live_value(
+		&"player.visual.afterimage_alpha", 1.0
+	))
+	ghost.modulate = Color(0.35, 0.92, 1.0, tuned_alpha)
 	ghost.visible = true
 	_afterimage_remaining[_afterimage_cursor] = AFTERIMAGE_LIFETIME
 	_afterimage_cursor = (_afterimage_cursor + 1) % _afterimages.size()
@@ -819,7 +835,13 @@ func _advance_afterimages(delta: float) -> void:
 			continue
 		_afterimage_remaining[index] = maxf(_afterimage_remaining[index] - delta, 0.0)
 		var ratio: float = _afterimage_remaining[index] / AFTERIMAGE_LIFETIME
-		ghost.modulate.a = AFTERIMAGE_ALPHA * ratio * ratio
+		ghost.modulate.a = (
+			AFTERIMAGE_ALPHA
+			* float(RuntimeTweakAccess.live_value(
+				&"player.visual.afterimage_alpha", 1.0
+			))
+			* ratio * ratio
+		)
 		if is_zero_approx(_afterimage_remaining[index]):
 			ghost.visible = false
 
@@ -921,7 +943,13 @@ func _play_mechanics(
 	player.stop()
 	player.stream = stream
 	player.global_position = robot.global_position if robot != null else Vector2.ZERO
-	player.volume_db = volume_db + (
+	var tuned_gain_db: float = float(RuntimeTweakAccess.live_value(
+		&"audio.player.footstep_gain_db"
+		if cue == &"walk_footstep"
+		else &"audio.player.combat_gain_db",
+		0.0
+	))
+	player.volume_db = volume_db + tuned_gain_db + (
 		0.0
 		if is_zero_approx(volume_variation_db)
 		else volume_delta_for_sample(randf(), volume_variation_db)

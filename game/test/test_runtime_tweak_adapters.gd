@@ -180,6 +180,54 @@ func test_live_visual_tint_and_size_adapters_preserve_gameplay_geometry() -> voi
 	assert_true(service.provenance.ranked_eligible())
 
 
+func test_enemy_spawn_snapshot_scales_actor_without_mutating_catalog_defaults() -> void:
+	service.freeze_run(107)
+	assert_true(bool(service.set_values({
+		&"enemy.health_multiplier": 2.0,
+		&"enemy.movement_speed_multiplier": 1.5,
+		&"enemy.acceleration_multiplier": 1.25,
+		&"enemy.attack_interval_multiplier": 0.75,
+		&"enemy.score_multiplier": 2.0,
+	}).ok))
+	var enemy: EnemyActor2D = EnemyActor2D.new()
+	add_child_autofree(enemy)
+	await get_tree().process_frame
+	enemy.activate(Vector2.ZERO, null)
+	assert_almost_eq(enemy.max_health, 120.0, 0.001)
+	assert_almost_eq(enemy.movement_multiplier, 1.5, 0.001)
+	assert_almost_eq(enemy.acceleration_multiplier, 1.25, 0.001)
+	assert_almost_eq(enemy.attack_interval_multiplier, 0.75, 0.001)
+	assert_almost_eq(enemy.score_multiplier, 2.0, 0.001)
+	assert_almost_eq(
+		float(service.catalog.descriptor(&"enemy.health_multiplier").default_value),
+		1.0,
+		0.001
+	)
+
+
+func test_hazard_spawn_snapshot_scales_profile_once() -> void:
+	service.freeze_run(108)
+	assert_true(bool(service.set_values({
+		&"environment.hazard.telegraph_multiplier": 1.5,
+		&"environment.hazard.damage_multiplier": 2.0,
+		&"environment.hazard.radius_multiplier": 1.25,
+		&"environment.hazard.impulse_multiplier": 0.5,
+	}).ok))
+	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
+	add_child_autofree(city)
+	await get_tree().process_frame
+	var source: Dictionary = EnvironmentalHazardCatalog.profile(&"steam_main")
+	var hazard: EnvironmentalHazard2D = city.urban_siege.hazards.activate(
+		&"steam_main", Vector2(900.0, CitySlice.LAND_VISUAL_BASELINE_Y), 1, false
+	)
+	assert_not_null(hazard)
+	assert_almost_eq(float(hazard.profile.telegraph), float(source.telegraph) * 1.5, 0.001)
+	assert_almost_eq(float(hazard.profile.enemy_damage), float(source.enemy_damage) * 2.0, 0.001)
+	assert_almost_eq(float(hazard.profile.radius), float(source.radius) * 1.25, 0.001)
+	assert_almost_eq(float(hazard.profile.impulse), float(source.impulse) * 0.5, 0.001)
+	assert_almost_eq(float(source.enemy_damage), 32.0, 0.001)
+
+
 func _cleanup() -> void:
 	var global: String = ProjectSettings.globalize_path(SAVE_ROOT)
 	if DirAccess.dir_exists_absolute(global):

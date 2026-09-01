@@ -3,7 +3,15 @@ extends RefCounted
 
 const DEFAULT_PATH: String = "res://config/runtime_tweaks/catalog.json"
 const EXPECTED_SCHEMA_VERSION: int = 1
-const EXPECTED_ENABLED_COUNT: int = 52
+const EXPECTED_ENABLED_COUNT: int = 123
+const CATEGORY_ORDER: Array[StringName] = [
+	&"UI",
+	&"GAMEPLAY",
+	&"AUDIO",
+	&"PLAYER",
+	&"ENEMIES",
+	&"ENVIRONMENT",
+]
 
 var schema_version: int = 0
 var catalog_revision: String = ""
@@ -54,10 +62,9 @@ func categories() -> Array[StringName]:
 	for entry: RuntimeTweakDescriptor in descriptors():
 		seen[entry.category] = true
 	var result: Array[StringName] = []
-	result.assign(seen.keys())
-	result.sort_custom(func(first: StringName, second: StringName) -> bool:
-		return String(first) < String(second)
-	)
+	for category: StringName in CATEGORY_ORDER:
+		if seen.has(category):
+			result.append(category)
 	return result
 
 
@@ -121,6 +128,17 @@ func validate_cross_fields(values: Dictionary) -> Dictionary:
 			"ok": false,
 			"error": "mobile smash cooldown must be shorter than melee charge duration",
 		}
+	var surge_threshold: float = float(values.get(
+		&"gameplay.momentum.surge_threshold", 40.0
+	))
+	var critical_threshold: float = float(values.get(
+		&"gameplay.momentum.critical_threshold", 80.0
+	))
+	if surge_threshold >= critical_threshold:
+		return {
+			"ok": false,
+			"error": "momentum surge threshold must be below the critical threshold",
+		}
 	return {"ok": true, "error": ""}
 
 
@@ -157,6 +175,9 @@ func _load(path: String) -> void:
 			errors
 		)
 		if not entry.enabled:
+			continue
+		if not CATEGORY_ORDER.has(entry.category):
+			errors.append("unsupported tuning category %s for %s" % [entry.category, entry.id])
 			continue
 		if _descriptors.has(entry.id):
 			errors.append("duplicate tuning id %s" % entry.id)

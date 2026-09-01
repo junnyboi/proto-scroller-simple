@@ -213,7 +213,9 @@ func _physics_process(delta: float) -> void:
 	_state_time += delta
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if state == State.ANTICIPATE:
-		velocity = velocity.move_toward(Vector2.ZERO, acceleration * delta)
+		velocity = velocity.move_toward(
+			Vector2.ZERO, acceleration * acceleration_multiplier * delta
+		)
 		if advance_telegraph(delta):
 			_complete_attack()
 			state = State.HOLD
@@ -228,7 +230,9 @@ func _physics_process(delta: float) -> void:
 		_animate_visual(delta)
 		return
 	if target == null:
-		velocity = velocity.move_toward(Vector2.ZERO, acceleration * delta)
+		velocity = velocity.move_toward(
+			Vector2.ZERO, acceleration * acceleration_multiplier * delta
+		)
 		if not airborne:
 			velocity.y = minf(velocity.y + GRAVITY * delta, 900.0)
 		move_and_slide()
@@ -302,7 +306,9 @@ func _update_ground_movement(delta: float) -> void:
 		desired_speed = -float(facing) * move_speed * movement_multiplier
 	else:
 		state = State.HOLD
-	velocity.x = move_toward(velocity.x, desired_speed, acceleration * delta)
+	velocity.x = move_toward(
+		velocity.x, desired_speed, acceleration * acceleration_multiplier * delta
+	)
 
 
 func _update_air_movement(delta: float) -> void:
@@ -334,7 +340,9 @@ func _update_air_movement(delta: float) -> void:
 	var desired_velocity: Vector2 = (
 		global_position.direction_to(desired_point) * move_speed * movement_multiplier
 	)
-	velocity = velocity.move_toward(desired_velocity, acceleration * delta)
+	velocity = velocity.move_toward(
+		desired_velocity, acceleration * acceleration_multiplier * delta
+	)
 
 
 func _can_attack() -> bool:

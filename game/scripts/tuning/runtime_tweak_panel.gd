@@ -192,12 +192,7 @@ func _build_ui() -> void:
 	rows_container.add_theme_constant_override(&"separation", 2)
 	rows_scroll.add_child(rows_container)
 	for index: int in range(ROW_POOL_SIZE):
-		var row: TweakControlRow = TweakControlRow.new()
-		row.name = "TweakRow%02d" % index
-		row.value_requested.connect(_on_row_value_requested)
-		row.reset_requested.connect(_on_row_reset_requested)
-		rows_container.add_child(row)
-		rows.append(row)
+		_create_row(index)
 	sandbox_panel = _build_sandbox_panel()
 	content.add_child(sandbox_panel)
 	content.add_child(_build_footer())
@@ -359,6 +354,7 @@ func _refresh_rows() -> void:
 		if not search.is_empty() and search not in searchable.to_lower():
 			continue
 		_filtered.append(entry)
+	_ensure_row_capacity(_filtered.size())
 	for index: int in range(rows.size()):
 		if index >= _filtered.size():
 			rows[index].bind(null, null, null)
@@ -369,6 +365,21 @@ func _refresh_rows() -> void:
 			service.requested_value(entry.id),
 			service.active_value(entry.id)
 		)
+
+
+func _ensure_row_capacity(required: int) -> void:
+	while rows.size() < required:
+		_create_row(rows.size())
+
+
+func _create_row(index: int) -> void:
+	var row: TweakControlRow = TweakControlRow.new()
+	row.name = "TweakRow%02d" % index
+	row.value_requested.connect(_on_row_value_requested)
+	row.reset_requested.connect(_on_row_reset_requested)
+	row.set_compact(_portrait)
+	rows_container.add_child(row)
+	rows.append(row)
 
 
 func _on_filter_changed(_index: int) -> void:

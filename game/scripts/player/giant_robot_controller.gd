@@ -71,6 +71,7 @@ var base_max_speed: float = 0.0
 var base_ground_acceleration: float = 0.0
 var base_air_acceleration: float = 0.0
 var base_ground_deceleration: float = 0.0
+var base_gravity: float = 0.0
 var base_dodge_speed: float = 0.0
 var base_dodge_duration: float = 0.0
 var engine_speed_multiplier: float = 1.0
@@ -123,11 +124,15 @@ func _ready() -> void:
 	floor_stop_on_slope = true
 	floor_snap_length = 6.0
 	_pending_facing = facing
+	max_health = float(RuntimeTweakAccess.run_value(
+		&"player.health.max_health", max_health
+	))
 	base_max_health = max_health
 	base_max_speed = max_speed
 	base_ground_acceleration = ground_acceleration
 	base_air_acceleration = air_acceleration
 	base_ground_deceleration = ground_deceleration
+	base_gravity = gravity
 	base_dodge_speed = dodge_speed
 	base_dodge_duration = dodge_duration
 	current_health = max_health
@@ -320,14 +325,61 @@ func _sync_tuned_movement_bases() -> void:
 	var tuned_acceleration: float = float(RuntimeTweakAccess.live_value(
 		&"player.move.ground_acceleration", base_ground_acceleration
 	))
+	var tuned_deceleration: float = float(RuntimeTweakAccess.live_value(
+		&"player.move.ground_deceleration", base_ground_deceleration
+	))
+	var tuned_air_acceleration: float = float(RuntimeTweakAccess.live_value(
+		&"player.move.air_acceleration", base_air_acceleration
+	))
+	var tuned_gravity: float = float(RuntimeTweakAccess.live_value(
+		&"player.move.gravity", base_gravity
+	))
+	var tuned_dodge_speed: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.speed", base_dodge_speed
+	))
+	var tuned_dodge_duration: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.duration", base_dodge_duration
+	))
+	var tuned_invulnerability: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.invulnerability_seconds", dodge_invulnerability_seconds
+	))
+	var tuned_recovery: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.recovery_seconds", dodge_recovery_seconds
+	))
+	var tuned_cooldown: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.cooldown_seconds", dodge_cooldown_seconds
+	))
+	var tuned_double_tap: float = float(RuntimeTweakAccess.live_value(
+		&"player.dodge.double_tap_window", dodge_double_tap_window
+	))
 	if (
 		is_equal_approx(base_max_speed, tuned_speed)
 		and is_equal_approx(base_ground_acceleration, tuned_acceleration)
+		and is_equal_approx(base_ground_deceleration, tuned_deceleration)
+		and is_equal_approx(base_air_acceleration, tuned_air_acceleration)
+		and is_equal_approx(base_gravity, tuned_gravity)
+		and is_equal_approx(base_dodge_speed, tuned_dodge_speed)
+		and is_equal_approx(base_dodge_duration, tuned_dodge_duration)
+		and is_equal_approx(dodge_invulnerability_seconds, tuned_invulnerability)
+		and is_equal_approx(dodge_recovery_seconds, tuned_recovery)
+		and is_equal_approx(dodge_cooldown_seconds, tuned_cooldown)
+		and is_equal_approx(dodge_double_tap_window, tuned_double_tap)
 	):
 		return
 	base_max_speed = tuned_speed
 	base_ground_acceleration = tuned_acceleration
+	base_ground_deceleration = tuned_deceleration
+	base_air_acceleration = tuned_air_acceleration
+	base_gravity = tuned_gravity
+	gravity = tuned_gravity
+	base_dodge_speed = tuned_dodge_speed
+	base_dodge_duration = tuned_dodge_duration
+	dodge_invulnerability_seconds = tuned_invulnerability
+	dodge_recovery_seconds = tuned_recovery
+	dodge_cooldown_seconds = tuned_cooldown
+	dodge_double_tap_window = tuned_double_tap
 	_apply_engine_multipliers()
+	_set_dodge_multipliers(1.0, 1.0)
 
 
 func _set_dodge_multipliers(speed_multiplier: float, duration_multiplier: float) -> bool:

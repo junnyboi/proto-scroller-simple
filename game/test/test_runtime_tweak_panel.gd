@@ -75,7 +75,7 @@ func test_main_mounts_fixed_panel_and_space_cannot_activate_focused_close() -> v
 	assert_eq(main.runtime_tweak_layer.layer, 200)
 	assert_eq(panel.get_parent(), main.runtime_tweak_layer)
 	assert_eq(panel.rows.size(), RuntimeTweakPanel.ROW_POOL_SIZE)
-	assert_eq(panel.category_selector.item_count, 8)
+	assert_eq(panel.category_selector.item_count, 7)
 	assert_true(panel.open())
 	assert_true(get_tree().paused)
 	panel.close_button.grab_focus()
@@ -170,7 +170,8 @@ func test_parameter_list_is_dense_scroll_first_and_color_editable() -> void:
 	assert_gte(player_index, 0)
 	panel.category_selector.select(player_index)
 	panel._on_filter_changed(player_index)
-	assert_eq(panel._filtered.size(), 12)
+	assert_eq(panel._filtered.size(), 32)
+	assert_eq(panel.rows.size(), 32)
 	assert_eq(panel.rows_scroll.vertical_scroll_mode, ScrollContainer.SCROLL_MODE_AUTO)
 	assert_true(panel.rows_scroll.follow_focus)
 	var visible_rows: int = 0
@@ -181,7 +182,7 @@ func test_parameter_list_is_dense_scroll_first_and_color_editable() -> void:
 			visible_rows += 1
 		if row.descriptor != null and row.descriptor.id == &"player.visual.tint":
 			color_row = row
-	assert_eq(visible_rows, 12)
+	assert_eq(visible_rows, 32)
 	assert_not_null(color_row)
 	assert_true(color_row.color_picker.visible)
 	assert_false(color_row.slider.visible)
@@ -229,7 +230,10 @@ func test_sandbox_denial_is_clean_and_success_marks_run_without_node_growth() ->
 	assert_true(bool(spawned.ok))
 	assert_eq(service.provenance.status, RunTuningProvenance.SANDBOX)
 	assert_eq(_node_count(main.city_slice), node_count_before)
-	main.city_slice.robot.current_health = main.city_slice.robot.max_health - 150.0
+	main.city_slice.robot.current_health = maxf(
+		main.city_slice.robot.max_health - TuningSandboxRunner.REPAIR_GRANT,
+		1.0
+	)
 	var repaired: Dictionary = panel.sandbox.repair_chassis()
 	assert_true(bool(repaired.ok))
 	assert_eq(repaired.amount, TuningSandboxRunner.REPAIR_GRANT)

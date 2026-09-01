@@ -35,7 +35,9 @@ func _physics_process(delta: float) -> void:
 	if dead or not active or target == null:
 		return
 	if state == State.ANTICIPATE:
-		velocity = velocity.move_toward(Vector2.ZERO, acceleration * delta)
+		velocity = velocity.move_toward(
+			Vector2.ZERO, acceleration * acceleration_multiplier * delta
+		)
 		if advance_telegraph(delta):
 			_fire_snapshot()
 			state = State.STRAFE
@@ -72,7 +74,9 @@ func _physics_process(delta: float) -> void:
 			* maximum_speed
 			* movement_multiplier
 		)
-	velocity = velocity.move_toward(desired_velocity, acceleration * delta)
+	velocity = velocity.move_toward(
+		desired_velocity, acceleration * acceleration_multiplier * delta
+	)
 	if state == State.STRAFE and _cooldown <= 0.0:
 		_begin_rocket()
 	move_and_slide()

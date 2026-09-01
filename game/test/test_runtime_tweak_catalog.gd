@@ -1,10 +1,10 @@
 extends GutTest
 
 
-func test_catalog_has_fifty_two_unique_sorted_enabled_descriptors() -> void:
+func test_catalog_has_one_hundred_twenty_three_unique_sorted_enabled_descriptors() -> void:
 	var catalog: RuntimeTweakCatalog = RuntimeTweakCatalog.load_catalog()
 	assert_true(catalog.is_valid(), str(catalog.errors))
-	assert_eq(catalog.enabled_count(), 52)
+	assert_eq(catalog.enabled_count(), 123)
 	var ids: Array[StringName] = catalog.ids()
 	var sorted: Array[StringName] = ids.duplicate()
 	sorted.sort_custom(func(first: StringName, second: StringName) -> bool:
@@ -15,8 +15,10 @@ func test_catalog_has_fifty_two_unique_sorted_enabled_descriptors() -> void:
 	for identifier: StringName in ids:
 		assert_false(unique.has(identifier), identifier)
 		unique[identifier] = true
-	assert_eq(unique.size(), 52)
-	assert_eq(catalog.categories().size(), 7)
+	assert_eq(unique.size(), 123)
+	assert_eq(catalog.categories(), [
+		&"UI", &"GAMEPLAY", &"AUDIO", &"PLAYER", &"ENEMIES", &"ENVIRONMENT",
+	])
 
 
 func test_every_descriptor_has_valid_metadata_and_default() -> void:
@@ -30,6 +32,15 @@ func test_every_descriptor_has_valid_metadata_and_default() -> void:
 		assert_true(bool(entry.sanitize(entry.default_value).ok), entry.id)
 		assert_false(entry.label_key.is_empty(), entry.id)
 		assert_false(entry.description_key.is_empty(), entry.id)
+		for locale: String in ["en", "zh-CN"]:
+			L10n.set_locale(locale)
+			assert_ne(L10n.t(entry.label_key), entry.label_key, "%s %s" % [locale, entry.id])
+			assert_ne(
+				L10n.t(entry.description_key),
+				entry.description_key,
+				"%s %s" % [locale, entry.id]
+			)
+	L10n.set_locale("en")
 
 
 func test_catalog_defaults_match_current_runtime_authorities() -> void:

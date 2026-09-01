@@ -10,6 +10,7 @@ var panel: PanelContainer
 var label: Label
 var presentation_count: int = 0
 var _elapsed: float = 0.0
+var _duration_scale: float = 1.0
 
 
 func _ready() -> void:
@@ -70,6 +71,12 @@ func present(district: CityDistrictProfile, logical_chunk: int) -> void:
 		district.accent_color.lightened(0.42)
 	)
 	_elapsed = 0.0
+	_duration_scale = (
+		float(RuntimeTweakAccess.district_value(
+			&"interface.district_banner.duration_scale", 1.0
+		))
+		* float(RuntimeTweakAccess.live_value(&"interface.motion_scale", 1.0))
+	)
 	panel.modulate.a = 0.0
 	panel.visible = true
 	presentation_count += 1
@@ -77,7 +84,11 @@ func present(district: CityDistrictProfile, logical_chunk: int) -> void:
 
 
 func _process(delta: float) -> void:
-	_elapsed += delta
+	if _duration_scale <= 0.0:
+		panel.visible = false
+		set_process(false)
+		return
+	_elapsed += delta / _duration_scale
 	if _elapsed >= TOTAL_SECONDS:
 		panel.visible = false
 		set_process(false)

@@ -102,7 +102,9 @@ func begin_from_origins(
 		return false
 	kind = projectile_kind
 	visual_key = projectile_visual_key
-	projectile_speed = maxf(speed, 1.0)
+	projectile_speed = maxf(speed, 1.0) * float(RuntimeTweakAccess.next_attack_value(
+		&"boss.projectile_speed_multiplier", 1.0
+	))
 	_outgoing_damage_multiplier = float(RuntimeTweakAccess.next_attack_value(
 		&"enemy.outgoing_damage_multiplier", EnemyActor2D.ENEMY_DAMAGE_MULTIPLIER
 	))

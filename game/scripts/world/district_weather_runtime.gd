@@ -82,6 +82,7 @@ var post_warm_creation_count: int = 0
 var surface: DistrictWeatherSurface
 var _transition_elapsed: float = 0.0
 var _transitioning: bool = false
+var _active_transition_seconds: float = TRANSITION_SECONDS
 
 
 func _ready() -> void:
@@ -100,7 +101,9 @@ func _process(delta: float) -> void:
 		set_process(false)
 		return
 	_transition_elapsed += delta
-	var weight: float = clampf(_transition_elapsed / TRANSITION_SECONDS, 0.0, 1.0)
+	var weight: float = clampf(
+		_transition_elapsed / maxf(_active_transition_seconds, 0.001), 0.0, 1.0
+	)
 	var eased: float = weight * weight * (3.0 - 2.0 * weight)
 	surface.set_transition_weight(eased)
 	if weight >= 1.0:
@@ -122,10 +125,13 @@ func transition_to(district_id: StringName, immediate: bool = false) -> bool:
 		return false
 	if _transitioning:
 		current_district_id = (
-			target_district_id if _transition_elapsed >= TRANSITION_SECONDS * 0.5
+			target_district_id if _transition_elapsed >= _active_transition_seconds * 0.5
 			else current_district_id
 		)
 	target_district_id = district_id
+	_active_transition_seconds = float(RuntimeTweakAccess.district_value(
+		&"environment.weather.transition_seconds", TRANSITION_SECONDS
+	))
 	surface.begin_transition(
 		PROFILES[current_district_id] as Dictionary,
 		PROFILES[target_district_id] as Dictionary

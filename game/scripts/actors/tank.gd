@@ -31,7 +31,9 @@ func _physics_process(delta: float) -> void:
 	if dead or not active:
 		return
 	if state == State.ANTICIPATE:
-		velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
+		velocity.x = move_toward(
+			velocity.x, 0.0, acceleration * acceleration_multiplier * delta
+		)
 		if advance_telegraph(delta):
 			_fire_snapshot()
 			state = State.AIM
@@ -58,7 +60,9 @@ func _physics_process(delta: float) -> void:
 		desired_speed = float(facing) * move_speed * movement_multiplier
 	elif state == State.REVERSE:
 		desired_speed = -float(facing) * move_speed * movement_multiplier
-	velocity.x = move_toward(velocity.x, desired_speed, acceleration * delta)
+	velocity.x = move_toward(
+		velocity.x, desired_speed, acceleration * acceleration_multiplier * delta
+	)
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if state == State.AIM and _cooldown <= 0.0:
 		_begin_shell()

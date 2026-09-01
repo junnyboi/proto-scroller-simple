@@ -53,7 +53,7 @@ func after_each() -> void:
 func test_launch_scene_contract() -> void:
 	var title_label: Label = screen.get_node("%TitleLabel") as Label
 	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
-	assert_eq(ProjectSettings.get_setting("application/config/name"), "Proto Scroller")
+	assert_eq(ProjectSettings.get_setting("application/config/name"), "Game template - scroller")
 	assert_eq(
 		ProjectSettings.get_setting("application/run/main_scene"),
 		"res://scenes/main/main.tscn"

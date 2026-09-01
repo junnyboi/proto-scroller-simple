@@ -83,7 +83,10 @@ func _physics_process(delta: float) -> void:
 
 
 func add_impact_impulse(impulse: Vector2) -> void:
-	impact_velocity += impulse * 42.0
+	var shake_scale: float = float(RuntimeTweakAccess.live_value(
+		&"interface.screen_shake_scale", 1.0
+	))
+	impact_velocity += impulse * 42.0 * shake_scale
 	impact_velocity = impact_velocity.limit_length(maximum_impact_offset * 30.0)
 
 

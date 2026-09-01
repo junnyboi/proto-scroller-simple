@@ -1,9 +1,9 @@
 class_name TuningSandboxRunner
 extends RefCounted
 
-const ENEMY_IDS: Array[StringName] = [
-	&"soldier", &"tank", &"helicopter", &"scout", &"aegis", &"static",
-]
+const ENEMY_IDS: Array[StringName] = (
+	EnemyArchetypeCatalog.BASE_KINDS + EnemyArchetypeCatalog.ALL_SPAWNABLE_IDS
+)
 const REPAIR_GRANT: float = 100.0
 
 var main: Main

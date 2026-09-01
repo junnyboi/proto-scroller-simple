@@ -110,6 +110,7 @@ var _boss_armor_ratio: float = 0.0
 var _boss_health_ratio: float = 0.0
 var _hud_tuning_scale: float = 1.0
 var _hud_tuning_tint: Color = Color.WHITE
+var _hud_tuning_opacity: float = 1.0
 var _runtime_tweak_service: RuntimeTweakService
 
 
@@ -1008,18 +1009,33 @@ func _apply_live_visual_tuning() -> void:
 	var next_tint: Color = RuntimeTweakAccess.live_color(
 		&"interface.hud.tint", Color.WHITE
 	)
+	var next_opacity: float = float(RuntimeTweakAccess.live_value(
+		&"interface.hud.opacity", 1.0
+	))
 	if not is_equal_approx(next_scale, _hud_tuning_scale):
 		_hud_tuning_scale = next_scale
 		transform = Transform2D.IDENTITY.scaled(Vector2.ONE * next_scale)
 		_apply_responsive_layout()
+	var modulation_changed: bool = false
 	if next_tint != _hud_tuning_tint:
 		_hud_tuning_tint = next_tint
-		for child: Node in get_children():
-			if child is CanvasItem:
-				if child == tweak_leaderboard_disclaimer:
-					(child as CanvasItem).self_modulate = Color.WHITE
-					continue
-				(child as CanvasItem).self_modulate = next_tint
+		modulation_changed = true
+	if not is_equal_approx(next_opacity, _hud_tuning_opacity):
+		_hud_tuning_opacity = next_opacity
+		modulation_changed = true
+	if modulation_changed:
+		_apply_hud_child_modulation()
+
+
+func _apply_hud_child_modulation() -> void:
+	for child: Node in get_children():
+		if not child is CanvasItem:
+			continue
+		var child_modulate: Color = (
+			Color.WHITE if child == tweak_leaderboard_disclaimer else _hud_tuning_tint
+		)
+		child_modulate.a *= _hud_tuning_opacity
+		(child as CanvasItem).self_modulate = child_modulate
 
 
 func _build_tweak_controls_button() -> void:

@@ -102,6 +102,7 @@ var elapsed_seconds: float = 0.0
 var attack_elapsed: float = 0.0
 var attack_index: int = -1
 var attack_stage: StringName = &"IDLE"
+var _active_telegraph_seconds: float = TELEGRAPH_SECONDS
 var active_pylon_index: int = -1
 var active_mechanic: StringName = &""
 var active_echo: StringName = &""
@@ -211,8 +212,8 @@ func advance(delta: float) -> void:
 			severance_changed.emit(
 				severance_completed, SEVERANCE_WINDOW_COUNT, severance_loop_count
 			)
-	if attack_stage == &"TELEGRAPH" and attack_elapsed >= TELEGRAPH_SECONDS:
-		attack_elapsed -= TELEGRAPH_SECONDS
+	if attack_stage == &"TELEGRAPH" and attack_elapsed >= _active_telegraph_seconds:
+		attack_elapsed -= _active_telegraph_seconds
 		attack_stage = &"ACTIVE"
 		_set_mechanic_state(BossAttackArea2D.VisualState.ARMED)
 		if not wreck_active:
@@ -619,6 +620,9 @@ func _begin_next_testimony() -> void:
 	boss_volley.cancel()
 	attack_elapsed = 0.0
 	attack_stage = &"TELEGRAPH"
+	_active_telegraph_seconds = TELEGRAPH_SECONDS * float(
+		RuntimeTweakAccess.next_attack_value(&"boss.telegraph.duration_multiplier", 1.0)
+	)
 	var choices: Array[int] = active_testimony_choices()
 	var current_choice_index: int = choices.find(active_pylon_index)
 	var next_choice_index: int = (
@@ -734,7 +738,7 @@ func _prepare_crown_canon() -> bool:
 		CROWN_CANON_PROJECTILE_SPEED,
 		CROWN_CANON_PROJECTILE_DAMAGE,
 		CROWN_CANON_PROJECTILE_SCALE,
-		TELEGRAPH_SECONDS
+		_active_telegraph_seconds
 	)
 
 
