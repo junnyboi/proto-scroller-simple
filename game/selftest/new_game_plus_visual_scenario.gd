@@ -36,11 +36,6 @@ func _run() -> void:
 	city._on_score_changed(42_500, 0)
 	city.run_lifecycle._on_district_completed()
 	await process_frame
-	if not city.weapon_shop_assembler.session.active:
-		quit(1)
-		return
-	city.weapon_shop_assembler.session.close_shop()
-	await process_frame
 	await RenderingServer.frame_post_draw
 	if (
 		not city.gameplay_hud.game_over_overlay.visible

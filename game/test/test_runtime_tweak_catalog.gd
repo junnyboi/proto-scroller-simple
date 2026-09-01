@@ -1,10 +1,10 @@
 extends GutTest
 
 
-func test_catalog_has_fifty_six_unique_sorted_enabled_descriptors() -> void:
+func test_catalog_has_fifty_two_unique_sorted_enabled_descriptors() -> void:
 	var catalog: RuntimeTweakCatalog = RuntimeTweakCatalog.load_catalog()
 	assert_true(catalog.is_valid(), str(catalog.errors))
-	assert_eq(catalog.enabled_count(), 56)
+	assert_eq(catalog.enabled_count(), 52)
 	var ids: Array[StringName] = catalog.ids()
 	var sorted: Array[StringName] = ids.duplicate()
 	sorted.sort_custom(func(first: StringName, second: StringName) -> bool:
@@ -15,7 +15,7 @@ func test_catalog_has_fifty_six_unique_sorted_enabled_descriptors() -> void:
 	for identifier: StringName in ids:
 		assert_false(unique.has(identifier), identifier)
 		unique[identifier] = true
-	assert_eq(unique.size(), 56)
+	assert_eq(unique.size(), 52)
 	assert_eq(catalog.categories().size(), 7)
 
 

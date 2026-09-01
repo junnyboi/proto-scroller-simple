@@ -3,7 +3,6 @@ extends Node
 
 var event_hub: GameplayEventHub
 var run_score: RunScore
-var run_experience: RunExperience
 var combo_tracker: ComboTracker
 var momentum_meter: MomentumMeter
 var rare_event_tracker: RareEventTracker
@@ -21,9 +20,6 @@ func _init() -> void:
 	run_score = RunScore.new()
 	run_score.name = &"RunScore"
 	add_child(run_score)
-	run_experience = RunExperience.new()
-	run_experience.name = &"RunExperience"
-	add_child(run_experience)
 	combo_tracker = ComboTracker.new()
 	combo_tracker.name = &"ComboTracker"
 	add_child(combo_tracker)
@@ -48,7 +44,6 @@ func publish(event: GameplayEvent) -> bool:
 		)
 	)
 	run_score.apply_event(event, score_multiplier)
-	run_experience.apply_event(event)
 	momentum_meter.apply_event(event)
 	rare_event_tracker.register_event(event)
 	causal_chain_tracker.register(event)
@@ -73,7 +68,6 @@ func advance(speed_ratio: float, delta: float) -> void:
 func reset_run() -> void:
 	event_hub.reset_run()
 	run_score.reset_run()
-	run_experience.reset_run()
 	combo_tracker.reset_run()
 	momentum_meter.reset_run()
 	rare_event_tracker.reset_run()

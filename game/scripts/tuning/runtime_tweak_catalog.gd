@@ -3,7 +3,7 @@ extends RefCounted
 
 const DEFAULT_PATH: String = "res://config/runtime_tweaks/catalog.json"
 const EXPECTED_SCHEMA_VERSION: int = 1
-const EXPECTED_ENABLED_COUNT: int = 56
+const EXPECTED_ENABLED_COUNT: int = 52
 
 var schema_version: int = 0
 var catalog_revision: String = ""

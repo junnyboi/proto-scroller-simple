@@ -283,7 +283,6 @@ func _build_sandbox_panel() -> PanelContainer:
 	sandbox_grid.add_child(hazard_selector)
 	sandbox_grid.add_child(_sandbox_button("tuning.session.spawn_hazard", _spawn_selected_hazard))
 	sandbox_grid.add_child(_sandbox_button("tuning.session.clear", _clear_transient))
-	sandbox_grid.add_child(_sandbox_button("tuning.session.grant_xp", _grant_experience))
 	sandbox_grid.add_child(_sandbox_button("tuning.session.repair", _repair_chassis))
 	seed_input = SpinBox.new()
 	seed_input.min_value = 0.0
@@ -457,10 +456,6 @@ func _spawn_selected_hazard() -> void:
 
 func _clear_transient() -> void:
 	_present_sandbox_result(sandbox.clear_transient())
-
-
-func _grant_experience() -> void:
-	_present_sandbox_result(sandbox.grant_experience())
 
 
 func _repair_chassis() -> void:

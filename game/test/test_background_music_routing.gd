@@ -131,7 +131,7 @@ func test_web_feature_keeps_bgm_available_with_dummy_driver_name() -> void:
 	main.free()
 
 
-func test_upgrade_duck_controller_changes_the_players_music_bus() -> void:
+func test_music_duck_controller_changes_the_players_music_bus() -> void:
 	var main: Main = MAIN_SCENE.instantiate() as Main
 	add_child_autofree(main)
 	await get_tree().process_frame

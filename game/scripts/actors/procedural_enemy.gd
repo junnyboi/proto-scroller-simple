@@ -64,7 +64,7 @@ var anticipation_duration: float = 0.6
 var behavior: StringName = &"ground_standoff"
 var movement_style: StringName = &"heavy_march"
 var attack_style: StringName = &"turret_burst"
-var xp_value: int = 500
+var score_value: int = 500
 var threat_cost: int = 1
 var remains_family: StringName = &"vehicle"
 var encounter_runtime: EncounterRuntime
@@ -116,7 +116,7 @@ func configure_archetype(p_archetype_id: StringName, p_profile: Dictionary) -> v
 	attack_style = StringName(profile.get("attack_style", &"turret_burst"))
 	if attack_style in [&"incubation_drop", &"deploy", &"drone_launch"]:
 		attack_interval = EnemySpawnTuning.scaled_interval(attack_interval)
-	xp_value = int(profile.get("xp", 500))
+	score_value = int(profile.get("score", 500))
 	threat_cost = int(profile.get("threat", 1))
 	remains_family = StringName(profile.get("remains", &"vehicle"))
 	_attack_vfx_id = StringName(profile.get("attack_vfx_id", &""))

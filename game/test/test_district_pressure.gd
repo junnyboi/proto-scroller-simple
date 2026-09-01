@@ -26,11 +26,11 @@ func test_catalog_matches_exact_monotonic_five_district_curve() -> void:
 	var profiles: Array[DistrictPressureProfile] = DistrictPressureCatalog.profiles()
 	assert_eq(profiles.size(), 5)
 	var expected: Array[Array] = [
-		[&"BUSINESS", 0, 8, 1.00, 1.00, 0, 0, 0, 1],
-		[&"RESIDENTIAL", 1, 11, 0.96, 1.00, 0, 1, 0, 2],
-		[&"ENTERTAINMENT", 2, 14, 0.92, 0.96, 1, 2, 1, 3],
-		[&"MILITARY", 3, 17, 0.88, 0.92, 1, 3, 1, 4],
-		[&"ROYAL", 4, 20, 0.84, 0.88, 2, 4, 2, 5],
+		[&"BUSINESS", 0, 8, 1.00, 1.00, 0, 0, 0],
+		[&"RESIDENTIAL", 1, 11, 0.96, 1.00, 0, 1, 0],
+		[&"ENTERTAINMENT", 2, 14, 0.92, 0.96, 1, 2, 1],
+		[&"MILITARY", 3, 17, 0.88, 0.92, 1, 3, 1],
+		[&"ROYAL", 4, 20, 0.84, 0.88, 2, 4, 2],
 	]
 	for index: int in range(profiles.size()):
 		var profile: DistrictPressureProfile = profiles[index]
@@ -43,28 +43,6 @@ func test_catalog_matches_exact_monotonic_five_district_curve() -> void:
 		assert_eq(profile.elite_bonus, row[5])
 		assert_eq(profile.hazard_pressure_bonus, row[6])
 		assert_eq(profile.hazard_event_bonus, row[7])
-		assert_eq(profile.readiness_level, row[8])
-
-
-func test_readiness_caps_sprinted_districts_and_unlocks_one_tier_per_level() -> void:
-	var district_ids: Array[StringName] = [
-		&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
-	]
-	for district_index: int in range(district_ids.size()):
-		for player_level: int in range(1, 6):
-			var effective: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
-				district_ids[district_index],
-				player_level
-			)
-			assert_eq(effective.district_index, mini(district_index, player_level - 1))
-	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", 1).district_id,
-		&"BUSINESS"
-	)
-	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", 5).district_id,
-		&"ROYAL"
-	)
 
 
 func test_five_district_by_six_act_matrix_is_deterministic_and_bounded() -> void:
@@ -73,7 +51,6 @@ func test_five_district_by_six_act_matrix_is_deterministic_and_bounded() -> void
 		city.world_stream.current_logical_chunk = (
 			profile.district_index * CityDistrictCatalog.CHUNKS_PER_DISTRICT
 		)
-		city.rampage_session.run_experience.level = profile.readiness_level
 		for act_index: int in range(DISTRICT.acts.size()):
 			var act: DistrictAct = DISTRICT.acts[act_index]
 			for beat_index: int in range(act.beats.size()):
@@ -147,19 +124,16 @@ func test_enemy_copy_planner_prefers_cheap_units_and_respects_live_saturation() 
 	assert_true(director._progression_copy_plan(beat, royal).is_empty())
 
 
-func test_pressure_profile_is_locked_for_the_duration_of_a_started_beat() -> void:
+func test_pressure_profile_uses_authored_district_for_started_beat() -> void:
 	city.world_stream.current_district_id = &"ROYAL"
 	city.world_stream.current_logical_chunk = 48
-	city.rampage_session.run_experience.level = 1
 	director.running = true
 	director.completed = false
 	director.phase_index = 0
 	director.beat_index = -1
 	director.state = DistrictResponseDirector.STATE_WAITING
 	director._try_start_next_beat()
-	assert_eq(director.current_pressure_profile.district_id, &"BUSINESS")
-	city.rampage_session.run_experience.level = 5
-	assert_eq(director.current_pressure_profile.district_id, &"BUSINESS")
+	assert_eq(director.current_pressure_profile.district_id, &"ROYAL")
 	director._beat_pending.clear()
 	director.ledger.cancel_all()
 
@@ -167,7 +141,6 @@ func test_pressure_profile_is_locked_for_the_duration_of_a_started_beat() -> voi
 func test_business_variant_trace_is_final_before_reservation_and_pending_spawns() -> void:
 	city.world_stream.current_district_id = &"BUSINESS"
 	city.world_stream.current_logical_chunk = 0
-	city.rampage_session.run_experience.level = 1
 	director.running = true
 	director.completed = false
 	director.phase_index = 0
@@ -200,7 +173,6 @@ func test_business_variant_trace_is_final_before_reservation_and_pending_spawns(
 func test_absolute_threat_saturation_delays_and_then_releases_the_next_beat() -> void:
 	city.world_stream.current_district_id = &"ROYAL"
 	city.world_stream.current_logical_chunk = 48
-	city.rampage_session.run_experience.level = 5
 	director.running = true
 	director.completed = false
 	director.phase_index = 5
@@ -246,24 +218,6 @@ func test_hazard_runtime_refuses_duplicate_and_seventh_live_hazard_without_recyc
 	assert_eq(hazards.activation_denial_count, 2)
 	assert_eq(hazards.recycle_count, 0)
 	assert_eq(hazards.post_warm_creation_count, 0)
-
-
-func test_run_experience_unlocks_readiness_at_existing_upgrade_cadence() -> void:
-	var experience: RunExperience = RunExperience.new()
-	add_child_autofree(experience)
-	var gained_levels: PackedInt32Array = PackedInt32Array()
-	experience.level_gained.connect(
-		func(level: int, _event_id: int) -> void: gained_levels.append(level)
-	)
-	for source_level: int in range(1, 5):
-		var requirement: int = RunExperience.required_for_level(source_level)
-		assert_eq(experience.add_experience(requirement, source_level), 1)
-		assert_eq(experience.level, source_level + 1)
-	assert_eq(gained_levels, PackedInt32Array([2, 3, 4, 5]))
-	assert_eq(
-		DistrictPressureCatalog.effective_profile(&"ROYAL", experience.level).district_id,
-		&"ROYAL"
-	)
 
 
 func _spawn_entry(kind: String) -> EnemySpawnEntry:

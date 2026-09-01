@@ -38,7 +38,6 @@ func _run() -> void:
 	await process_frame
 	await physics_frame
 	city.urban_siege.stop_run()
-	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.gameplay_hud.first_run_tutorial.visible = false
 	city.encounter_runtime.release_all()
 	var catalog_digest: String = _catalog_digest()
@@ -180,38 +179,6 @@ func _run() -> void:
 			origin_cell_destroyed,
 			bool(origin_car_state.get("broken", false)),
 			city.streamed_destructibles.mutation_count(),
-		]
-	)
-	var sprint_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
-		&"ROYAL",
-		city.rampage_session.run_experience.level
-	)
-	_check(
-		"royal_pressure_is_readiness_gated",
-		city.world_stream.progression_tier() == CityWorldStream.MAX_PROGRESSION_TIER
-		and sprint_profile.district_id == &"BUSINESS",
-		"distance_tier=%d level=%d effective=%s max_chunk=%d"
-		% [
-			city.world_stream.progression_tier(),
-			city.rampage_session.run_experience.level,
-			sprint_profile.district_id,
-			city.world_stream.maximum_visited_chunk,
-		]
-	)
-	city.rampage_session.run_experience.level = 5
-	var ready_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
-		&"ROYAL",
-		city.rampage_session.run_experience.level
-	)
-	_check(
-		"royal_pressure_unlocks_at_level_five",
-		ready_profile.district_id == &"ROYAL"
-		and ready_profile.live_threat_ceiling == DistrictPressureCatalog.MAX_LIVE_THREAT,
-		"level=%d effective=%s threat_ceiling=%d"
-		% [
-			city.rampage_session.run_experience.level,
-			ready_profile.district_id,
-			ready_profile.live_threat_ceiling,
 		]
 	)
 	city.robot.global_position.x = (

@@ -44,7 +44,6 @@ func _run() -> void:
 	await process_frame
 	await physics_frame
 	city.urban_siege.stop_run()
-	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.encounter_runtime.release_all()
 	city.gameplay_hud.visible = false
 	city.gameplay_hud.first_run_tutorial.visible = false

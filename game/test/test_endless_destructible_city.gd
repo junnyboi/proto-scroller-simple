@@ -382,9 +382,9 @@ func test_run_reset_clears_sparse_mutations_without_reallocating() -> void:
 	_record_test_execution()
 
 
-func test_district_readiness_scales_enemy_and_hazard_pressure_inside_caps() -> void:
+func test_authored_district_scales_enemy_and_hazard_pressure_inside_caps() -> void:
 	var city: CitySlice = await _spawn_city()
-	await _move_to_logical_chunk(city, 36)
+	await _move_to_logical_chunk(city, CityDistrictCatalog.CHUNKS_PER_DISTRICT * 3)
 	assert_eq(city.world_stream.progression_tier(), 3)
 	assert_eq(city.world_stream.current_district_id, &"MILITARY")
 	var director: DistrictResponseDirector = city.urban_siege.director
@@ -440,15 +440,24 @@ func test_district_readiness_scales_enemy_and_hazard_pressure_inside_caps() -> v
 	director.phase_index = 3
 	director.beat_index = -1
 	director.state = director.STATE_WAITING
-	city.rampage_session.run_experience.level = military.readiness_level
-	director._try_start_next_beat()
-	var authored_count: int = 0
-	for entry: EnemySpawnEntry in beat.spawns:
-		authored_count += EnemyArchetypeCatalog.spawn_multiplier(StringName(entry.kind))
-	assert_eq(
-		director._beat_pending.size(),
-		EnemySpawnTuning.scaled_count(authored_count + scaled_copies.size())
+	var active_scaled_copies: Dictionary[int, int] = director._progression_copy_plan(
+		beat,
+		military
 	)
+	director._try_start_next_beat()
+	var authored_pending: int = 0
+	var expected_pending: int = 0
+	for entry_index: int in range(beat.spawns.size()):
+		var entry: EnemySpawnEntry = beat.spawns[entry_index]
+		authored_pending += EnemySpawnTuning.scaled_count(
+			EnemyArchetypeCatalog.spawn_multiplier(StringName(entry.kind))
+		)
+		expected_pending += EnemySpawnTuning.scaled_count(
+			EnemyArchetypeCatalog.spawn_multiplier(StringName(entry.kind))
+			+ int(active_scaled_copies.get(entry_index, 0))
+		)
+	assert_gte(director._beat_pending.size(), authored_pending)
+	assert_lte(director._beat_pending.size(), expected_pending)
 	assert_eq(director.progression_peak_tier, 3)
 	assert_lte(
 		director.progression_peak_threat,

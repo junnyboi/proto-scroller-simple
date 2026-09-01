@@ -85,26 +85,10 @@ func test_runtime_snapshot_matches_every_approved_cap() -> void:
 	assert_eq(snapshot.streamed_post_warm_creations, 0)
 	assert_eq(snapshot.world_mutation_ledgers, 1)
 	assert_eq(snapshot.rare_rows, 3)
-	assert_eq(snapshot.upgrade_sessions, 1)
-	assert_eq(snapshot.upgrade_overlays, 1)
-	assert_eq(snapshot.upgrade_cards, 2)
-	assert_eq(snapshot.weapon_status_strips, 1)
 	assert_eq(snapshot.cosmetic_debris_instances, 64)
-	assert_eq(snapshot.shockwave_ring_slots, 10)
-	assert_eq(snapshot.directional_shockwave_slots, 10)
-	assert_eq(snapshot.player_arsenals, 1)
-	assert_eq(snapshot.weapon_drones, 19)
 	assert_eq(snapshot.machine_gun_impact_slots, 4)
 	assert_eq(snapshot.hostile_impact_slots, RuntimeBudget.HOSTILE_IMPACT_SLOTS)
 	assert_eq(snapshot.hostile_impact_slots, 8)
-	assert_eq(snapshot.laser_beam_slots, 2)
-	assert_eq(snapshot.anti_air_impact_slots, 5)
-	assert_eq(snapshot.flame_visual_slots, 6)
-	assert_eq(snapshot.scorch_visual_slots, 8)
-	assert_eq(snapshot.flamethrower_loop_voices, 1)
-	assert_eq(snapshot.player_missiles, 4)
-	assert_eq(snapshot.missile_explosion_visual_slots, 4)
-	assert_eq(snapshot.missile_explosion_queue, 8)
 	assert_eq(snapshot.boss_sessions, 1)
 	assert_eq(snapshot.boss_rigs, 1)
 	assert_eq(snapshot.boss_arena_barriers, RuntimeBudget.BOSS_ARENA_BARRIERS)
@@ -175,9 +159,6 @@ func test_three_retry_generations_have_identical_clean_runtime_shape() -> void:
 	await get_tree().process_frame
 	var expected_nodes: int = int(RuntimeBudget.snapshot(main.city_slice).node_count)
 	for retry_index: int in range(3):
-		for runtime: UpgradeRuntime in main.city_slice.upgrade_assembler.runtimes.values():
-			runtime.apply_rank(1)
-			main.city_slice.upgrade_assembler.session.ranks[runtime.upgrade_id()] = 1
 		main.city_slice.rampage_events.legacy_score(100 + retry_index)
 		main.city_slice.rampage_session.momentum_meter.apply_event(GameplayEvent.new(
 			StringName("retry_momentum_%d" % retry_index),
@@ -200,12 +181,6 @@ func test_three_retry_generations_have_identical_clean_runtime_shape() -> void:
 		assert_eq(snapshot.street_chunks, RuntimeBudget.STREET_CHUNKS)
 		assert_eq(snapshot.street_post_warm_creations, 0)
 		assert_eq(snapshot.player_bullet_active, 0)
-		for runtime: UpgradeRuntime in main.city_slice.upgrade_assembler.runtimes.values():
-			assert_eq(runtime.current_rank, 0)
-			assert_eq(
-				main.city_slice.upgrade_assembler.session.ranks[runtime.upgrade_id()],
-				0
-			)
 		assert_eq(RuntimeBudget.validation_errors(main.city_slice), PackedStringArray())
 
 

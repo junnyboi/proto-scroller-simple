@@ -101,7 +101,6 @@ var continuity_boot_delay_seconds: float = 3.0
 var siren_deployed: bool = false
 var siren_ring_active: bool = false
 var siren_ring_remaining: float = 0.0
-var suspended_weapon_id: StringName = &""
 
 var artillery_spine_visible: bool = false
 var seraph_environment_count: int = 0
@@ -117,7 +116,6 @@ var _reinforcement_actors: Array[EnemyActor2D] = []
 var _reinforcement_elapsed: float = 0.0
 var _reinforcement_cursor: int = 0
 var _reinforcement_interval_multiplier: float = 1.0
-var _siren_preferred_weapon: StringName = &""
 var _active_siren: EnemyActor2D
 var _active_runner: EnemyActor2D
 var _preserve_state_on_cleanup: bool = false
@@ -186,7 +184,6 @@ func deactivate() -> void:
 	_release_reinforcements()
 	_active_siren = null
 	_active_runner = null
-	_resume_suspended_weapon()
 	active_definition = null
 	generation_token = 0
 	elapsed_seconds = 0.0
@@ -205,8 +202,6 @@ func deactivate() -> void:
 	siren_deployed = false
 	siren_ring_active = false
 	siren_ring_remaining = 0.0
-	suspended_weapon_id = &""
-	_siren_preferred_weapon = &""
 	artillery_spine_visible = false
 	seraph_environment_count = 0
 	dispatch_requested = false
@@ -247,7 +242,6 @@ func advance(delta: float) -> void:
 			recorder.record_motion(robot.global_position, elapsed_seconds)
 	if siren_ring_active:
 		siren_ring_remaining = maxf(siren_ring_remaining - delta, 0.0)
-		_sync_siren_hollow_center()
 		if is_zero_approx(siren_ring_remaining):
 			end_siren_ring()
 	if attack_stage == &"TELEGRAPH" and attack_elapsed >= TELEGRAPH_SECONDS:
@@ -380,49 +374,17 @@ func deploy_siren() -> EnemyActor2D:
 	return _active_siren
 
 
-func begin_siren_ring(preferred_weapon: StringName = &"") -> bool:
+func begin_siren_ring(_preferred_weapon: StringName = &"") -> bool:
 	if _active_siren == null or not _active_siren.active or siren_ring_active:
 		return false
-	_resume_suspended_weapon()
-	_siren_preferred_weapon = preferred_weapon
 	siren_ring_active = true
 	siren_ring_remaining = SIREN_RING_SECONDS
-	_sync_siren_hollow_center()
 	return true
-
-
-func _sync_siren_hollow_center() -> void:
-	var robot: GiantRobotController = encounter_runtime.robot if encounter_runtime != null else null
-	if robot != null and robot.global_position.distance_to(center) <= 118.0:
-		_resume_suspended_weapon()
-		return
-	if not suspended_weapon_id.is_empty():
-		return
-	var assembler: PlayerUpgradeAssembler = _upgrade_assembler()
-	if assembler != null:
-		var candidates: Array[StringName] = [
-			_siren_preferred_weapon,
-			&"MACHINE_GUN",
-			&"MISSILE",
-			&"LASER",
-			&"FLAMETHROWER",
-		]
-		for candidate: StringName in candidates:
-			if candidate.is_empty():
-				continue
-			var runtime: UpgradeRuntime = assembler.runtimes.get(candidate) as UpgradeRuntime
-			if runtime == null or runtime.current_rank <= 0 or runtime.paused:
-				continue
-			runtime.set_paused(true)
-			suspended_weapon_id = candidate
-			break
 
 
 func end_siren_ring() -> void:
 	siren_ring_active = false
 	siren_ring_remaining = 0.0
-	_siren_preferred_weapon = &""
-	_resume_suspended_weapon()
 
 
 func release_siren() -> void:
@@ -659,7 +621,6 @@ func capture_state() -> Dictionary:
 		"siren_active": _active_siren != null and _active_siren.active,
 		"siren_ring_active": siren_ring_active,
 		"siren_ring_remaining": siren_ring_remaining,
-		"suspended_weapon_id": suspended_weapon_id,
 		"recorder": recorder.capture_state() if recorder != null else {},
 		"artillery_spine_visible": artillery_spine_visible,
 		"seraph_environment_count": seraph_environment_count,
@@ -725,7 +686,7 @@ func restore_state(state: Dictionary) -> void:
 		deploy_siren()
 		siren_deployed = true
 		if siren_ring_active:
-			begin_siren_ring(StringName(state.get("suspended_weapon_id", &"")))
+			begin_siren_ring()
 			siren_ring_remaining = float(state.get("siren_ring_remaining", 0.0))
 	if bool(state.get("runner_active", false)):
 		request_dispatch()
@@ -981,26 +942,6 @@ func _restore_anchor_records() -> void:
 		anchor.visible = index < anchors_created and reclamation_consumed[index] == 0
 
 
-func _upgrade_assembler() -> PlayerUpgradeAssembler:
-	if encounter_runtime == null or encounter_runtime.robot == null:
-		return null
-	var city: Node = encounter_runtime.robot.get_parent()
-	while city != null and not city is CitySlice:
-		city = city.get_parent()
-	return (city as CitySlice).upgrade_assembler if city is CitySlice else null
-
-
-func _resume_suspended_weapon() -> void:
-	if suspended_weapon_id.is_empty():
-		return
-	var assembler: PlayerUpgradeAssembler = _upgrade_assembler()
-	if assembler != null:
-		var runtime: UpgradeRuntime = assembler.runtimes.get(suspended_weapon_id) as UpgradeRuntime
-		if runtime != null and not runtime.stopped:
-			runtime.set_paused(false)
-	suspended_weapon_id = &""
-
-
 func _release_support(support: EnemyActor2D) -> void:
 	if encounter_runtime != null and support != null and is_instance_valid(support):
 		encounter_runtime.release(support)
@@ -1103,7 +1044,6 @@ func _cleanup_generation(token: int) -> void:
 		_release_reinforcements()
 		_active_siren = null
 		_active_runner = null
-		_resume_suspended_weapon()
 		generation_token = 0
 		_preserve_state_on_cleanup = false
 		return

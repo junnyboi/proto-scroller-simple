@@ -34,7 +34,7 @@ func test_accelerated_arc_visits_every_act_and_completes() -> void:
 	var guard: int = 0
 	while not director.completed and guard < 600:
 		director.advance(1.0)
-		_close_shop_if_active()
+		_resolve_directive_if_active()
 		city.encounter_runtime.release_all()
 		guard += 1
 	assert_true(director.completed)
@@ -73,7 +73,6 @@ func test_bounded_overrun_advances_with_surviving_low_threat() -> void:
 	city.encounter_runtime.acquire(&"soldier", Vector2(1200.0, 542.5))
 	director.advance(0.1)
 	assert_eq(director.phase_index, 1)
-	assert_false(city.weapon_shop_assembler.session.active)
 	assert_eq(city.encounter_runtime.active_count(&"soldier"), 1)
 
 
@@ -132,7 +131,6 @@ func test_act_five_releases_overrun_survivors_and_starts_max_tier_retaliation() 
 	city.world_stream.current_logical_chunk = 48
 	city.world_stream.current_district_id = &"ROYAL"
 	city.world_stream.maximum_visited_chunk = 48
-	city.rampage_session.run_experience.level = 5
 	director.stop()
 	director.running = true
 	director.completed = false
@@ -147,7 +145,6 @@ func test_act_five_releases_overrun_survivors_and_starts_max_tier_retaliation() 
 	assert_gt(director._threat_weight(), DistrictResponseDirector.LOW_THREAT_WEIGHT)
 	director.advance(0.1)
 	assert_eq(director.phase_index, 4)
-	assert_false(city.weapon_shop_assembler.session.active)
 	assert_eq(city.encounter_runtime.active_count(), 0)
 	director.advance(0.1)
 	assert_eq(director.current_beat_id(), &"RETALIATION_FRONT")
@@ -215,16 +212,14 @@ func _elite_trace(p_seed: int) -> Array[Dictionary]:
 	var guard: int = 0
 	while not director.completed and guard < 600:
 		director.advance(1.0)
-		_close_shop_if_active()
+		_resolve_directive_if_active()
 		city.encounter_runtime.release_all()
 		guard += 1
 	assert_true(director.completed)
 	return director.elite_assignments.duplicate(true)
 
 
-func _close_shop_if_active() -> void:
-	if city.weapon_shop_assembler.session.active:
-		city.weapon_shop_assembler.session.close_shop()
+func _resolve_directive_if_active() -> void:
 	if (
 		city.urban_siege.pause_coordinator.is_paused()
 		and not city.urban_siege.directives.is_active()

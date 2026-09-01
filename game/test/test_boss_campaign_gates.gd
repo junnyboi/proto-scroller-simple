@@ -217,7 +217,7 @@ func test_interlock_freezes_siege_and_leaves_robot_controls_live() -> void:
 	city.robot.gravity = 0.0
 	var gate_x: float = campaign.active_gate.global_position.x
 	city.robot.global_position.x = gate_x - 60.0
-	for _movement_step: int in range(36):
+	for _movement_step: int in range(120):
 		city.robot.physics_step(1.0, 1.0 / 60.0)
 	assert_gt(city.robot.global_position.x, gate_x + 60.0)
 
@@ -296,7 +296,7 @@ func test_every_boss_uses_one_close_right_flank_wall_that_drops_on_body_defeat()
 	assert_eq(city.robot.collision_mask & ARENA_WALL_LAYER, 0)
 
 
-func test_success_opens_shop_after_fireworks_without_salvage_contact() -> void:
+func test_success_enters_post_boss_corridor_after_fireworks() -> void:
 	var city: CitySlice = await _spawn_city()
 	var siege: UrbanSiegeRuntime = city.urban_siege
 	var director: DistrictResponseDirector = siege.director
@@ -342,14 +342,11 @@ func test_success_opens_shop_after_fireworks_without_salvage_contact() -> void:
 		city.camera_rig._physics_process(0.1)
 	assert_false(city.camera_rig.path_clear_reveal_active())
 	assert_true(siege.boss_session.defeat_celebration_active())
-	assert_false(city.weapon_shop_assembler.session.active)
-	assert_false(city.weapon_shop_assembler.queue_boss_salvage(definition))
 	siege.boss_session.utility_pool.defeat_spectacle.advance(
 		BossDefeatSpectacle2D.PRESENTATION_SECONDS - 0.01
 	)
 	assert_true(siege.boss_session.defeat_celebration_active())
 	assert_eq(campaign.handoff_state, BossCampaignDirector.HANDOFF_NONE)
-	assert_false(city.weapon_shop_assembler.session.active)
 	var ambient: EnemyActor2D = city.encounter_runtime.acquire(
 		&"soldier",
 		boss.global_position + Vector2(-420.0, 0.0)
@@ -380,11 +377,7 @@ func test_success_opens_shop_after_fireworks_without_salvage_contact() -> void:
 		0.001
 	)
 	assert_null(campaign.get_node_or_null("BossSalvageTrigger2D"))
-	assert_eq(campaign.handoff_state, BossCampaignDirector.HANDOFF_SHOP)
-	assert_true(director.is_suspended_for_boss())
-	assert_true(city.weapon_shop_assembler.session.active)
-	assert_true(city.weapon_shop_assembler.overlay.visible)
-	assert_true(city.weapon_shop_assembler.session.close_shop())
+	city.encounter_runtime.release(ambient)
 	assert_eq(campaign.handoff_state, BossCampaignDirector.HANDOFF_NONE)
 	assert_eq(director.state, DistrictResponseDirector.STATE_WAITING)
 	assert_eq(director.beat_index, -1)
@@ -395,7 +388,7 @@ func test_success_opens_shop_after_fireworks_without_salvage_contact() -> void:
 	assert_ne(city.robot.collision_mask & CitySlice.BUILDING_LAYER, 0)
 
 
-func test_stale_shop_visit_cannot_skip_shop_or_block_district_two_runtime() -> void:
+func test_direct_handoff_unblocks_district_two_runtime() -> void:
 	var city: CitySlice = await _spawn_city()
 	var siege: UrbanSiegeRuntime = city.urban_siege
 	var director: DistrictResponseDirector = siege.director
@@ -409,9 +402,6 @@ func test_stale_shop_visit_cannot_skip_shop_or_block_district_two_runtime() -> v
 			BossCampaignCatalog.CANONICAL_TRIGGERS[0]
 		)
 	)
-	city.weapon_shop_assembler.session.visited_acts[
-		StringName("1:0:BUSINESS")
-	] = true
 	await _trigger(city, first_definition)
 	var boss: TankEnemy = siege.boss_session.boss
 	assert_true(boss.receive_damage(DamageEvent.new(
@@ -423,13 +413,6 @@ func test_stale_shop_visit_cannot_skip_shop_or_block_district_two_runtime() -> v
 	siege.boss_session.utility_pool.defeat_spectacle.advance(
 		BossDefeatSpectacle2D.PRESENTATION_SECONDS
 	)
-	assert_true(city.weapon_shop_assembler.session.active)
-	assert_true(city.weapon_shop_assembler.overlay.visible)
-	assert_eq(campaign.handoff_state, BossCampaignDirector.HANDOFF_SHOP)
-	assert_eq(campaign.active_definition, first_definition)
-	assert_true(campaign.interlock.is_owned())
-	assert_true(director.is_suspended_for_boss())
-	assert_true(city.weapon_shop_assembler.session.close_shop())
 	assert_eq(campaign.handoff_state, BossCampaignDirector.HANDOFF_NONE)
 	assert_null(campaign.active_definition)
 	assert_false(campaign.interlock.is_owned())

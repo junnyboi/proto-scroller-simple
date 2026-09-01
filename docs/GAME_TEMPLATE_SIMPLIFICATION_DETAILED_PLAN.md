@@ -264,7 +264,9 @@ This phase is mandatory for the template release.
 Archive one slice per commit after replacement behavior passes:
 
 1. Project CHOIR, dossier/finale, campaign persistence, New Game+.
-2. Shops, upgrades, arsenal, drones, directives, missions, hazards, catalysts.
+2. Directives, missions, hazards, and catalysts. Player XP, level-up offers, shops,
+   upgrade runtimes, autonomous upgrade weapons, arsenal, and drones were removed
+   early in the progression-removal pass recorded in Section 9.1.
 3. Boss campaign, boss UI/music/voice/atlases.
 4. Urban Siege, acts, roles, traits, contracts, pressure systems.
 5. Streaming city, chunks, floating origin, mutation ledger, district/facade/enemy catalogs.
@@ -329,7 +331,36 @@ These become enforced ceilings only after Phase 9 produces a clean measured expo
 | 0 | Completed | `archive/pre-template-f8b86d9` resolves to `f8b86d9`; revision-pinned inventory reproduced byte-for-byte across two runs; dynamic-resource manifest added |
 | 1 | Completed | Isolated selector, shell, allowlisted Stage 1, lifecycle, title/HUD/debrief, and stub flow added; 5 GUT tests / 42 assertions and the headless scenario pass; template and legacy boots pass |
 | 2 | Completed | Three-wave combat kernel, retained player/enemy/destructible/presentation assets, eight-slot enemy and effect pools, score/health/camera feedback; 6 GUT tests / 48 assertions and headless scenario pass; Phase 1 regression remains green |
+| Progression removal | Completed | Removed player XP/levels, upgrade offers and runtimes, shop economy/presentation, upgrade-bound automatic weapons, tuning knobs, assets, localization, and obsolete verification; score/combo, direct combat, district stage pressure, New Game+, and its original badge remain |
 | 3–10 | Planned | Not started |
+
+### 9.1 Progression-removal pass
+
+This pass deliberately strips the legacy player-growth stack before Phase 3 so the
+remaining runtime has one stable combat contract:
+
+- Enemy and destruction rewards feed score/combo only. Enemy profile data now uses
+  `score`, and no run-experience owner, XP threshold, player level, entitlement,
+  offer queue, rank table, or snapshot field remains.
+- District pressure is selected directly from the authored district/stage profile;
+  it no longer scales or caps against a player level.
+- Boss completion continues directly to the post-boss route. There is no shop
+  handoff, purchase currency, repair transaction, confirmation panel, or upgrade
+  modal pause lease.
+- Core player movement, dodge, charged melee, punch/slam feedback, score/combo,
+  stage flow, leaderboard, tuning persistence, and New Game+ campaign cycling are
+  retained. The original New Game+ badge is reused under a neutral UI asset path.
+- Automatic weapons, drones, and the three synergy mechanics are removed because
+  their only ownership and activation path was the deleted upgrade catalog. No
+  replacement assets or substitute progression mechanics are introduced.
+- The Web gameplay probe now verifies charge/release, movement, audio unlock,
+  defeat, and title transitions without manufacturing a level-up event.
+
+Focused acceptance requires the explicit progression-removal guard, tuning catalog
+and service contracts, affected boss/district/HUD/runtime-budget tests, both runtime
+boots, and a fresh Web export. Historical baseline manifests remain immutable
+evidence for the archived revision; active runtime and verification paths must not
+reference removed progression resources.
 
 ## 10. Delivery rhythm
 

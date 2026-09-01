@@ -227,7 +227,7 @@ func test_pause_preserves_full_charge_and_allows_release() -> void:
 	attacks._process(ContextualAttackController.MAX_CHARGE_SECONDS)
 	assert_false(presenter.charge_particles_emitting())
 	assert_true(presenter._charge_voice_player.playing)
-	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"upgrade_choice")
+	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"pause_menu")
 	assert_true(attacks.is_busy())
 	assert_true(attacks.is_charging())
 	assert_true(presenter.attacking)
@@ -337,7 +337,7 @@ func test_confirmed_full_charge_enemy_hit_plays_signature_cue_and_world_flash_on
 	assert_false(presenter.full_charge_hit_flash_visible())
 
 
-func test_upgrade_pause_preserves_melee_and_attack_lock() -> void:
+func test_pause_preserves_melee_and_attack_lock() -> void:
 	var city: CitySlice = await _spawn_city()
 	var robot: GiantRobotController = city.robot
 	var sprite: AnimatedSprite2D = _sprite(city)
@@ -356,7 +356,7 @@ func test_upgrade_pause_preserves_melee_and_attack_lock() -> void:
 	assert_true(city.contextual_attacks.is_busy())
 	assert_true(presenter.attacking)
 	assert_eq(sprite.animation, &"attack_e")
-	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"upgrade_choice")
+	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"pause_menu")
 	assert_true(city.contextual_attacks.is_busy())
 	assert_eq(terminal_specs.size(), 0)
 	var pause_x: float = robot.global_position.x
@@ -391,7 +391,7 @@ func test_pause_preserves_dodge_and_player_locomotion() -> void:
 	assert_true(presenter.dodging)
 	assert_eq(robot.locomotion_state, GiantRobotController.LocomotionState.DODGE)
 	assert_gt(sprite.skew, 0.0)
-	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"upgrade_choice")
+	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"pause_menu")
 	assert_true(presenter.dodging)
 	assert_eq(robot.locomotion_state, GiantRobotController.LocomotionState.DODGE)
 	var start_x: float = robot.global_position.x
@@ -660,14 +660,14 @@ func test_robot_mechanics_priority_stealing_protects_signature_cues() -> void:
 	assert_eq(presenter.audio_voice_count(), RuntimeBudget.ROBOT_AUDIO_VOICES)
 
 
-func test_robot_mechanics_audio_follows_progression_after_upgrade_pause() -> void:
+func test_robot_mechanics_audio_recovers_after_pause() -> void:
 	var city: CitySlice = await _spawn_city()
 	var robot: GiantRobotController = city.robot
 	var presenter: RobotAnimationPresenter = (
 		robot.get_node(^"RobotAnimationPresenter") as RobotAnimationPresenter
 	)
 	robot.global_position = Vector2(2800.0, 466.5)
-	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"upgrade_choice")
+	var pause_token: int = city.urban_siege.pause_coordinator.acquire(&"pause_menu")
 	assert_true(city.urban_siege.pause_coordinator.release(pause_token))
 	var cues: Array = [
 		[RobotAnimationPresenter.FOOTSTEP_SFX, &"walk_footstep"],

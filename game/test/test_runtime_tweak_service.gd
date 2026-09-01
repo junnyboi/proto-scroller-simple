@@ -29,7 +29,7 @@ func test_res_baseline_loads_before_valid_user_delta_and_ignores_unknown_ids() -
 	var service: RuntimeTweakService = _new_service(path)
 	assert_eq(service.requested_value(&"player.move.max_speed"), 300.0)
 	assert_eq(service.requested_value(&"player.melee.ground_smash_damage"), 180.0)
-	assert_eq(service.requested_values.size(), 56)
+	assert_eq(service.requested_values.size(), 52)
 
 
 func test_memory_updates_immediately_and_five_edits_debounce_to_one_write() -> void:

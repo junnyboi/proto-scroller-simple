@@ -44,6 +44,9 @@ const FIRST_RUN_TUTORIAL_SCRIPT: Script = preload(
 const TRANSMISSION_TOAST_SCRIPT: Script = preload(
 	"res://scripts/ui/transmission_toast.gd"
 )
+const NEW_GAME_PLUS_BADGE_TEXTURE: Texture2D = preload(
+	"res://art/ui/new_game_plus/new_game_plus.webp"
+)
 
 var health_label: Label
 var status_label: Label
@@ -55,14 +58,9 @@ var combo_ring: ComboDecayRing
 var combo_herald: ComboHerald
 var momentum_fill: ColorRect
 var momentum_label: Label
-var experience_label: Label
-var experience_track: ColorRect
-var experience_fill: ColorRect
 var siege_progress: SiegeProgressStrip
 var directive_card: DirectiveCard
 var directive_choice_overlay: DirectiveChoiceOverlay
-var upgrade_choice_overlay: UpgradeChoiceOverlay
-var weapon_status_strip: WeaponStatusStrip
 var first_run_tutorial: FirstRunCombatTutorial
 var transmission_toast: TransmissionToast
 var field_briefing: FieldBriefingPanel
@@ -102,8 +100,6 @@ var _combat_profile: PlayerCombatProfileStore
 var _pulse_age: float = 0.0
 var _overdrive_active: bool = false
 var _momentum_fill_width: float = 392.0
-var _experience_fill_width: float = 254.0
-var _experience_ratio: float = 0.0
 var _displayed_combo_multiplier: int = -1
 var _displayed_overdrive_key: String = ""
 var _displayed_overdrive_seconds: String = ""
@@ -151,12 +147,10 @@ func _ready() -> void:
 	_build_rear_barrier_warning()
 	_build_status_panel()
 	_build_momentum_panel()
-	_build_experience_bar()
 	_build_score_panel()
 	_build_siege_progress()
 	_build_directive_card()
 	_build_directive_choice_overlay()
-	_build_upgrade_ui()
 	_build_boss_status()
 	_build_boss_fight_herald()
 	_build_combo_herald()
@@ -175,7 +169,6 @@ func _ready() -> void:
 	set_score(0)
 	set_combo(1, 0.0)
 	set_momentum(0.0, 0)
-	_set_experience(1, 0, RunExperience.required_for_level(1))
 
 
 func _process(delta: float) -> void:
@@ -222,19 +215,6 @@ func set_pending_score(value: int) -> void:
 		else L10n.t("hud.safe")
 	)
 	pending_score_label.modulate = Color("ff9a61") if value > 0 else MUTED_COLOR
-
-
-func _set_experience(level: int, current: int, required: int) -> void:
-	_experience_ratio = (
-		clampf(float(current) / float(required), 0.0, 1.0) if required > 0 else 1.0
-	)
-	if experience_label != null:
-		experience_label.text = L10n.t("hud.experience", {
-			"level": "%02d" % maxi(level, 1),
-			"current": maxi(current, 0),
-			"required": maxi(required, 0),
-		})
-	_apply_experience_fill()
 
 
 func set_combo(multiplier: int, grace_remaining: float) -> void:
@@ -748,28 +728,6 @@ func _build_combo_herald() -> void:
 	add_child(combo_herald)
 
 
-func _build_experience_bar() -> void:
-	experience_label = Label.new()
-	experience_label.name = "ExperienceLabel"
-	experience_label.position = Vector2(490.0, 88.0)
-	experience_label.size = Vector2(184.0, 20.0)
-	experience_label.add_theme_font_size_override(&"font_size", 14)
-	experience_label.modulate = MUTED_COLOR
-	add_child(experience_label)
-	experience_track = ColorRect.new()
-	experience_track.name = "ExperienceTrack"
-	experience_track.position = Vector2(680.0, 92.0)
-	experience_track.size = Vector2(262.0, 12.0)
-	experience_track.color = Color(0.11, 0.15, 0.18, 0.95)
-	add_child(experience_track)
-	experience_fill = ColorRect.new()
-	experience_fill.name = "ExperienceFill"
-	experience_fill.position = Vector2(684.0, 95.0)
-	experience_fill.size = Vector2(0.0, 6.0)
-	experience_fill.color = Color("7ae4ff")
-	add_child(experience_fill)
-
-
 func _build_score_panel() -> void:
 	score_panel = ColorRect.new()
 	score_panel.position = Vector2(988.0, 22.0)
@@ -833,13 +791,6 @@ func _build_directive_choice_overlay() -> void:
 	directive_choice_overlay = DirectiveChoiceOverlay.new()
 	directive_choice_overlay.name = "DirectiveChoiceOverlay"
 	add_child(directive_choice_overlay)
-
-
-func _build_upgrade_ui() -> void:
-	weapon_status_strip = WeaponStatusStrip.new()
-	add_child(weapon_status_strip)
-	upgrade_choice_overlay = UpgradeChoiceOverlay.new()
-	add_child(upgrade_choice_overlay)
 
 
 func _build_boss_status() -> void:
@@ -932,7 +883,7 @@ func _build_game_over_overlay() -> void:
 	game_over_overlay.add_child(terminal_panel)
 	new_game_plus_badge = TextureRect.new()
 	new_game_plus_badge.name = "NewGamePlusBadge"
-	new_game_plus_badge.texture = WeaponShopVisualCatalog.NEW_GAME_PLUS
+	new_game_plus_badge.texture = NEW_GAME_PLUS_BADGE_TEXTURE
 	new_game_plus_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	new_game_plus_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	new_game_plus_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1033,10 +984,6 @@ func _apply_responsive_layout() -> void:
 		_apply_landscape_layout(viewport_size)
 	if directive_choice_overlay != null:
 		directive_choice_overlay.apply_responsive_layout(viewport_size)
-	if upgrade_choice_overlay != null:
-		upgrade_choice_overlay.apply_responsive_layout()
-	if weapon_status_strip != null:
-		weapon_status_strip.apply_responsive_layout()
 	if first_run_tutorial != null:
 		first_run_tutorial.apply_responsive_layout(viewport_size)
 	if directive_card != null:
@@ -1179,14 +1126,6 @@ func _apply_landscape_layout(viewport_size: Vector2) -> void:
 	momentum_track.size = Vector2(452.0, 18.0)
 	momentum_fill.position = Vector2(momentum_x + 30.0, 71.0)
 	_momentum_fill_width = 392.0
-	experience_label.position = Vector2(momentum_x + 24.0, 88.0)
-	experience_label.size = Vector2(184.0, 20.0)
-	experience_label.add_theme_font_size_override(&"font_size", 14)
-	experience_track.position = Vector2(momentum_x + 214.0, 92.0)
-	experience_track.size = Vector2(262.0, 12.0)
-	experience_fill.position = Vector2(momentum_x + 218.0, 95.0)
-	_experience_fill_width = 254.0
-	_apply_experience_fill()
 	score_panel.position = Vector2(score_x, 22.0)
 	score_panel.size = Vector2(268.0, 88.0)
 	_set_score_geometry(
@@ -1253,14 +1192,6 @@ func _apply_portrait_layout(viewport_size: Vector2) -> void:
 	momentum_track.size = Vector2(panel_width - 16.0, 8.0)
 	momentum_fill.position = Vector2(10.0, 75.0)
 	_momentum_fill_width = panel_width - 20.0
-	experience_label.position = Vector2(8.0, 83.0)
-	experience_label.size = Vector2(92.0, 14.0)
-	experience_label.add_theme_font_size_override(&"font_size", 9)
-	experience_track.position = Vector2(104.0, 86.0)
-	experience_track.size = Vector2(panel_width - 112.0, 8.0)
-	experience_fill.position = Vector2(108.0, 88.0)
-	_experience_fill_width = panel_width - 120.0
-	_apply_experience_fill()
 	score_panel.position = Vector2(0.0, 104.0)
 	score_panel.size = Vector2(panel_width, 68.0)
 	_set_score_geometry(Vector2(8.0, 108.0), Vector2(136.0, 14.0), false, true)
@@ -1313,11 +1244,6 @@ func _set_score_geometry(
 	score_caption.horizontal_alignment = alignment
 	score_label.horizontal_alignment = alignment
 	pending_score_label.horizontal_alignment = alignment
-
-
-func _apply_experience_fill() -> void:
-	if experience_fill != null:
-		experience_fill.size.x = _experience_fill_width * _experience_ratio
 
 
 func _apply_landscape_terminal_layout(viewport_size: Vector2) -> void:

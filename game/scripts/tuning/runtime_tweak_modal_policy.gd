@@ -18,12 +18,4 @@ static func entry_status(city: CitySlice) -> Dictionary:
 	if city.gameplay_hud != null:
 		if city.gameplay_hud.field_briefing != null and city.gameplay_hud.field_briefing.is_open():
 			return {"allowed": false, "reason": &"field_briefing"}
-		if city.gameplay_hud.upgrade_choice_overlay != null and city.gameplay_hud.upgrade_choice_overlay.visible:
-			return {"allowed": false, "reason": &"upgrade_choice"}
-	if (
-		city.weapon_shop_assembler != null
-		and city.weapon_shop_assembler.overlay != null
-		and city.weapon_shop_assembler.overlay.visible
-	):
-		return {"allowed": false, "reason": &"weapon_shop"}
 	return {"allowed": true, "reason": &""}

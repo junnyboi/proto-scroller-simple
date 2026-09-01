@@ -55,50 +55,12 @@ func test_named_placeholders_are_substituted() -> void:
 		L10n.t("hud.health", {"current": "080", "maximum": "100"}),
 		"机体 080 / 100"
 	)
-	var dash_profile: UpgradeProfile = load(
-		"res://resources/upgrades/dash_amplifier.tres"
-	) as UpgradeProfile
-	assert_eq(dash_profile.display_name, "upgrade.dash_amplifier.name")
-	assert_eq(dash_profile.description, "upgrade.dash_amplifier.description")
-	assert_eq(L10n.t(dash_profile.display_name), "冲刺增幅器")
-	assert_true(L10n.t(dash_profile.description).contains("300 毫秒"))
 
 
 func test_tuning_launcher_has_exact_bilingual_copy() -> void:
 	assert_eq(L10n.t("tuning.action.open"), "TWEAK CONTROLS")
 	assert_true(L10n.set_locale("zh-CN"))
 	assert_eq(L10n.t("tuning.action.open"), "调校控制")
-
-
-func test_simplified_chinese_shop_catalog_has_no_english_fallbacks() -> void:
-	var shop_keys: PackedStringArray = []
-	var english_values: Dictionary[String, String] = {}
-	L10n.set_locale("en")
-	for key: String in L10n.keys_for_locale("en"):
-		if key.begins_with("shop."):
-			shop_keys.append(key)
-			english_values[key] = L10n.t(key)
-	assert_eq(shop_keys.size(), 79)
-	L10n.set_locale("zh-CN")
-	for key: String in shop_keys:
-		var chinese_value: String = L10n.t(key)
-		assert_false(chinese_value.is_empty(), "Missing Chinese shop copy: %s" % key)
-		assert_ne(chinese_value, english_values[key], "English shop fallback: %s" % key)
-
-
-func test_new_skill_debrief_names_have_explicit_simplified_chinese_copy() -> void:
-	var expected: Dictionary[String, String] = {
-		"debrief.weapon.siege_drill": "攻城钻头",
-		"debrief.weapon.gravity_crucible": "重力熔炉",
-		"debrief.weapon.tesla_tower": "特斯拉塔",
-	}
-	var english_values: Dictionary[String, String] = {}
-	for key: String in expected:
-		english_values[key] = L10n.t(key)
-	assert_true(L10n.set_locale("zh-CN"))
-	for key: String in expected:
-		assert_eq(L10n.t(key), expected[key], key)
-		assert_ne(L10n.t(key), english_values[key], key)
 
 
 func test_unsupported_locale_is_rejected_without_mutation() -> void:

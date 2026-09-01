@@ -22,17 +22,6 @@ static func authored_profile(district_id: StringName) -> DistrictPressureProfile
 	return _profiles_by_id.get(district_id) as DistrictPressureProfile
 
 
-static func effective_profile(
-	district_id: StringName,
-	player_level: int
-) -> DistrictPressureProfile:
-	var authored: DistrictPressureProfile = authored_profile(district_id)
-	if authored == null:
-		return profile_by_index(0)
-	var readiness_index: int = clampi(player_level - 1, 0, authored.district_index)
-	return profile_by_index(readiness_index)
-
-
 static func coerce_profile(value: Variant) -> DistrictPressureProfile:
 	if value is DistrictPressureProfile:
 		return value as DistrictPressureProfile
@@ -47,7 +36,7 @@ static func validation_errors() -> PackedStringArray:
 			"pressure_profile_count=%d expected=%d"
 			% [_profiles.size(), CityDistrictCatalog.DISTRICT_COUNT]
 		)
-	var previous: DistrictPressureProfile
+	var previous: DistrictPressureProfile = null
 	for index: int in range(_profiles.size()):
 		var profile: DistrictPressureProfile = _profiles[index]
 		var city_district: CityDistrictProfile = CityDistrictCatalog.districts()[index]
@@ -109,5 +98,4 @@ static func _profile(
 	profile.elite_bonus = elite_bonus
 	profile.hazard_pressure_bonus = hazard_pressure_bonus
 	profile.hazard_event_bonus = hazard_event_bonus
-	profile.readiness_level = district_index + 1
 	return profile

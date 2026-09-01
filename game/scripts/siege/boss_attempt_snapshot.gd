@@ -4,7 +4,6 @@ extends RefCounted
 var valid: bool = false
 var boss_state: Dictionary = {}
 var score_state: Dictionary = {}
-var experience_state: Dictionary = {}
 var event_history_state: Dictionary = {}
 var recorder_state: Dictionary = {}
 var reservation_state: Dictionary = {}
@@ -32,7 +31,6 @@ func capture(
 		return false
 	boss_state = session.capture_attempt_state()
 	score_state = rampage.run_score.capture_attempt_state()
-	experience_state = rampage.run_experience.capture_attempt_state()
 	event_history_state = rampage.event_hub.capture_attempt_state()
 	recorder_state = rampage.causal_chain_tracker.capture_attempt_state()
 	reservation_state = session.utility_pool.capture_reservation_state()
@@ -64,7 +62,6 @@ func restore(
 		return false
 	session.restore_attempt_state(boss_state)
 	rampage.run_score.restore_attempt_state(score_state)
-	rampage.run_experience.restore_attempt_state(experience_state)
 	rampage.event_hub.restore_attempt_state(event_history_state)
 	rampage.causal_chain_tracker.restore_attempt_state(recorder_state)
 	session.utility_pool.restore_reservation_state(reservation_state)
@@ -85,7 +82,6 @@ func clear() -> void:
 	valid = false
 	boss_state.clear()
 	score_state.clear()
-	experience_state.clear()
 	event_history_state.clear()
 	recorder_state.clear()
 	reservation_state.clear()

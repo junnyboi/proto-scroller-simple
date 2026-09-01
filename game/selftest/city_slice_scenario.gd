@@ -130,11 +130,9 @@ func _run() -> void:
 		]
 	)
 	await _save_state_shot(RUBBLE_SHOT_PATH)
-	await _resolve_upgrade_choices(city)
 	var jab_cross_columns: Array[int] = [1, 1, 2, 2]
 	for jab_cross_index: int in range(jab_cross_columns.size()):
 		await _wait_for_contextual_attack(city)
-		await _resolve_upgrade_choices(city)
 		var column: int = jab_cross_columns[jab_cross_index]
 		city.robot.position = Vector2(1100.0 + float(column) * 167.0, 460.0)
 		city.robot.facing = 1
@@ -149,7 +147,6 @@ func _run() -> void:
 		if spec == null:
 			continue
 		await create_timer(spec.anticipation_seconds + 0.03).timeout
-		await _resolve_upgrade_choices(city)
 		await create_timer(spec.active_seconds + spec.recovery_seconds + 0.10).timeout
 	for wait_frame: int in range(90):
 		if target_building.is_destroyed():
@@ -168,7 +165,6 @@ func _run() -> void:
 		city.debris_pool.active_count() > 0,
 		"active=%s" % city.debris_pool.active_count()
 	)
-	await _resolve_upgrade_choices(city)
 	city.overdrive_session.end_overdrive()
 	city.rampage_session.momentum_meter.reset_run()
 	for pressure_tick: int in range(900):
@@ -293,19 +289,6 @@ func _wait_for_contextual_attack(city: CitySlice) -> void:
 		+ spec.recovery_seconds
 		+ 0.10
 	).timeout
-
-
-func _resolve_upgrade_choices(city: CitySlice) -> void:
-	await process_frame
-	var session: UpgradeSession = city.upgrade_assembler.session
-	for choice_index: int in range(64):
-		if session.active_offer == null:
-			return
-		var sequence: int = session.active_offer.sequence
-		var selected: StringName = session.active_offer.choice_ids[0]
-		if not session.select_choice(selected, sequence):
-			return
-		await process_frame
 
 
 func _save_state_shot(path: String) -> void:

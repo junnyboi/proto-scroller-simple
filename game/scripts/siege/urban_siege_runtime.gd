@@ -75,8 +75,7 @@ func setup(p_dependencies: UrbanSiegeDependencies, p_district: DistrictDefinitio
 	director.name = "DistrictResponseDirector"
 	director.setup_district(
 		dependencies.encounter_runtime,
-		district,
-		dependencies.rampage_session.run_experience
+		district
 	)
 	director.phase_changed.connect(_on_phase_changed)
 	director.act_completed.connect(act_completed.emit)

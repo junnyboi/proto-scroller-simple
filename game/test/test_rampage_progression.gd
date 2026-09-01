@@ -99,13 +99,12 @@ func test_doubled_regular_enemy_pairs_preserve_authored_score_and_combo_curve() 
 		assert_eq(session.current_multiplier(), authored_slot + 1)
 	assert_eq(session.run_score.safe_score, 400)
 	assert_eq(session.run_score.pending_bank.value, 600)
-	assert_eq(session.run_experience.total_experience, 800)
 	assert_eq(session.combo_tracker.current_chain_count, 8)
 	assert_eq(session.combo_tracker.current_progress_units, 8)
 	_record_test_execution()
 
 
-func test_singular_named_boss_triples_score_xp_and_keeps_one_combo_step() -> void:
+func test_singular_named_boss_triples_score_and_keeps_one_combo_step() -> void:
 	var session: RampageSession = _session()
 	var adapter: RampageEventAdapter = RampageEventAdapter.new(session)
 	var robot: GiantRobotController = GiantRobotController.new()
@@ -120,7 +119,6 @@ func test_singular_named_boss_triples_score_xp_and_keeps_one_combo_step() -> voi
 		robot
 	))
 	assert_eq(session.current_score(), 3000)
-	assert_eq(session.run_experience.total_experience, 3000)
 	assert_eq(
 		session.combo_tracker.current_progress_units,
 		RampageRewardTuning.COMBO_PROGRESS_UNITS_PER_TIER

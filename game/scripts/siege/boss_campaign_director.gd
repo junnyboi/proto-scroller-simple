@@ -10,8 +10,7 @@ const GATE_APPROACH_FRACTION: float = 0.62
 const GATE_INSET: float = 80.0
 const COMPLETION_RETRY_SECONDS: float = 1.0
 const HANDOFF_NONE: StringName = &"NONE"
-const HANDOFF_SHOP_PENDING: StringName = &"SHOP_PENDING"
-const HANDOFF_SHOP: StringName = &"SHOP"
+const HANDOFF_ROUTE_PENDING: StringName = &"ROUTE_PENDING"
 const HANDOFF_CORRIDOR: StringName = &"CORRIDOR"
 
 var siege: UrbanSiegeRuntime
@@ -81,8 +80,8 @@ func _process(delta: float) -> void:
 			_completion_retry_elapsed = 0.0
 			_try_commit_completion()
 		return
-	if handoff_state == HANDOFF_SHOP_PENDING:
-		_queue_completed_boss_shop()
+	if handoff_state == HANDOFF_ROUTE_PENDING:
+		_complete_handoff_route()
 		return
 	if handoff_state == HANDOFF_CORRIDOR:
 		if world_stream.post_boss_corridor_is_clear(_active_district_index()):
@@ -318,22 +317,12 @@ func _try_commit_completion() -> bool:
 	attempt_snapshot.clear()
 	attempt_failed = false
 	siege.dependencies.gameplay_hud.hide_boss_status()
-	handoff_state = HANDOFF_SHOP_PENDING
+	handoff_state = HANDOFF_ROUTE_PENDING
 	if completed_definition.boss_id == &"CHOIR_PRIME":
 		pending_finale_outcome = int(payload.get("finale_outcome", -1))
-	_prepare_completed_boss_shop()
-	_queue_completed_boss_shop()
+	_prepare_completed_boss_handoff()
+	_complete_handoff_route()
 	return true
-
-
-func complete_shop_handoff(district_id: StringName) -> bool:
-	if (
-		handoff_state != HANDOFF_SHOP
-		or active_definition == null
-		or active_definition.district_id != district_id
-	):
-		return false
-	return _complete_handoff_route()
 
 
 func _complete_handoff_route() -> bool:
@@ -359,17 +348,7 @@ func _on_district_boss_ready(_district_id: StringName, district_index: int) -> v
 		return
 
 
-func _queue_completed_boss_shop() -> bool:
-	if handoff_state != HANDOFF_SHOP_PENDING or active_definition == null:
-		return false
-	var city: CitySlice = siege.dependencies.city
-	if city.weapon_shop_assembler.queue_boss_salvage(active_definition):
-		handoff_state = HANDOFF_SHOP
-		return true
-	return false
-
-
-func _prepare_completed_boss_shop() -> void:
+func _prepare_completed_boss_handoff() -> void:
 	if siege.dependencies.encounter_runtime != null:
 		siege.dependencies.encounter_runtime.set_attack_gate(false)
 	if siege.dependencies.telegraphs != null:

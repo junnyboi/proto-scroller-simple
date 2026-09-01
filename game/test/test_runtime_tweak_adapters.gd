@@ -24,34 +24,22 @@ func after_each() -> void:
 	_cleanup()
 
 
-func test_next_run_progression_spawn_and_shop_adapters_share_one_snapshot() -> void:
+func test_next_run_spawn_score_and_combo_adapters_share_one_snapshot() -> void:
 	assert_true(bool(service.set_values({
 		&"spawn.quantity_multiplier": 1,
 		&"spawn.interval_scale": 1.0,
-		&"progression.xp.base_requirement": 600,
-		&"progression.xp.growth_factor": 1.5,
 		&"progression.combo.base_grace_seconds": 4.0,
 		&"progression.combo.max_multiplier": 3,
 		&"progression.score.bank_base_seconds": 2.0,
 		&"progression.rewards.named_boss_multiplier": 4,
-		&"progression.shop.price_multiplier": 1.25,
 	}).ok))
 	service.freeze_run(101)
 	assert_eq(EnemySpawnTuning.quantity_multiplier(), 1)
 	assert_almost_eq(EnemySpawnTuning.interval_scale(), 1.0, 0.001)
-	assert_eq(RunExperience.required_for_level(1), 9720)
-	assert_eq(RunExperience.required_for_level(2), 14580)
 	assert_almost_eq(RampageRewardTuning.combo_grace_seconds(), 4.0, 0.001)
 	assert_almost_eq(RampageRewardTuning.pending_bank_seconds(), 2.0, 0.001)
 	assert_eq(RampageRewardTuning.enemy_reward_points(100, true), 400)
 	assert_eq(RampageRewardTuning.multiplier_for_progress_units(20), 3)
-	var shop: WeaponShopSession = WeaponShopSession.new()
-	autofree(shop)
-	var baseline: Array[WeaponShopProduct] = WeaponShopCatalog.products_for(&"BUSINESS")
-	var priced: Array[WeaponShopProduct] = shop._priced_products_for(&"BUSINESS")
-	assert_eq(priced[0].price, roundi(float(baseline[0].price) * 1.25))
-	assert_eq(baseline[0].price, 25600)
-	assert_ne(priced[0], baseline[0])
 
 
 func test_next_attack_enemy_snapshot_is_reused_for_damage_and_projectile_lifetime() -> void:

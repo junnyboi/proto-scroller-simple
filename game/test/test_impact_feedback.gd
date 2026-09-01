@@ -221,7 +221,7 @@ func test_player_frame_11_dispatches_shake_enemy_recoil_and_knockback_without_fl
 	city.tank.activate(city.robot.global_position + Vector2(120.0, 60.0), city.robot)
 	city.tank.set_physics_process(false)
 	var reactions: PlayerAttackReactionRuntime = (
-		city.upgrade_assembler.get_node(^"PlayerAttackReactionRuntime")
+		city.get_node(^"PlayerAttackReactionRuntime")
 		as PlayerAttackReactionRuntime
 	)
 	var attack_id: int = city.robot.request_attack()
@@ -387,7 +387,7 @@ func test_dodge_through_light_enemies_triggers_one_non_damaging_wheel_slip() -> 
 	city.tank.activate(city.robot.global_position + Vector2(55.0, 0.0), city.robot)
 	city.tank.set_physics_process(false)
 	var reactions: PlayerAttackReactionRuntime = (
-		city.upgrade_assembler.get_node(^"PlayerAttackReactionRuntime")
+		city.get_node(^"PlayerAttackReactionRuntime")
 		as PlayerAttackReactionRuntime
 	)
 	var soldier_health: float = city.soldier.current_health
@@ -421,8 +421,6 @@ func test_rampage_cues_are_48k_pcm16_and_share_the_eight_voice_pool() -> void:
 		AudioCueRegistry.OVERDRIVE_ACTIVATION_SFX as AudioStreamWAV
 	)
 	var combo_stream: AudioStreamWAV = AudioCueRegistry.COMBO_BREAK_SFX as AudioStreamWAV
-	var purchase_stream: AudioStreamWAV = AudioCueRegistry.SHOP_PURCHASE_SFX as AudioStreamWAV
-	var repair_stream: AudioStreamWAV = AudioCueRegistry.SHOP_REPAIR_SFX as AudioStreamWAV
 	assert_eq(
 		int(AudioCueRegistry.profile(AudioCueRegistry.Cue.OVERDRIVE_ACTIVATION).priority),
 		AudioVoicePriority.SIGNATURE
@@ -433,21 +431,12 @@ func test_rampage_cues_are_48k_pcm16_and_share_the_eight_voice_pool() -> void:
 	)
 	assert_eq(overdrive_stream.mix_rate, 48000)
 	assert_eq(combo_stream.mix_rate, 48000)
-	assert_eq(purchase_stream.mix_rate, 48000)
-	assert_eq(repair_stream.mix_rate, 48000)
 	assert_eq(overdrive_stream.format, AudioStreamWAV.FORMAT_16_BITS)
 	assert_eq(combo_stream.format, AudioStreamWAV.FORMAT_16_BITS)
-	assert_eq(purchase_stream.format, AudioStreamWAV.FORMAT_16_BITS)
-	assert_eq(repair_stream.format, AudioStreamWAV.FORMAT_16_BITS)
 	assert_false(overdrive_stream.stereo)
 	assert_false(combo_stream.stereo)
-	assert_false(purchase_stream.stereo)
-	assert_false(repair_stream.stereo)
 	assert_between(overdrive_stream.get_length(), 0.65, 1.0)
 	assert_between(combo_stream.get_length(), 0.18, 0.35)
-	assert_between(purchase_stream.get_length(), 1.30, 1.40)
-	assert_between(repair_stream.get_length(), 1.75, 1.85)
-	assert_ne(purchase_stream.data, repair_stream.data)
 	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
 	add_child_autofree(city)
 	await get_tree().process_frame

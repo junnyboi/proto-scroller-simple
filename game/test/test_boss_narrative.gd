@@ -48,7 +48,10 @@ func test_boss_completion_commits_capstone_evidence_result_and_reward_once() -> 
 	assert_true(store.has_evidence(&"NURSERY"))
 	assert_true(store.completed_boss_ids().has("SAMARITAN_15"))
 	assert_true(store.pending_reward_grants().has("boss:SAMARITAN_15:reward"))
-	assert_eq(int(store.snapshot().route_unlock_chunk), 24)
+	assert_eq(
+		int(store.snapshot().route_unlock_chunk),
+		BossCampaignCatalog.CANONICAL_UNLOCKS[1]
+	)
 	assert_eq(int(store.snapshot().boss_results.SAMARITAN_15.pod_loss_count), 1)
 
 
@@ -67,7 +70,10 @@ func test_optional_archive_loss_preserves_capstone_and_route_but_not_ledger() ->
 	assert_false(store.has_evidence(&"LEDGER"))
 	assert_true(store.lost_evidence_ids().has("LEDGER"))
 	assert_true(store.completed_boss_ids().has("SETTLEMENT_ENGINE_S04"))
-	assert_eq(int(store.snapshot().route_unlock_chunk), 12)
+	assert_eq(
+		int(store.snapshot().route_unlock_chunk),
+		BossCampaignCatalog.CANONICAL_UNLOCKS[0]
+	)
 	assert_false(bool(
 		store.snapshot().boss_results.SETTLEMENT_ENGINE_S04.archive_preserved
 	))

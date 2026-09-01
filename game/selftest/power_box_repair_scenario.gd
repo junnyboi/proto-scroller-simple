@@ -39,7 +39,6 @@ func _run() -> void:
 	await process_frame
 	city.urban_siege.stop_run()
 	city.encounter_runtime.release_all()
-	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.gameplay_hud.first_run_tutorial.visible = false
 	city.robot.current_health = 600.0
 	city.robot.health_changed.emit(city.robot.current_health, city.robot.max_health)

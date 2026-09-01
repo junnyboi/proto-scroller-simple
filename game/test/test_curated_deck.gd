@@ -46,9 +46,6 @@ func test_new_game_plus_restarts_act_one_with_score_power_and_exact_double_enemi
 		GameplayEvent.PROP_BREAK, 400, 5.0, true
 	))
 	city.rampage_session.run_score.bank_all()
-	city.weapon_shop_assembler.effects.apply_product(
-		WeaponShopCatalog.products_for(&"BUSINESS")[0]
-	)
 	city.robot.current_health = 640.0
 	city.robot.global_position.x = CityWorldStream.CHUNK_WIDTH * 40.0
 	city.world_stream.advance_stream()
@@ -62,8 +59,6 @@ func test_new_game_plus_restarts_act_one_with_score_power_and_exact_double_enemi
 	city.telegraph_presenter.cancel_all()
 	city.urban_siege._withdraw_directive_presentation()
 	city.run_lifecycle._on_district_completed()
-	assert_true(city.weapon_shop_assembler.session.active)
-	city.weapon_shop_assembler.session.close_shop()
 	assert_true(city.gameplay_hud.continue_button.visible)
 	assert_true(city.gameplay_hud.new_game_plus_badge.visible)
 	assert_eq(city.gameplay_hud.continue_button.text, "START NEW GAME +")
@@ -85,11 +80,6 @@ func test_new_game_plus_restarts_act_one_with_score_power_and_exact_double_enemi
 		0.001
 	)
 	assert_eq(city.urban_siege.directives.selected_profile, directive)
-	assert_almost_eq(
-		city.weapon_shop_assembler.effects.ballistic_damage_multiplier,
-		1.15,
-		0.001
-	)
 	assert_almost_eq(city.encounter_runtime.cycle_health_multiplier, 2.0, 0.001)
 	assert_almost_eq(city.encounter_runtime.cycle_attack_multiplier, 2.0, 0.001)
 	for actor: EnemyActor2D in city.encounter_runtime.all_actors():
@@ -110,7 +100,7 @@ func test_new_game_plus_restarts_act_one_with_score_power_and_exact_double_enemi
 		_source: Node
 	) -> void: emitted_damage.append(damage))
 	soldier.request_projectile(Vector2.ZERO, Vector2.RIGHT, 800.0, 12.0, &"bullet")
-	assert_eq(emitted_damage, [20.4])
+	assert_eq(emitted_damage, [18.0])
 	soldier.configure_boss(CommandBossSession.ARMOR, CommandBossSession.HEALTH)
 	assert_almost_eq(soldier.max_health, CommandBossSession.HEALTH * 2.0, 0.001)
 	assert_eq(RuntimeBudget.snapshot(city).node_count, node_count)
@@ -121,8 +111,6 @@ func test_second_cycle_offers_extract_only_and_freezes_cycle_count() -> void:
 	var city: CitySlice = await _spawn_city()
 	city.urban_siege.cycle_count = 2
 	city.run_lifecycle._on_district_completed()
-	assert_true(city.weapon_shop_assembler.session.active)
-	city.weapon_shop_assembler.session.close_shop()
 	assert_true(city.gameplay_hud.extract_button.visible)
 	assert_false(city.gameplay_hud.continue_button.visible)
 	assert_false(city.gameplay_hud.new_game_plus_badge.visible)

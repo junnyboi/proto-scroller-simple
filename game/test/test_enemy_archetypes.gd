@@ -81,7 +81,7 @@ func test_catalog_contains_twenty_six_valid_visual_and_gameplay_profiles() -> vo
 		assert_not_null(load(String(profile.texture)), archetype_id)
 		assert_gt(float(profile.health), 0.0, archetype_id)
 		assert_gt(float(profile.speed), 0.0, archetype_id)
-		assert_gt(int(profile.xp), 0, archetype_id)
+		assert_gt(int(profile.score), 0, archetype_id)
 		assert_between(int(profile.threat), 1, 12, archetype_id)
 		var signature: String = "%s/%s" % [profile.movement_style, profile.attack_style]
 		assert_false(signatures.has(signature), signature)

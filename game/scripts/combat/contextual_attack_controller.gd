@@ -29,8 +29,6 @@ var resolver: AttackResolver
 var jab_cross_impact: JabCrossImpact
 var overdrive_session: OverdriveSession
 var directive_session: DirectiveSession
-var kinetic_field_runtime: KineticFieldRuntime
-var shop_upgrade_runtime: WeaponShopUpgradeRuntime
 var phase: Phase = Phase.READY
 var buffered_dodge_count: int = 0
 var _robot: GiantRobotController
@@ -56,14 +54,6 @@ func set_overdrive_session(session: OverdriveSession) -> void:
 
 func set_directive_session(session: DirectiveSession) -> void:
 	directive_session = session
-
-
-func set_kinetic_field_runtime(runtime: KineticFieldRuntime) -> void:
-	kinetic_field_runtime = runtime
-
-
-func set_shop_upgrade_runtime(runtime: WeaponShopUpgradeRuntime) -> void:
-	shop_upgrade_runtime = runtime
 
 
 func _ready() -> void:
@@ -170,10 +160,6 @@ func begin_charge() -> int:
 			overdrive_started
 		)
 	)
-	if shop_upgrade_runtime != null:
-		current_spec = shop_upgrade_runtime.decorate_attack(current_spec)
-	if kinetic_field_runtime != null:
-		current_spec = kinetic_field_runtime.decorate_attack(current_spec)
 	if directive_session != null:
 		current_spec = directive_session.decorate_attack(current_spec)
 	_busy = true

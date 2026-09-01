@@ -10,7 +10,6 @@ extends Resource
 @export_range(0, 2, 1) var elite_bonus: int = 0
 @export_range(0, 4, 1) var hazard_pressure_bonus: int = 0
 @export_range(0, 2, 1) var hazard_event_bonus: int = 0
-@export_range(1, 5, 1) var readiness_level: int = 1
 
 
 func validation_errors() -> PackedStringArray:
@@ -33,9 +32,4 @@ func validation_errors() -> PackedStringArray:
 		errors.append("hazard_pressure_bonus=%d is outside 0..4" % hazard_pressure_bonus)
 	if hazard_event_bonus < 0 or hazard_event_bonus > 2:
 		errors.append("hazard_event_bonus=%d is outside 0..2" % hazard_event_bonus)
-	if readiness_level != district_index + 1:
-		errors.append(
-			"readiness_level=%d expected=%d for %s"
-			% [readiness_level, district_index + 1, district_id]
-		)
 	return errors

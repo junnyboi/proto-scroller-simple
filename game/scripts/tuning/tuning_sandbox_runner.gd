@@ -4,7 +4,6 @@ extends RefCounted
 const ENEMY_IDS: Array[StringName] = [
 	&"soldier", &"tank", &"helicopter", &"scout", &"aegis", &"static",
 ]
-const XP_GRANT: int = 1000
 const REPAIR_GRANT: float = 100.0
 
 var main: Main
@@ -66,15 +65,6 @@ func clear_transient() -> Dictionary:
 	city.urban_siege.catalysts.deactivate_all()
 	service.mark_sandbox(&"clear_transient")
 	return _accepted(&"transient_cleared")
-
-
-func grant_experience() -> Dictionary:
-	var city: CitySlice = _city()
-	if city == null or city.rampage_session == null:
-		return _denied(&"no_active_run")
-	city.rampage_session.run_experience.add_experience(XP_GRANT)
-	service.mark_sandbox(&"grant_experience")
-	return _accepted(&"experience_granted")
 
 
 func repair_chassis() -> Dictionary:

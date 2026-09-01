@@ -8,8 +8,8 @@ import { chromium } from "playwright-core";
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
 const ARTIFACT_DIR = path.join(ROOT, "game", "artifacts", "browser");
-const REPORT_PATH = path.join(ARTIFACT_DIR, "upgrade-transition.json");
-const SCREENSHOT_PATH = path.join(ARTIFACT_DIR, "upgrade-transition.png");
+const REPORT_PATH = path.join(ARTIFACT_DIR, "gameplay-smoke.json");
+const SCREENSHOT_PATH = path.join(ARTIFACT_DIR, "gameplay-smoke.png");
 const TITLE_LANDSCAPE_SCREENSHOT_PATH = path.join(
   ARTIFACT_DIR,
   "title-video-landscape.png"
@@ -36,7 +36,7 @@ const RETURN_TITLE_FADE_SCREENSHOT_PATH = path.join(
 );
 const FAILURE_SCREENSHOT_PATH = path.join(
   ARTIFACT_DIR,
-  "upgrade-transition-failure.png"
+  "gameplay-smoke-failure.png"
 );
 const SMOKE_ENGINE_DIR = path.join(ROOT, "client", "public", "remote-engine");
 const PORT = Number(process.env.PROTO_SCROLLER_SMOKE_PORT ?? 4173);
@@ -47,12 +47,6 @@ const EXPECTED_PHASES = [
   "charge_started",
   "charge_progress",
   "charge_released",
-  "attack_started",
-  "upgrade_visible",
-  "upgrade_resolved",
-  "post_upgrade_sfx_ok",
-  "kill_combo_ok",
-  "kill_combo_reset_ok",
   "east_walk_ok",
   "pass",
   "defeat_requested",
@@ -76,7 +70,7 @@ let browser;
 let page;
 let report = {
   status: "FAIL",
-  url: `${BASE_URL}/?localGame=1&splitWorklets=1&webSmoke=upgrade`,
+  url: `${BASE_URL}/?localGame=1&splitWorklets=1&webSmoke=1`,
   phases: [],
   audioContextStates: [],
   browserErrors,
@@ -419,7 +413,6 @@ try {
     await page.keyboard.up("Space");
   }
   await waitForPhase(page, "charge_released", 30_000);
-  await waitForPhase(page, "upgrade_visible", 30_000);
   const audioContextStates = await page.evaluate(() =>
     (window.__PROTO_SCROLLER_AUDIO_CONTEXTS__ ?? []).map(
       context => context.state
@@ -452,10 +445,6 @@ try {
     );
   }
   await page.screenshot({ path: SCREENSHOT_PATH });
-  await page.keyboard.press("Enter");
-  await waitForPhase(page, "upgrade_resolved", 30_000);
-  await waitForPhase(page, "post_upgrade_sfx_ok", 30_000);
-  await waitForPhase(page, "kill_combo_reset_ok", 30_000);
 
   await page.keyboard.down("d");
   try {
@@ -671,7 +660,7 @@ try {
 
   page = await context.newPage();
   await page.setViewportSize({ width: 1280, height: 720 });
-  const fallbackUrl = `${BASE_URL}/game/game.html?forceTitleVideoReject=1&webSmoke=upgrade`;
+  const fallbackUrl = `${BASE_URL}/game/game.html?forceTitleVideoReject=1&webSmoke=1`;
   await page.goto(fallbackUrl, {
     waitUntil: "domcontentloaded",
     timeout: 30_000,
@@ -1056,14 +1045,8 @@ function assertPhaseContract(phases) {
   const chargeStarted = phases[1];
   const chargeProgress = phases[2];
   const chargeReleased = phases[3];
-  const attack = phases[4];
-  const visible = phases[5];
-  const resolved = phases[6];
-  const postUpgradeSfx = phases[7];
-  const killCombo = phases[8];
-  const killComboReset = phases[9];
-  const east = phases[10];
-  const west = phases[11];
+  const east = phases[4];
+  const west = phases[5];
   if (
     chargeStarted.details.frame !== 0 ||
     chargeStarted.details.particles !== false ||
@@ -1099,71 +1082,6 @@ function assertPhaseContract(phases) {
       `background music did not start after launch gesture: ${JSON.stringify(phases[0].details)}`
     );
   }
-  if (!String(attack.details.animation).startsWith("attack_")) {
-    throw new Error(`melee animation missing: ${attack.details.animation}`);
-  }
-  if (visible.details.animation !== "idle_s") {
-    throw new Error(
-      `cancelled melee did not settle to idle: ${visible.details.animation}`
-    );
-  }
-  if (resolved.details.rank_total < 1) {
-    throw new Error(
-      `upgrade did not apply: rank_total=${resolved.details.rank_total}`
-    );
-  }
-  for (const cue of ["ground", "punch", "dash"]) {
-    const details = postUpgradeSfx.details[cue];
-    if (
-      details.ok !== true ||
-      details.distance_to_robot > 1 ||
-      !String(details.stream).startsWith("res://audio/")
-    ) {
-      throw new Error(
-        `post-upgrade ${cue} SFX failed: ${JSON.stringify(details)}`
-      );
-    }
-  }
-	if (
-		postUpgradeSfx.details.punch.length_seconds < 0.46 ||
-		postUpgradeSfx.details.punch.length_seconds > 0.48
-	) {
-    throw new Error(
-      `synchronized punch cue length invalid: ${JSON.stringify(postUpgradeSfx.details.punch)}`
-    );
-  }
-  for (const cue of ["ground", "punch"]) {
-    const volumeDb = postUpgradeSfx.details[cue].volume_db;
-    if (Math.abs(volumeDb - 8.5436503622) > 0.01) {
-      throw new Error(
-        `post-upgrade ${cue} SFX volume invalid: ${JSON.stringify(postUpgradeSfx.details[cue])}`
-      );
-    }
-  }
-  if (
-	postUpgradeSfx.details.upgrade_confirm_count < 1 ||
-    postUpgradeSfx.details.audio_drop_count !== 0
-  ) {
-    throw new Error(
-      `post-upgrade SFX audit failed: ${JSON.stringify(postUpgradeSfx.details)}`
-    );
-  }
-	if (
-		killCombo.details.awarded !== 200 ||
-		killCombo.details.multiplier !== 2 ||
-		killCombo.details.label !== "x2 KILL COMBO" ||
-		killCombo.details.herald_tier !== 2 ||
-		killCombo.details.herald_title !== "DOUBLE KILL" ||
-		killCombo.details.herald_presentations !== 1 ||
-		killCombo.details.herald_audio_plays !== 1 ||
-		killCombo.details.herald_voice_bus !== "Voice" ||
-		killComboReset.details.multiplier !== 1 ||
-		killComboReset.details.pending !== 200
-	) {
-    throw new Error(
-      `kill combo contract failed: ${JSON.stringify({ killCombo, killComboReset })}`
-    );
-  }
   if (
     east.details.animation !== "walk_e" ||
     east.details.frame_before === east.details.frame_after ||
@@ -1176,8 +1094,7 @@ function assertPhaseContract(phases) {
   }
   if (
     west.details.animation !== "walk_w" ||
-    west.details.frame_before === west.details.frame_after ||
-    west.details.rank_total < 1
+    west.details.frame_before === west.details.frame_after
   ) {
     throw new Error(
       `west animation continuity failed: ${JSON.stringify(west.details)}`

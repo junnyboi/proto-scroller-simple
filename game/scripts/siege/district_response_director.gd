@@ -46,7 +46,6 @@ var hybrid_substitution_trace: Array[Dictionary] = []
 var district_variant_substitution_trace: Array[Dictionary] = []
 var hazard_runtime: HazardRuntime
 var hazard_pressure: HazardPressureController
-var run_experience: RunExperience
 var current_pressure_profile: DistrictPressureProfile
 var peak_hazard_pending: int = 0
 var progression_peak_threat: int = 0
@@ -74,12 +73,10 @@ func setup(p_runtime: EncounterRuntime, p_waves: Array[EnemyWave]) -> void:
 
 func setup_district(
 	p_runtime: EncounterRuntime,
-	p_district: DistrictDefinition,
-	p_run_experience: RunExperience = null
+	p_district: DistrictDefinition
 ) -> void:
 	runtime = p_runtime
 	district = p_district
-	run_experience = p_run_experience
 	configure_elite_affixes(0, 1)
 
 
@@ -861,11 +858,10 @@ func _progression_copy_plan(
 func _effective_pressure_profile() -> DistrictPressureProfile:
 	if runtime == null or runtime.world_stream == null:
 		return DistrictPressureCatalog.profile_by_index(0)
-	var player_level: int = run_experience.level if run_experience != null else 1
-	return DistrictPressureCatalog.effective_profile(
-		runtime.world_stream.current_district_id,
-		player_level
+	var authored: DistrictPressureProfile = DistrictPressureCatalog.authored_profile(
+		runtime.world_stream.current_district_id
 	)
+	return authored if authored != null else DistrictPressureCatalog.profile_by_index(0)
 
 
 func _planned_threat(beat: DistrictBeat, extra_copies: Dictionary) -> int:

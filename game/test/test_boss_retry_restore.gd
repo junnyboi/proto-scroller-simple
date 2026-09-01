@@ -20,7 +20,6 @@ func before_each() -> void:
 func test_retry_preserves_destroyed_structure_and_restores_run_state() -> void:
 	var entry_snapshot: BossAttemptSnapshot = campaign.attempt_snapshot
 	var entry_score: Dictionary = entry_snapshot.score_state.duplicate(true)
-	var entry_experience: Dictionary = entry_snapshot.experience_state.duplicate(true)
 	var entry_gate: Dictionary = entry_snapshot.gate_state.duplicate(true)
 	var entry_reservations: Dictionary = entry_snapshot.reservation_state.duplicate(true)
 	var arena_building: StructuralBuilding2D = campaign.arena_lease.arena_building
@@ -28,7 +27,6 @@ func test_retry_preserves_destroyed_structure_and_restores_run_state() -> void:
 	cell.receive_damage(_damage(82_001, 10_000.0, &"ground_smash", cell.global_position))
 	city.rampage_session.run_score.safe_score += 777
 	city.rampage_session.run_score.pending_bank.add(333)
-	city.rampage_session.run_experience.add_experience(1_250)
 	var gameplay_event: GameplayEvent = GameplayEvent.new(
 		&"boss_retry_mutation",
 		82_002,
@@ -56,7 +54,6 @@ func test_retry_preserves_destroyed_structure_and_restores_run_state() -> void:
 	assert_almost_eq(city.urban_siege.boss_session.boss.current_health, definition.health, 0.0001)
 	assert_true(arena_building.get_cell(0, 0).is_destroyed())
 	assert_eq(city.rampage_session.run_score.capture_attempt_state(), entry_score)
-	assert_eq(city.rampage_session.run_experience.capture_attempt_state(), entry_experience)
 	assert_eq(campaign.active_gate.capture_state(), entry_gate)
 	var restored_reservations: Dictionary = (
 		city.urban_siege.boss_session.utility_pool.capture_reservation_state()

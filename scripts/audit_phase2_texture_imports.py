@@ -18,7 +18,6 @@ GAME = REPO / "game"
 OUTPUT = REPO / "docs" / "manifests" / "asset_optimization_phase2_textures.json"
 TARGETS = {
     "enemy_archetypes": GAME / "art" / "city" / "enemies" / "archetypes",
-    "upgrade_icons": GAME / "art" / "ui" / "upgrades",
 }
 
 
@@ -107,7 +106,7 @@ def before() -> None:
             )
     document = {
         "phase": 2,
-        "title": "Lossless enemy and upgrade texture normalization",
+        "title": "Lossless enemy texture normalization",
         "baseline_source_revision": git_head(),
         "target_policy": {"compress_mode": 1, "lossy_quality": 0.7},
         "candidate_count": len(assets),

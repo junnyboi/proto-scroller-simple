@@ -97,41 +97,9 @@ const CAUSAL_RECORDS: int = CausalChainTracker.MAX_RECORDS
 const DISTRICT_RECIPES: int = 3
 const RUN_CONTRACTS: int = 3
 const TERMINAL_CHOICE_OVERLAYS: int = 1
-const UPGRADE_SESSIONS: int = 1
-const UPGRADE_OVERLAYS: int = 1
-const UPGRADE_CARDS: int = 2
-const WEAPON_STATUS_STRIPS: int = 1
-const WEAPON_SHOP_SESSIONS: int = 1
-const WEAPON_SHOP_OVERLAYS: int = 1
-const WEAPON_SHOP_CARDS: int = WeaponShopCatalog.PRODUCTS_PER_DISTRICT
-const WEAPON_SHOP_DIALOGUES: int = 1
-const WEAPON_SHOP_CONFIRMATIONS: int = 1
-const WEAPON_SHOP_STAT_PREVIEWS: int = 1
-const WEAPON_SHOP_WARNING_OVERLAYS: int = 1
-const WEAPON_SHOP_TRANSACTION_PARTICLES: int = 2
-const WEAPON_SHOP_EFFECT_RUNTIMES: int = 1
 const COSMETIC_DEBRIS_INSTANCES: int = 64
-const SHOCKWAVE_RING_SLOTS: int = 10
-const DIRECTIONAL_SHOCKWAVE_SLOTS: int = DirectionalPunchShockwaveRuntime.CAPACITY
-const SIEGE_DRILL_HITBOX_SLOTS: int = SiegeDrillRuntime.HITBOX_CAPACITY
-const GRAVITY_CRUCIBLE_SLOTS: int = GravityCrucibleRuntime.CAPACITY
-const GRAVITY_CRUCIBLE_EXPLOSION_SLOTS: int = (
-	GravityCrucibleRuntime.EXPLOSION_VISUAL_CAPACITY
-)
-const TESLA_TOWER_SLOTS: int = TeslaTowerRuntime.TOWER_CAPACITY
-const TESLA_ARC_SLOTS: int = TeslaTowerRuntime.ARC_CAPACITY
-const PLAYER_ARSENALS: int = 1
-const WEAPON_DRONES: int = 19
 const MACHINE_GUN_IMPACT_SLOTS: int = ProjectilePool.MACHINE_GUN_IMPACT_CAPACITY
 const HOSTILE_IMPACT_SLOTS: int = ProjectilePool.HOSTILE_IMPACT_CAPACITY
-const LASER_BEAM_SLOTS: int = 2
-const ANTI_AIR_IMPACT_SLOTS: int = PlayerLaserWeapon.IMPACT_CAPACITY
-const FLAME_VISUAL_SLOTS: int = 6
-const SCORCH_VISUAL_SLOTS: int = 8
-const FLAMETHROWER_LOOP_VOICES: int = 1
-const PLAYER_MISSILES: int = 4
-const MISSILE_EXPLOSION_VISUAL_SLOTS: int = MissileWeapon.EXPLOSION_VISUAL_CAPACITY
-const MISSILE_EXPLOSION_QUEUE: int = 8
 const PLAYER_ATTACK_REACTION_RUNTIMES: int = 1
 const DODGE_AFTERIMAGE_SLOTS: int = 8
 const DODGE_DUST_SLOTS: int = DodgeDustPool2D.CAPACITY
@@ -309,63 +277,12 @@ static func snapshot(city: CitySlice) -> Dictionary:
 		"district_recipes": city.urban_siege.DISTRICT_DECK.recipes.size(),
 		"run_contracts": city.urban_siege.RUN_CONTRACTS.size(),
 		"terminal_choice_overlays": 1 if city.gameplay_hud.extract_button != null else 0,
-		"upgrade_sessions": (
-			1 if city.upgrade_assembler.session != null else 0
-		),
-		"upgrade_overlays": 1 if city.gameplay_hud.upgrade_choice_overlay != null else 0,
-		"upgrade_cards": city.gameplay_hud.upgrade_choice_overlay.cards.size(),
-		"weapon_status_strips": 1 if city.gameplay_hud.weapon_status_strip != null else 0,
-		"weapon_shop_sessions": 1 if city.weapon_shop_assembler.session != null else 0,
-		"weapon_shop_overlays": 1 if city.weapon_shop_assembler.overlay != null else 0,
-		"weapon_shop_cards": city.weapon_shop_assembler.overlay.cards.size(),
-		"weapon_shop_dialogues": (
-			1 if city.weapon_shop_assembler.overlay.dialogue_panel != null else 0
-		),
-		"weapon_shop_confirmations": (
-			1 if city.weapon_shop_assembler.overlay.confirmation_panel != null else 0
-		),
-		"weapon_shop_stat_previews": (
-			1 if city.weapon_shop_assembler.overlay.preview_panel != null else 0
-		),
-		"weapon_shop_warning_overlays": (
-			1 if city.weapon_shop_assembler.overlay.insufficient_flash != null else 0
-		),
-		"weapon_shop_transaction_particles": (
-			int(city.weapon_shop_assembler.overlay.upgrade_particles != null)
-			+ int(city.weapon_shop_assembler.overlay.repair_particles != null)
-		),
-		"weapon_shop_effect_runtimes": (
-			1 if city.weapon_shop_assembler.effects != null else 0
-		),
 			"cosmetic_debris_instances": CosmeticDebrisField2D.CAPACITY,
-			"shockwave_ring_slots": ShockwaveUpgradeRuntime.CAPACITY,
-			"directional_shockwave_slots": DirectionalPunchShockwaveRuntime.CAPACITY,
-			"siege_drill_hitbox_slots": _siege_drill_hitbox_slots(city),
-			"gravity_crucible_slots": _gravity_crucible_slots(city),
-			"gravity_crucible_explosion_slots": (
-				_gravity_crucible_explosion_slots(city)
-			),
-			"tesla_tower_slots": _tesla_tower_slots(city),
-			"tesla_arc_slots": _tesla_arc_slots(city),
-			"player_arsenals": (
-			1
-			if city.upgrade_assembler.get_node_or_null(^"PlayerArsenalRuntime") != null
-			else 0
-		),
-			"weapon_drones": _weapon_drone_count(city),
 			"machine_gun_impact_slots": city.projectile_root.machine_gun_impacts.size(),
 			"hostile_impact_slots": city.projectile_root.hostile_impacts.size(),
-			"laser_beam_slots": PlayerLaserWeapon.BEAM_CAPACITY,
-		"anti_air_impact_slots": _anti_air_impact_slot_count(city),
-		"flame_visual_slots": FlamethrowerRuntime.FLAME_CAPACITY,
-		"scorch_visual_slots": FlamethrowerRuntime.SCORCH_CAPACITY,
-		"flamethrower_loop_voices": FlamethrowerRuntime.LOOP_AUDIO_VOICES,
-		"player_missiles": MissileProjectilePool.CAPACITY,
-		"missile_explosion_visual_slots": _missile_explosion_visual_slot_count(city),
-		"missile_explosion_queue": MissileWeapon.EXPLOSION_QUEUE_CAPACITY,
 		"player_attack_reaction_runtimes": (
 			1
-			if city.upgrade_assembler.get_node_or_null(^"PlayerAttackReactionRuntime") != null
+			if city.get_node_or_null(^"PlayerAttackReactionRuntime") != null
 			else 0
 		),
 	}
@@ -518,49 +435,7 @@ static func validation_errors(city: CitySlice) -> PackedStringArray:
 		"terminal_choice_overlays",
 		TERMINAL_CHOICE_OVERLAYS
 	)
-	_check_equal(errors, data, "upgrade_sessions", UPGRADE_SESSIONS)
-	_check_equal(errors, data, "upgrade_overlays", UPGRADE_OVERLAYS)
-	_check_equal(errors, data, "upgrade_cards", UPGRADE_CARDS)
-	_check_equal(errors, data, "weapon_status_strips", WEAPON_STATUS_STRIPS)
-	_check_equal(errors, data, "weapon_shop_sessions", WEAPON_SHOP_SESSIONS)
-	_check_equal(errors, data, "weapon_shop_overlays", WEAPON_SHOP_OVERLAYS)
-	_check_equal(errors, data, "weapon_shop_cards", WEAPON_SHOP_CARDS)
-	_check_equal(errors, data, "weapon_shop_dialogues", WEAPON_SHOP_DIALOGUES)
-	_check_equal(errors, data, "weapon_shop_confirmations", WEAPON_SHOP_CONFIRMATIONS)
-	_check_equal(errors, data, "weapon_shop_stat_previews", WEAPON_SHOP_STAT_PREVIEWS)
-	_check_equal(
-		errors,
-		data,
-		"weapon_shop_warning_overlays",
-		WEAPON_SHOP_WARNING_OVERLAYS
-	)
-	_check_equal(
-		errors,
-		data,
-		"weapon_shop_transaction_particles",
-		WEAPON_SHOP_TRANSACTION_PARTICLES
-	)
-	_check_equal(
-		errors,
-		data,
-		"weapon_shop_effect_runtimes",
-		WEAPON_SHOP_EFFECT_RUNTIMES
-	)
 	_check_equal(errors, data, "cosmetic_debris_instances", COSMETIC_DEBRIS_INSTANCES)
-	_check_equal(errors, data, "shockwave_ring_slots", SHOCKWAVE_RING_SLOTS)
-	_check_equal(errors, data, "directional_shockwave_slots", DIRECTIONAL_SHOCKWAVE_SLOTS)
-	_check_equal(errors, data, "siege_drill_hitbox_slots", SIEGE_DRILL_HITBOX_SLOTS)
-	_check_equal(errors, data, "gravity_crucible_slots", GRAVITY_CRUCIBLE_SLOTS)
-	_check_equal(
-		errors,
-		data,
-		"gravity_crucible_explosion_slots",
-		GRAVITY_CRUCIBLE_EXPLOSION_SLOTS
-	)
-	_check_equal(errors, data, "tesla_tower_slots", TESLA_TOWER_SLOTS)
-	_check_equal(errors, data, "tesla_arc_slots", TESLA_ARC_SLOTS)
-	_check_equal(errors, data, "player_arsenals", PLAYER_ARSENALS)
-	_check_equal(errors, data, "weapon_drones", WEAPON_DRONES)
 	_check_equal(
 		errors,
 		data,
@@ -568,19 +443,6 @@ static func validation_errors(city: CitySlice) -> PackedStringArray:
 		MACHINE_GUN_IMPACT_SLOTS
 	)
 	_check_equal(errors, data, "hostile_impact_slots", HOSTILE_IMPACT_SLOTS)
-	_check_equal(errors, data, "laser_beam_slots", LASER_BEAM_SLOTS)
-	_check_equal(errors, data, "anti_air_impact_slots", ANTI_AIR_IMPACT_SLOTS)
-	_check_equal(errors, data, "flame_visual_slots", FLAME_VISUAL_SLOTS)
-	_check_equal(errors, data, "scorch_visual_slots", SCORCH_VISUAL_SLOTS)
-	_check_equal(errors, data, "flamethrower_loop_voices", FLAMETHROWER_LOOP_VOICES)
-	_check_equal(errors, data, "player_missiles", PLAYER_MISSILES)
-	_check_equal(
-		errors,
-		data,
-		"missile_explosion_visual_slots",
-		MISSILE_EXPLOSION_VISUAL_SLOTS
-	)
-	_check_equal(errors, data, "missile_explosion_queue", MISSILE_EXPLOSION_QUEUE)
 	_check_equal(
 		errors,
 		data,
@@ -639,55 +501,6 @@ static func _check_equal(
 	var actual: int = int(data[key])
 	if actual != expected:
 		errors.append("%s=%d expected=%d" % [key, actual, expected])
-
-
-static func _siege_drill_hitbox_slots(city: CitySlice) -> int:
-	if city.upgrade_assembler == null:
-		return 0
-	var runtime: SiegeDrillRuntime = (
-		city.upgrade_assembler.runtimes.get(&"SIEGE_DRILL") as SiegeDrillRuntime
-	)
-	return runtime.HITBOX_CAPACITY if runtime != null else 0
-
-
-static func _gravity_crucible_slots(city: CitySlice) -> int:
-	if city.upgrade_assembler == null:
-		return 0
-	var runtime: GravityCrucibleRuntime = (
-		city.upgrade_assembler.runtimes.get(
-			&"GRAVITY_CRUCIBLE"
-		) as GravityCrucibleRuntime
-	)
-	return runtime.CAPACITY if runtime != null else 0
-
-
-static func _gravity_crucible_explosion_slots(city: CitySlice) -> int:
-	if city.upgrade_assembler == null:
-		return 0
-	var runtime: GravityCrucibleRuntime = (
-		city.upgrade_assembler.runtimes.get(
-			&"GRAVITY_CRUCIBLE"
-		) as GravityCrucibleRuntime
-	)
-	return runtime.explosion_visuals.size() if runtime != null else 0
-
-
-static func _tesla_tower_slots(city: CitySlice) -> int:
-	if city.upgrade_assembler == null:
-		return 0
-	var runtime: TeslaTowerRuntime = (
-		city.upgrade_assembler.runtimes.get(&"TESLA_TOWER") as TeslaTowerRuntime
-	)
-	return runtime.TOWER_CAPACITY if runtime != null and runtime.tower != null else 0
-
-
-static func _tesla_arc_slots(city: CitySlice) -> int:
-	if city.upgrade_assembler == null:
-		return 0
-	var runtime: TeslaTowerRuntime = (
-		city.upgrade_assembler.runtimes.get(&"TESLA_TOWER") as TeslaTowerRuntime
-	)
-	return runtime.tower.arcs.size() if runtime != null and runtime.tower != null else 0
 
 
 static func _weather_runtime(city: CitySlice) -> DistrictWeatherRuntime:
@@ -844,27 +657,6 @@ static func _robot_charge_visual_count(city: CitySlice) -> int:
 		city.robot.get_node_or_null(^"RobotAnimationPresenter") as RobotAnimationPresenter
 	)
 	return presenter.charge_visual_count() if presenter != null else 0
-
-
-static func _weapon_drone_count(city: CitySlice) -> int:
-	var orbit: WeaponDroneOrbit2D = city.robot.get_node_or_null(
-		^"WeaponDroneOrbit"
-	) as WeaponDroneOrbit2D
-	return orbit.drones.size() if orbit != null else 0
-
-
-static func _anti_air_impact_slot_count(city: CitySlice) -> int:
-	var runtime: PlayerLaserWeapon = (
-		city.upgrade_assembler.runtimes.get(&"LASER") as PlayerLaserWeapon
-	)
-	return runtime.impacts.size() if runtime != null else 0
-
-
-static func _missile_explosion_visual_slot_count(city: CitySlice) -> int:
-	var runtime: MissileWeapon = (
-		city.upgrade_assembler.runtimes.get(&"MISSILE") as MissileWeapon
-	)
-	return runtime.explosion_visuals.size() if runtime != null else 0
 
 
 static func _boss_utility_count(city: CitySlice, kind: StringName) -> int:

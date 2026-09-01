@@ -158,10 +158,6 @@ func _run_balanced_mixed_wave(city: CitySlice) -> void:
 	city.robot.global_position.x = 820.0
 	city.robot.set_durability_bonus(400.0)
 	city.robot.current_health = city.robot.max_health
-	var dash: DashAmplifierRuntime = (
-		city.upgrade_assembler.runtimes[&"DASH_AMPLIFIER"] as DashAmplifierRuntime
-	)
-	dash.apply_rank(3)
 	var loadout_health: float = city.robot.max_health
 	var wave: Array[Dictionary] = [
 		{"id": &"static", "trait": &"BLITZ", "position": Vector2(1320.0, 547.0)},

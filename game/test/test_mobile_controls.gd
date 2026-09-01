@@ -182,8 +182,7 @@ func test_mobile_controls_drive_robot_and_remain_live_after_defeat() -> void:
 	await get_tree().create_timer(
 		ground_spec.active_seconds + ground_spec.recovery_seconds + 0.03
 	).timeout
-	await _resolve_upgrade_choices(city)
-	var haptic_count_after_upgrade: int = city.haptics_adapter.request_count
+	var haptic_count_after_ground_smash: int = city.haptics_adapter.request_count
 	city.robot.velocity.x = city.robot.max_speed * 0.8
 	city.tank.activate(
 		city.robot.global_position + Vector2(120.0 * float(city.robot.facing), 60.0),
@@ -214,7 +213,7 @@ func test_mobile_controls_drive_robot_and_remain_live_after_defeat() -> void:
 	assert_gt(city.contextual_attacks.jab_cross_impact.last_query_count, 0)
 	assert_gt(city.contextual_attacks.jab_cross_impact.last_accepted_targets, 0)
 	assert_lt(city.tank.current_health, city.tank.max_health)
-	assert_gte(city.haptics_adapter.request_count, haptic_count_after_upgrade + 1)
+	assert_gte(city.haptics_adapter.request_count, haptic_count_after_ground_smash + 1)
 	assert_true(city.mobile_controls.joystick_active)
 	var structural_cell: Destructible2D
 	for row: int in range(StructuralBuilding2D.ROWS):
@@ -243,7 +242,7 @@ func test_mobile_controls_drive_robot_and_remain_live_after_defeat() -> void:
 		)
 	)
 	await get_tree().process_frame
-	assert_gte(city.haptics_adapter.request_count, haptic_count_after_upgrade + 2)
+	assert_gte(city.haptics_adapter.request_count, haptic_count_after_ground_smash + 2)
 	assert_eq(city.haptics_adapter.last_duration_ms, 52)
 	city.robot.receive_damage(DamageEvent.new(9201, null, 9999.0))
 	assert_true(city.game_over_active)
@@ -334,17 +333,6 @@ func _screen_touch(
 	event.position = position
 	event.pressed = pressed
 	return event
-
-
-func _resolve_upgrade_choices(city: CitySlice) -> void:
-	var session: UpgradeSession = city.upgrade_assembler.session
-	for choice_index: int in range(8):
-		if session.active_offer == null:
-			return
-		var sequence: int = session.active_offer.sequence
-		var selected: StringName = session.active_offer.choice_ids[0]
-		assert_true(session.select_choice(selected, sequence))
-		await get_tree().process_frame
 
 
 func _screen_drag(index: int, position: Vector2) -> InputEventScreenDrag:

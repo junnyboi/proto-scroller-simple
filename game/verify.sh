@@ -32,9 +32,7 @@ mkdir -p \
 			  artifacts/enemy_variety \
 	  artifacts/street_volatility \
 	  artifacts/power_box_repair \
-	  artifacts/directives \
-	  artifacts/upgrades \
-	  artifacts/weapon_drones
+	  artifacts/directives
 : > artifacts/.gdignore
 START_EPOCH="$(date +%s)"
 ENGINE_TIMEOUT_SECONDS=120
@@ -107,7 +105,6 @@ for cue in \
 	  audio/sfx/rampage/overdrive_activation.wav \
 	  audio/sfx/rampage/combo_break.wav \
 		  audio/sfx/ui/transition_full_black_boom.wav \
-		  audio/sfx/upgrades/upgrade_confirm.wav \
 	  audio/sfx/robot/robot_footstep.wav \
 	  audio/sfx/robot/robot_servo.wav \
 	  audio/sfx/robot/robot_dash_warp_drive.wav \
@@ -146,10 +143,6 @@ awk -v duration="$TRANSITION_BOOM_DURATION" 'BEGIN {
 }'
 test "$(sha256sum audio/sfx/ui/transition_full_black_boom.wav | cut -d' ' -f1)" = \
 	"cca66e67364e69695febad14faa30f09c2cf5a906abae4cd8205fa2b623a558f"
-for weapon_shop_import in art/ui/weapon_shop/*.webp.import; do
-	grep -Fq 'compress/mode=1' "$weapon_shop_import"
-	grep -Fq 'compress/lossy_quality=0.8' "$weapon_shop_import"
-done
 for campaign_import in \
 	art/city/enemies/archetypes/{21-reclaimed-breacher,22-graft-runner,23-choir-siren,24-ossuary-crawler,25-seraph-carrier,26-pale-engine}.png.import \
 	art/finale/*.png.import \
@@ -717,62 +710,6 @@ if [[ "$MODE" == "full" ]]; then
 	    file artifacts/mobile_controls/mobile-controls-portrait.png
 	  )"
 
-		  printf '%s\n' '[L5] landscape upgrade overlay visual scenario'
-	  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \
-	    -s selftest/upgrade_overlay_visual_scenario.gd
-	  test -s artifacts/upgrades/upgrade-choice.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/upgrades/upgrade-choice.png)"
-	  mv artifacts/upgrades/upgrade-choice.png \
-	    artifacts/upgrades/upgrade-choice-landscape.png
-
-	  printf '%s\n' '[L5] portrait upgrade overlay visual scenario'
-	  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
-	    --resolution 720x1280 -s selftest/upgrade_overlay_visual_scenario.gd
-	  test -s artifacts/upgrades/upgrade-choice.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/upgrades/upgrade-choice.png)"
-	  mv artifacts/upgrades/upgrade-choice.png \
-	    artifacts/upgrades/upgrade-choice-portrait.png
-
-	  printf '%s\n' '[L5] landscape weapon-shop visual scenario'
-	  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \
-	    -s selftest/weapon_shop_visual_scenario.gd
-	  test -s artifacts/weapon_shop/weapon-shop.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_shop/weapon-shop.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-intro.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_shop/weapon-shop-intro.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-warning.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_shop/weapon-shop-warning.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-confirm.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_shop/weapon-shop-confirm.png)"
-	  mv artifacts/weapon_shop/weapon-shop.png \
-	    artifacts/weapon_shop/weapon-shop-landscape.png
-	  mv artifacts/weapon_shop/weapon-shop-intro.png \
-	    artifacts/weapon_shop/weapon-shop-intro-landscape.png
-	  mv artifacts/weapon_shop/weapon-shop-warning.png \
-	    artifacts/weapon_shop/weapon-shop-warning-landscape.png
-	  mv artifacts/weapon_shop/weapon-shop-confirm.png \
-	    artifacts/weapon_shop/weapon-shop-confirm-landscape.png
-
-	  printf '%s\n' '[L5] portrait weapon-shop visual scenario'
-	  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
-	    --resolution 720x1280 -s selftest/weapon_shop_visual_scenario.gd
-	  test -s artifacts/weapon_shop/weapon-shop.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_shop/weapon-shop.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-intro.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_shop/weapon-shop-intro.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-warning.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_shop/weapon-shop-warning.png)"
-	  test -s artifacts/weapon_shop/weapon-shop-confirm.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_shop/weapon-shop-confirm.png)"
-	  mv artifacts/weapon_shop/weapon-shop.png \
-	    artifacts/weapon_shop/weapon-shop-portrait.png
-	  mv artifacts/weapon_shop/weapon-shop-intro.png \
-	    artifacts/weapon_shop/weapon-shop-intro-portrait.png
-	  mv artifacts/weapon_shop/weapon-shop-warning.png \
-	    artifacts/weapon_shop/weapon-shop-warning-portrait.png
-		  mv artifacts/weapon_shop/weapon-shop-confirm.png \
-		    artifacts/weapon_shop/weapon-shop-confirm-portrait.png
-
 		  printf '%s\n' '[L5] landscape New Game+ terminal visual scenario'
 		  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \
 		    -s selftest/new_game_plus_visual_scenario.gd
@@ -843,30 +780,6 @@ if [[ "$MODE" == "full" ]]; then
 	  mv artifacts/directives/directive-failed.png \
 	    artifacts/directives/directive-failed-portrait.png
 
-	  printf '%s\n' '[L5] landscape weapon-drone visual scenario'
-	  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \
-	    -s selftest/weapon_drone_visual_scenario.gd
-	  test -s artifacts/weapon_drones/weapon-drones-rank-one.png
-	  test -s artifacts/weapon_drones/weapon-drones-max-rank.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_drones/weapon-drones-rank-one.png)"
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/weapon_drones/weapon-drones-max-rank.png)"
-	  mv artifacts/weapon_drones/weapon-drones-rank-one.png \
-	    artifacts/weapon_drones/weapon-drones-rank-one-landscape.png
-	  mv artifacts/weapon_drones/weapon-drones-max-rank.png \
-	    artifacts/weapon_drones/weapon-drones-max-rank-landscape.png
-
-	  printf '%s\n' '[L5] portrait weapon-drone visual scenario'
-	  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
-	    --resolution 720x1280 -s selftest/weapon_drone_visual_scenario.gd
-	  test -s artifacts/weapon_drones/weapon-drones-rank-one.png
-	  test -s artifacts/weapon_drones/weapon-drones-max-rank.png
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_drones/weapon-drones-rank-one.png)"
-	  grep -Fq '720 x 1280' <<< "$(file artifacts/weapon_drones/weapon-drones-max-rank.png)"
-	  mv artifacts/weapon_drones/weapon-drones-rank-one.png \
-	    artifacts/weapon_drones/weapon-drones-rank-one-portrait.png
-	  mv artifacts/weapon_drones/weapon-drones-max-rank.png \
-	    artifacts/weapon_drones/weapon-drones-max-rank-portrait.png
-
 	  printf '%s\n' '[WEB] cache-bypassed release export'
   rm -rf ../client/public/game
   mkdir -p ../client/public/game
@@ -912,7 +825,7 @@ if [[ "$MODE" == "full" ]]; then
 	  ) > artifacts/web-export.sha256
 	  printf 'web_files=%s\n' "$(wc -l < artifacts/web-export.sha256)"
 
-		  printf '%s\n' '[WEB] automated browser upgrade-transition smoke'
+		  printf '%s\n' '[WEB] automated browser gameplay smoke'
 		  (
 		    cd ..
 		    timeout --preserve-status --signal=TERM --kill-after=5s 360s pnpm smoke:web
@@ -1056,17 +969,13 @@ if [[ "$MODE" == "full" ]]; then
 	      "charge_started",
 	      "charge_progress",
 	      "charge_released",
-	      "attack_started",
-	      "upgrade_visible",
-	      "upgrade_resolved",
-		      "post_upgrade_sfx_ok",
 		      "east_walk_ok",
 		      "pass",
 		      "defeat_requested"
 	    ]
-	  ' artifacts/browser/upgrade-transition.json >/dev/null
-	  test -s artifacts/browser/upgrade-transition.png
-	  grep -Fq '1280 x 720' <<< "$(file artifacts/browser/upgrade-transition.png)"
+	  ' artifacts/browser/gameplay-smoke.json >/dev/null
+	  test -s artifacts/browser/gameplay-smoke.png
+	  grep -Fq '1280 x 720' <<< "$(file artifacts/browser/gameplay-smoke.png)"
 	fi
 
 END_EPOCH="$(date +%s)"

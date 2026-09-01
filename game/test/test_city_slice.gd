@@ -343,11 +343,6 @@ func test_walking_stops_at_building_until_jab_cross_opens_one_bay() -> void:
 	assert_gt(attack_id, 0)
 	assert_true(glass_cell.is_destroyed())
 	await get_tree().process_frame
-	var upgrade_session: UpgradeSession = city.upgrade_assembler.session
-	if upgrade_session.active_offer != null:
-		var offer_sequence: int = upgrade_session.active_offer.sequence
-		var selected: StringName = upgrade_session.active_offer.choice_ids[0]
-		assert_true(upgrade_session.select_choice(selected, offer_sequence))
 	assert_false(city.urban_siege.pause_coordinator.is_paused())
 	for step_index: int in range(90):
 		city.robot.physics_step(1.0, 1.0 / 60.0)
@@ -881,7 +876,6 @@ func test_game_over_retry_restarts_current_district_with_zero_rampage_credit() -
 	assert_lt(main.city_slice.robot.global_position.x, CityWorldStream.CHUNK_WIDTH)
 	assert_eq(main.city_slice.robot.current_health, main.city_slice.robot.max_health)
 	assert_eq(main.city_slice.score, 0)
-	assert_eq(main.city_slice.weapon_shop_assembler.session.run_score.score, 0)
 	assert_eq(main.city_slice.rampage_session.current_multiplier(), 1)
 	assert_eq(main.city_slice.rampage_session.momentum_value(), 0.0)
 	_record_test_execution()

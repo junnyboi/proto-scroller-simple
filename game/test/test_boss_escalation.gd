@@ -72,12 +72,8 @@ func test_mimesis_echo_history_and_magenta_selection_are_noncolliding() -> void:
 	))
 
 
-func test_siren_uses_needle_air_shell_and_ring_suspends_only_one_weapon() -> void:
+func test_siren_uses_needle_air_shell_and_leaves_direct_controls_live() -> void:
 	_start(&"MIMESIS_04")
-	var machine_gun: UpgradeRuntime = city.upgrade_assembler.runtimes[&"MACHINE_GUN"]
-	var missile: UpgradeRuntime = city.upgrade_assembler.runtimes[&"MISSILE"]
-	machine_gun.apply_rank(1)
-	missile.apply_rank(1)
 	var siren: EnemyActor2D = escalation.deploy_siren()
 	assert_not_null(siren)
 	assert_eq((siren as ProceduralEnemy).archetype_id, &"needle")
@@ -85,19 +81,15 @@ func test_siren_uses_needle_air_shell_and_ring_suspends_only_one_weapon() -> voi
 	assert_eq((siren as ProceduralEnemy).boss_support_id, &"choir_siren")
 	assert_eq(city.encounter_runtime.active_family_count(&"air"), 1)
 	assert_null(escalation.deploy_siren())
-	assert_true(escalation.begin_siren_ring(&"MACHINE_GUN"))
-	assert_true(machine_gun.paused)
-	assert_false(missile.paused)
+	assert_true(escalation.begin_siren_ring())
 	assert_true(escalation.player_direct_controls_live())
 	assert_true(city.contextual_attacks != null)
 	city.robot.global_position = escalation.center
 	escalation.advance(0.01)
-	assert_false(machine_gun.paused)
 	city.robot.global_position = escalation.center + Vector2(240.0, 0.0)
 	escalation.advance(0.01)
-	assert_true(machine_gun.paused)
 	escalation.end_siren_ring()
-	assert_false(machine_gun.paused)
+	assert_false(escalation.siren_ring_active)
 
 
 func test_entertainment_counterplay_record_and_direct_clear_contract() -> void:
@@ -327,7 +319,10 @@ func test_stage_and_arsenal_transactions_are_idempotent_with_export_data() -> vo
 		Array(store.snapshot().boss_results.CANTOR_31_PALE_ENGINE.export_destinations),
 		BossEscalationController.EXPORT_DESTINATIONS
 	)
-	assert_eq(int(store.snapshot().route_unlock_chunk), 48)
+	assert_eq(
+		int(store.snapshot().route_unlock_chunk),
+		BossCampaignCatalog.CANONICAL_UNLOCKS[3]
+	)
 	assert_eq(store.pending_reward_grants().count("boss:MIMESIS_04:reward"), 1)
 	assert_eq(store.pending_reward_grants().count("boss:CANTOR_31_PALE_ENGINE:reward"), 1)
 
@@ -381,6 +376,11 @@ func test_landscape_portrait_mechanics_and_25_restarts_are_stable() -> void:
 		var landscape: Dictionary = escalation.mechanical_signature()
 		var definition: BossEncounterDefinition = session.active_definition
 		var token: int = session.utility_pool.begin_generation()
+		assert_true(session.utility_pool.rig.configure(
+			definition,
+			session.boss,
+			true
+		))
 		assert_true(escalation.start(definition, token, session.boss.global_position, true))
 		assert_eq(escalation.mechanical_signature(), landscape)
 		session.stop()

@@ -58,14 +58,14 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 	&"covenant_warden": {
 		"base_archetype_id": &"bulwark", "display_name": "COVENANT WARDEN",
 		"texture": "res://art/city/enemies/archetypes/27-covenant-warden.png",
-		"faces_right": false, "health": 125.0, "threat": 1, "xp": 700,
+		"faces_right": false, "health": 125.0, "threat": 1, "score": 700,
 		"district_id": &"BUSINESS", "district_weight": 8,
 		"attack_vfx_id": &"covenant_warden",
 	},
 	&"mercy_recovery_cart": {
 		"base_archetype_id": &"jackal", "display_name": "MERCY RECOVERY CART",
 		"texture": "res://art/city/enemies/archetypes/28-mercy-recovery-cart.png",
-		"faces_right": false, "health": 100.0, "threat": 2, "xp": 950,
+		"faces_right": false, "health": 100.0, "threat": 2, "score": 950,
 		"district_id": &"BUSINESS", "district_weight": 6,
 		"attack_vfx_id": &"mercy_recovery_cart",
 	},
@@ -74,7 +74,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/29-testament-kite.png",
 		"faces_right": false, "display": Vector2(150.0, 150.0),
 		"collision": Vector2(104.0, 104.0), "spawn_y": 175.0,
-		"health": 45.0, "threat": 1, "xp": 420,
+		"health": 45.0, "threat": 1, "score": 420,
 		"district_id": &"BUSINESS", "district_weight": 5,
 		"attack_vfx_id": &"testament_kite",
 		"variant_tags": [&"marker"],
@@ -86,7 +86,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"collision": Vector2(225.0, 85.0), "spawn_y": 547.5,
 		"health": 230.0, "speed": 58.0, "attack_interval": 2.3,
 		"behavior": &"support", "movement_style": &"apc_roll",
-		"attack_style": &"repair", "damage": 0.0, "threat": 3, "xp": 1900,
+		"attack_style": &"repair", "damage": 0.0, "threat": 3, "score": 1900,
 		"district_id": &"BUSINESS", "district_weight": 3,
 		"attack_vfx_id": &"receivership_ambulance",
 		"variant_tags": [&"healer"],
@@ -96,7 +96,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/31-intake-shepherd.png",
 		"faces_right": false, "display": Vector2(125.0, 108.0),
 		"collision": Vector2(48.0, 98.0), "health": 145.0,
-		"threat": 2, "xp": 1250, "district_id": &"RESIDENTIAL",
+		"threat": 2, "score": 1250, "district_id": &"RESIDENTIAL",
 		"district_weight": 13, "attack_vfx_id": &"intake_shepherd",
 		"variant_tags": [&"healer"],
 	},
@@ -107,7 +107,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"collision": Vector2(184.0, 72.0), "spawn_y": 554.0,
 		"health": 190.0, "projectile_speed": 0.0, "damage": 18.0,
 		"anticipation": 0.52, "attack_style": &"shock_brace",
-		"threat": 2, "xp": 1800, "district_id": &"RESIDENTIAL",
+		"threat": 2, "score": 1800, "district_id": &"RESIDENTIAL",
 		"district_weight": 11, "attack_vfx_id": &"evacuation_litter",
 	},
 	&"rainvault_pressure_ward": {
@@ -115,7 +115,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/33-rainvault-pressure-ward.png",
 		"faces_right": false, "display": Vector2(245.0, 140.0),
 		"collision": Vector2(220.0, 90.0), "health": 255.0,
-		"damage": 19.0, "threat": 3, "xp": 2200,
+		"damage": 19.0, "threat": 3, "score": 2200,
 		"district_id": &"RESIDENTIAL", "district_weight": 8,
 		"attack_vfx_id": &"rainvault_pressure_ward",
 		"variant_tags": [&"artillery"],
@@ -125,7 +125,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/34-balcony-recall-beacon.png",
 		"faces_right": false, "display": Vector2(150.0, 180.0),
 		"collision": Vector2(104.0, 132.0), "spawn_y": 205.0,
-		"health": 90.0, "threat": 1, "xp": 800,
+		"health": 90.0, "threat": 1, "score": 800,
 		"district_id": &"RESIDENTIAL", "district_weight": 10,
 		"attack_vfx_id": &"balcony_recall_beacon",
 		"variant_tags": [&"marker"],
@@ -135,7 +135,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/35-memorial-usher.png",
 		"faces_right": false, "display": Vector2(125.0, 108.0),
 		"collision": Vector2(48.0, 98.0), "health": 135.0,
-		"threat": 2, "xp": 1400, "district_id": &"ENTERTAINMENT",
+		"threat": 2, "score": 1400, "district_id": &"ENTERTAINMENT",
 		"district_weight": 11, "attack_vfx_id": &"memorial_usher",
 		"variant_tags": [&"healer"],
 	},
@@ -150,13 +150,13 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"attack_interval": 1.1, "projectile_speed": 820.0, "damage": 6.0,
 		"anticipation": 0.40, "behavior": &"ground_pass",
 		"movement_style": &"wheel_sprint", "attack_style": &"turret_burst",
-		"threat": 3, "xp": 2400, "district_id": &"ENTERTAINMENT",
+		"threat": 3, "score": 2400, "district_id": &"ENTERTAINMENT",
 		"district_weight": 10, "attack_vfx_id": &"glassback_double",
 	},
 	&"recall_lantern": {
 		"base_archetype_id": &"choir_siren", "display_name": "RECALL LANTERN",
 		"texture": "res://art/city/enemies/archetypes/37-recall-lantern.png",
-		"faces_right": false, "health": 280.0, "threat": 4, "xp": 4000,
+		"faces_right": false, "health": 280.0, "threat": 4, "score": 4000,
 		"district_id": &"ENTERTAINMENT", "district_weight": 8,
 		"attack_vfx_id": &"recall_lantern",
 		"variant_tags": [&"marker"],
@@ -166,7 +166,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/38-marquee-anesthetist.png",
 		"faces_right": false, "display": Vector2(245.0, 135.0),
 		"collision": Vector2(220.0, 90.0), "health": 275.0,
-		"damage": 24.0, "threat": 4, "xp": 3300,
+		"damage": 24.0, "threat": 4, "score": 3300,
 		"district_id": &"ENTERTAINMENT", "district_weight": 6,
 		"attack_vfx_id": &"marquee_anesthetist",
 		"variant_tags": [&"artillery"],
@@ -176,7 +176,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/39-suture-marshal.png",
 		"faces_right": false, "display": Vector2(125.0, 108.0),
 		"collision": Vector2(48.0, 98.0), "health": 240.0,
-		"threat": 3, "xp": 2500, "district_id": &"MILITARY",
+		"threat": 3, "score": 2500, "district_id": &"MILITARY",
 		"district_weight": 8, "attack_vfx_id": &"suture_marshal",
 		"variant_tags": [&"healer"],
 	},
@@ -185,7 +185,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/40-mercy-raker.png",
 		"faces_right": false, "display": Vector2(230.0, 105.0),
 		"collision": Vector2(202.0, 74.0), "health": 285.0,
-		"damage": 10.0, "threat": 4, "xp": 3600,
+		"damage": 10.0, "threat": 4, "score": 3600,
 		"district_id": &"MILITARY", "district_weight": 7,
 		"attack_vfx_id": &"mercy_raker",
 	},
@@ -194,7 +194,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/41-revetment-ward.png",
 		"faces_right": false, "display": Vector2(255.0, 135.0),
 		"collision": Vector2(230.0, 88.0), "health": 390.0,
-		"damage": 20.0, "threat": 5, "xp": 4400,
+		"damage": 20.0, "threat": 5, "score": 4400,
 		"district_id": &"MILITARY", "district_weight": 5,
 		"attack_vfx_id": &"revetment_ward",
 	},
@@ -203,7 +203,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/42-triage-kite.png",
 		"faces_right": false, "display": Vector2(260.0, 130.0),
 		"collision": Vector2(225.0, 78.0), "health": 275.0,
-		"damage": 22.0, "threat": 4, "xp": 4200,
+		"damage": 22.0, "threat": 4, "score": 4200,
 		"district_id": &"MILITARY", "district_weight": 6,
 		"attack_vfx_id": &"triage_kite",
 		"variant_tags": [&"bomber"],
@@ -213,7 +213,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/43-privy-chirurgeon.png",
 		"faces_right": false, "display": Vector2(125.0, 108.0),
 		"collision": Vector2(48.0, 98.0), "health": 175.0,
-		"threat": 2, "xp": 2600, "district_id": &"ROYAL",
+		"threat": 2, "score": 2600, "district_id": &"ROYAL",
 		"district_weight": 8, "attack_vfx_id": &"privy_chirurgeon",
 		"variant_tags": [&"healer"],
 	},
@@ -222,7 +222,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/44-laureate-courser.png",
 		"faces_right": false, "display": Vector2(230.0, 118.0),
 		"collision": Vector2(190.0, 76.0), "health": 285.0,
-		"behavior": &"ground_pass", "threat": 4, "xp": 4700,
+		"behavior": &"ground_pass", "threat": 4, "score": 4700,
 		"district_id": &"ROYAL", "district_weight": 7,
 		"attack_vfx_id": &"laureate_courser",
 	},
@@ -231,7 +231,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"texture": "res://art/city/enemies/archetypes/45-ninefold-witness.png",
 		"faces_right": false, "display": Vector2(205.0, 190.0),
 		"collision": Vector2(132.0, 150.0), "health": 360.0,
-		"threat": 5, "xp": 6200, "district_id": &"ROYAL",
+		"threat": 5, "score": 6200, "district_id": &"ROYAL",
 		"district_weight": 5, "attack_vfx_id": &"ninefold_witness",
 		"variant_tags": [&"marker"],
 	},
@@ -242,7 +242,7 @@ const DISTRICT_VARIANT_PROFILES: Dictionary = {
 		"collision": Vector2(245.0, 94.0), "health": 395.0,
 		"preferred_range": 720.0, "minimum_range": 450.0,
 		"attack_interval": 3.0, "anticipation": 1.0, "damage": 30.0,
-		"threat": 5, "xp": 6500, "district_id": &"ROYAL",
+		"threat": 5, "score": 6500, "district_id": &"ROYAL",
 		"district_weight": 4, "attack_vfx_id": &"regency_conservator",
 		"variant_tags": [&"artillery"],
 	},
@@ -257,7 +257,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 560.0, "minimum_range": 390.0, "attack_interval": 2.3,
 		"projectile_kind": &"bullet", "projectile_speed": 760.0, "damage": 5.0,
 		"anticipation": 0.68, "behavior": &"air_standoff", "movement_style": &"drone_hover",
-		"attack_style": &"scan", "xp": 350, "threat": 1, "remains": &"air",
+		"attack_style": &"scan", "score": 350, "threat": 1, "remains": &"air",
 	},
 	&"bulwark": {
 		"display_name": "BULWARK RIOT TROOPER", "family": &"infantry", "airborne": false,
@@ -268,7 +268,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 230.0, "minimum_range": 120.0, "attack_interval": 1.45,
 		"projectile_kind": &"bullet", "projectile_speed": 690.0, "damage": 7.0,
 		"anticipation": 0.48, "behavior": &"ground_standoff", "movement_style": &"shield_march",
-		"attack_style": &"shield_burst", "xp": 650, "threat": 1, "remains": &"infantry",
+		"attack_style": &"shield_burst", "score": 650, "threat": 1, "remains": &"infantry",
 	},
 	&"jackal": {
 		"display_name": "JACKAL RECON BUGGY", "family": &"light", "airborne": false,
@@ -278,7 +278,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 340.0, "minimum_range": 170.0, "attack_interval": 1.1,
 		"projectile_kind": &"bullet", "projectile_speed": 820.0, "damage": 6.0,
 		"anticipation": 0.40, "behavior": &"ground_pass", "movement_style": &"wheel_sprint",
-		"attack_style": &"turret_burst", "xp": 900, "threat": 2, "remains": &"vehicle",
+		"attack_style": &"turret_burst", "score": 900, "threat": 2, "remains": &"vehicle",
 	},
 	&"lobber": {
 		"display_name": "LOBBER GRENADIER", "family": &"infantry", "airborne": false,
@@ -289,7 +289,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 500.0, "minimum_range": 300.0, "attack_interval": 1.9,
 		"projectile_kind": &"shell", "projectile_speed": 410.0, "damage": 14.0,
 		"anticipation": 0.75, "behavior": &"ground_standoff", "movement_style": &"heavy_march",
-		"attack_style": &"lob", "xp": 900, "threat": 2, "remains": &"infantry",
+		"attack_style": &"lob", "score": 900, "threat": 2, "remains": &"infantry",
 	},
 	&"sapper": {
 		"display_name": "SAPPER COMBAT ENGINEER", "family": &"infantry", "airborne": false,
@@ -300,7 +300,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 420.0, "minimum_range": 240.0, "attack_interval": 2.1,
 		"projectile_kind": &"bullet", "projectile_speed": 670.0, "damage": 5.0,
 		"anticipation": 0.60, "behavior": &"support", "movement_style": &"utility_march",
-		"attack_style": &"repair", "xp": 1050, "threat": 2, "remains": &"infantry",
+		"attack_style": &"repair", "score": 1050, "threat": 2, "remains": &"infantry",
 	},
 	&"hound": {
 		"display_name": "HOUND HUNTER DRONE", "family": &"air", "airborne": true,
@@ -311,7 +311,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 250.0, "minimum_range": 110.0, "attack_interval": 1.2,
 		"projectile_kind": &"bullet", "projectile_speed": 850.0, "damage": 9.0,
 		"anticipation": 0.40, "behavior": &"air_close", "movement_style": &"hunter_lunge",
-		"attack_style": &"autocannon", "xp": 1300, "threat": 3, "remains": &"air",
+		"attack_style": &"autocannon", "score": 1300, "threat": 3, "remains": &"air",
 	},
 	&"mule": {
 		"display_name": "MULE ARMORED PERSONNEL CARRIER", "family": &"heavy", "airborne": false,
@@ -322,7 +322,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 720.0, "damage": 8.0,
 		"anticipation": 0.62, "behavior": &"carrier", "movement_style": &"apc_roll",
 		"attack_style": &"deploy", "spawn_kind": &"soldier", "spawn_limit": 2,
-		"xp": 1700, "threat": 3, "remains": &"vehicle",
+		"score": 1700, "threat": 3, "remains": &"vehicle",
 	},
 	&"basilisk": {
 		"display_name": "BASILISK MORTAR CARRIER", "family": &"heavy", "airborne": false,
@@ -333,7 +333,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 690.0, "minimum_range": 430.0, "attack_interval": 2.6,
 		"projectile_kind": &"shell", "projectile_speed": 470.0, "damage": 20.0,
 		"anticipation": 0.95, "behavior": &"ground_standoff", "movement_style": &"tracked_heavy",
-		"attack_style": &"mortar_recoil", "xp": 1900, "threat": 3, "remains": &"vehicle",
+		"attack_style": &"mortar_recoil", "score": 1900, "threat": 3, "remains": &"vehicle",
 	},
 	&"lancer": {
 		"display_name": "LANCER MISSILE TEAM", "family": &"infantry", "airborne": false,
@@ -344,7 +344,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 650.0, "minimum_range": 390.0, "attack_interval": 2.45,
 		"projectile_kind": &"rocket", "projectile_speed": 520.0, "damage": 26.0,
 		"anticipation": 0.90, "behavior": &"ground_standoff", "movement_style": &"team_shuffle",
-		"attack_style": &"missile_launch", "xp": 1800, "threat": 3, "remains": &"infantry",
+		"attack_style": &"missile_launch", "score": 1800, "threat": 3, "remains": &"infantry",
 	},
 	&"static": {
 		"display_name": "STATIC EW TRUCK", "family": &"light", "airborne": false,
@@ -354,7 +354,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 570.0, "minimum_range": 370.0, "attack_interval": 2.05,
 		"projectile_kind": &"bullet", "projectile_speed": 700.0, "damage": 4.0,
 		"anticipation": 0.55, "behavior": &"support", "movement_style": &"antenna_sway",
-		"attack_style": &"jammer_pulse", "xp": 2200, "threat": 4, "remains": &"vehicle",
+		"attack_style": &"jammer_pulse", "score": 2200, "threat": 4, "remains": &"vehicle",
 	},
 	&"kestrel": {
 		"display_name": "KESTREL BOMBER DRONE", "family": &"air", "airborne": true,
@@ -365,7 +365,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 360.0, "minimum_range": 160.0, "attack_interval": 2.1,
 		"projectile_kind": &"rocket", "projectile_speed": 430.0, "damage": 18.0,
 		"anticipation": 0.60, "behavior": &"air_pass", "movement_style": &"bomber_bank",
-		"attack_style": &"bomb_drop", "xp": 2300, "threat": 4, "remains": &"air",
+		"attack_style": &"bomb_drop", "score": 2300, "threat": 4, "remains": &"air",
 	},
 	&"rainmaker": {
 		"display_name": "RAINMAKER MLRS", "family": &"heavy", "airborne": false,
@@ -375,7 +375,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 720.0, "minimum_range": 450.0, "attack_interval": 2.85,
 		"projectile_kind": &"rocket", "projectile_speed": 500.0, "damage": 24.0,
 		"anticipation": 1.05, "behavior": &"ground_standoff", "movement_style": &"tracked_heavy",
-		"attack_style": &"pod_salvo", "xp": 2900, "threat": 4, "remains": &"vehicle",
+		"attack_style": &"pod_salvo", "score": 2900, "threat": 4, "remains": &"vehicle",
 	},
 	&"shrike": {
 		"display_name": "SHRIKE ASSAULT VTOL", "family": &"air", "airborne": true,
@@ -385,7 +385,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 390.0, "minimum_range": 180.0, "attack_interval": 1.55,
 		"projectile_kind": &"rocket", "projectile_speed": 560.0, "damage": 18.0,
 		"anticipation": 0.52, "behavior": &"air_pass", "movement_style": &"vtol_strafe",
-		"attack_style": &"wing_launch", "xp": 3000, "threat": 4, "remains": &"air",
+		"attack_style": &"wing_launch", "score": 3000, "threat": 4, "remains": &"air",
 	},
 	&"cinder": {
 		"display_name": "CINDER FLAME TANK", "family": &"heavy", "airborne": false,
@@ -395,7 +395,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 220.0, "minimum_range": 90.0, "attack_interval": 1.05,
 		"projectile_kind": &"shell", "projectile_speed": 330.0, "damage": 18.0,
 		"anticipation": 0.60, "behavior": &"ground_close", "movement_style": &"flame_lurch",
-		"attack_style": &"flame_blast", "xp": 3600, "threat": 5, "remains": &"vehicle",
+		"attack_style": &"flame_blast", "score": 3600, "threat": 5, "remains": &"vehicle",
 	},
 	&"aegis": {
 		"display_name": "AEGIS SHIELD PROJECTOR", "family": &"heavy", "airborne": false,
@@ -405,7 +405,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 500.0, "minimum_range": 320.0, "attack_interval": 2.35,
 		"projectile_kind": &"bullet", "projectile_speed": 680.0, "damage": 5.0,
 		"anticipation": 0.68, "behavior": &"support", "movement_style": &"dish_pulse",
-		"attack_style": &"shield_pulse", "xp": 4000, "threat": 5, "remains": &"vehicle",
+		"attack_style": &"shield_pulse", "score": 4000, "threat": 5, "remains": &"vehicle",
 	},
 	&"longbow": {
 		"display_name": "LONGBOW RAILGUN TANK", "family": &"heavy", "airborne": false,
@@ -415,7 +415,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 760.0, "minimum_range": 500.0, "attack_interval": 3.3,
 		"projectile_kind": &"shell", "projectile_speed": 980.0, "damage": 38.0,
 		"anticipation": 1.20, "behavior": &"ground_standoff", "movement_style": &"capacitor_roll",
-		"attack_style": &"rail_recoil", "xp": 5100, "threat": 6, "remains": &"vehicle",
+		"attack_style": &"rail_recoil", "score": 5100, "threat": 6, "remains": &"vehicle",
 	},
 	&"hive": {
 		"display_name": "HIVE DRONE CARRIER", "family": &"air", "airborne": true,
@@ -426,7 +426,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"rocket", "projectile_speed": 500.0, "damage": 12.0,
 		"anticipation": 0.75, "behavior": &"carrier", "movement_style": &"carrier_hover",
 		"attack_style": &"drone_launch", "spawn_kind": &"hound", "spawn_limit": 2,
-		"xp": 5600, "threat": 6, "remains": &"air",
+		"score": 5600, "threat": 6, "remains": &"air",
 	},
 	&"goliath": {
 		"display_name": "GOLIATH SIEGE WALKER", "family": &"siege", "airborne": false,
@@ -437,7 +437,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 550.0, "minimum_range": 300.0, "attack_interval": 2.75,
 		"projectile_kind": &"shell", "projectile_speed": 600.0, "damage": 32.0,
 		"anticipation": 1.0, "behavior": &"ground_standoff", "movement_style": &"walker_stride",
-		"attack_style": &"siege_brace", "xp": 7200, "threat": 7, "remains": &"vehicle",
+		"attack_style": &"siege_brace", "score": 7200, "threat": 7, "remains": &"vehicle",
 	},
 	&"nemesis": {
 		"display_name": "NEMESIS TITAN-HUNTER MECH", "family": &"siege", "airborne": false,
@@ -448,7 +448,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 180.0, "minimum_range": 70.0, "attack_interval": 1.1,
 		"projectile_kind": &"shell", "projectile_speed": 760.0, "damage": 30.0,
 		"anticipation": 0.48, "behavior": &"ground_close", "movement_style": &"mech_stride",
-		"attack_style": &"lance_thrust", "xp": 10000, "threat": 9, "remains": &"vehicle",
+		"attack_style": &"lance_thrust", "score": 10000, "threat": 9, "remains": &"vehicle",
 	},
 	&"leviathan": {
 		"display_name": "LEVIATHAN COMMAND LANDSHIP", "family": &"siege", "airborne": false,
@@ -458,7 +458,7 @@ const PROFILES: Dictionary = {
 		"preferred_range": 660.0, "minimum_range": 380.0, "attack_interval": 2.3,
 		"projectile_kind": &"rocket", "projectile_speed": 560.0, "damage": 32.0,
 		"anticipation": 1.0, "behavior": &"ground_standoff", "movement_style": &"landship_rumble",
-		"attack_style": &"fortress_barrage", "xp": 20000, "threat": 12, "remains": &"vehicle",
+		"attack_style": &"fortress_barrage", "score": 20000, "threat": 12, "remains": &"vehicle",
 	},
 	&"reclaimed_breacher": {
 		"display_name": "RECLAIMED BREACHER", "family": &"infantry", "airborne": false,
@@ -469,7 +469,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 0.0, "damage": 24.0,
 		"anticipation": 0.72, "behavior": &"ground_breacher",
 		"movement_style": &"breacher_sprint", "attack_style": &"shock_brace",
-		"xp": 2600, "threat": 3, "remains": &"infantry",
+		"score": 2600, "threat": 3, "remains": &"infantry",
 	},
 	&"graft_runner": {
 		"display_name": "GRAFT RUNNER", "family": &"light", "airborne": false,
@@ -480,7 +480,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 0.0, "damage": 18.0,
 		"anticipation": 0.44, "behavior": &"ground_pass",
 		"movement_style": &"graft_circle", "attack_style": &"marked_leap",
-		"xp": 3000, "threat": 3, "remains": &"vehicle",
+		"score": 3000, "threat": 3, "remains": &"vehicle",
 	},
 	&"choir_siren": {
 		"display_name": "CHOIR SIREN", "family": &"air", "airborne": true,
@@ -491,7 +491,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 0.0, "damage": 0.0,
 		"anticipation": 1.05, "behavior": &"air_standoff",
 		"movement_style": &"siren_hover", "attack_style": &"choir_ring",
-		"xp": 4300, "threat": 5, "remains": &"air",
+		"score": 4300, "threat": 5, "remains": &"air",
 	},
 	&"ossuary_crawler": {
 		"display_name": "OSSUARY CRAWLER", "family": &"light", "airborne": false,
@@ -502,7 +502,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 0.0, "damage": 22.0,
 		"anticipation": 0.52, "behavior": &"ground_close",
 		"movement_style": &"crawler_climb", "attack_style": &"drop_lunge",
-		"xp": 4500, "threat": 5, "remains": &"vehicle",
+		"score": 4500, "threat": 5, "remains": &"vehicle",
 	},
 	&"seraph_carrier": {
 		"display_name": "SERAPH CARRIER", "family": &"air", "airborne": true,
@@ -513,7 +513,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"bullet", "projectile_speed": 0.0, "damage": 0.0,
 		"anticipation": 1.15, "behavior": &"carrier", "movement_style": &"seraph_hover",
 		"attack_style": &"incubation_drop", "spawn_kind": &"graft_runner", "spawn_limit": 3,
-		"xp": 7600, "threat": 7, "remains": &"air",
+		"score": 7600, "threat": 7, "remains": &"air",
 	},
 	&"pale_engine": {
 		"display_name": "PALE ENGINE", "family": &"siege", "airborne": false,
@@ -524,7 +524,7 @@ const PROFILES: Dictionary = {
 		"projectile_kind": &"shell", "projectile_speed": 920.0, "damage": 44.0,
 		"anticipation": 1.35, "behavior": &"ground_standoff",
 		"movement_style": &"pale_engine_stride", "attack_style": &"spinal_charge",
-		"ablative_armor": 180.0, "xp": 12000, "threat": 9, "remains": &"vehicle",
+		"ablative_armor": 180.0, "score": 12000, "threat": 9, "remains": &"vehicle",
 	},
 }
 
@@ -616,14 +616,14 @@ static func threat_cost(kind: StringName) -> int:
 	return int(profile(kind).get("threat", 0))
 
 
-static func xp_value(kind: StringName) -> int:
+static func score_value(kind: StringName) -> int:
 	if kind == &"tank":
 		return 1500
 	if kind == &"helicopter":
 		return 1200
 	if kind == &"soldier":
 		return 500
-	return int(profile(kind).get("xp", 500))
+	return int(profile(kind).get("score", 500))
 
 
 static func is_valid_kind(kind: StringName) -> bool:

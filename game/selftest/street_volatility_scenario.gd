@@ -36,7 +36,6 @@ func _run() -> void:
 	await process_frame
 	city.urban_siege.stop_run()
 	city.encounter_runtime.release_all()
-	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.robot.global_position.x = 1300.0
 	city.camera_rig.global_position.x = 1300.0
 	city.gameplay_hud.first_run_tutorial.visible = false
