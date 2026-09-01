@@ -5,9 +5,6 @@ const MAX_FRAMES: int = 240
 const DISTRICT_IDS: Array[StringName] = [
 	&"BUSINESS",
 	&"RESIDENTIAL",
-	&"ENTERTAINMENT",
-	&"MILITARY",
-	&"ROYAL",
 ]
 
 var _elapsed_frames: int = 0

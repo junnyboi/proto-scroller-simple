@@ -170,36 +170,6 @@ func test_defeated_boss_freezes_then_spectacle_automatically_makes_rubble_and_dr
 	assert_almost_eq(city.robot.current_health, city.robot.max_health - 50.0, 0.001)
 
 
-func test_district_signal_waits_until_boss_defeat_spectacle_completes() -> void:
-	watch_signals(city.urban_siege)
-	city.urban_siege._on_arc_completed()
-	assert_signal_not_emitted(city.urban_siege, "district_completed")
-	assert_true(session.start_definition(BossCampaignCatalog.definition(&"CHOIR_PRIME")))
-	var boss: TankEnemy = session.boss
-	for index: int in range(BossRoyalFinaleController.CONNECTION_COUNT):
-		boss.receive_damage(DamageEvent.new(
-			1200 + index,
-			city.robot,
-			session.active_definition.armor_milestone_step,
-			&"jab_cross",
-			Vector2.ZERO,
-			Vector2.RIGHT,
-			0.0,
-			0,
-			0,
-			DamageEvent.FLAG_FULL_CHARGE
-		))
-	boss.receive_damage(DamageEvent.new(
-		1210, city.robot, session.active_definition.health, &"impact"
-	))
-	assert_signal_not_emitted(city.urban_siege, "district_completed")
-	session.utility_pool.defeat_spectacle.advance(
-		BossDefeatSpectacle2D.PRESENTATION_SECONDS
-	)
-	assert_signal_emitted(city.urban_siege, "district_completed")
-	assert_true(city.urban_siege.finale_pending)
-
-
 func test_late_boss_rubble_has_three_fixed_one_fifty_hp_drops() -> void:
 	assert_eq(ChassisRepairPickup2D.REPAIR_AMOUNT, 50.0)
 	assert_eq(

@@ -99,7 +99,7 @@ func test_summary_freezes_expanded_metrics_against_late_events() -> void:
 			GameplayEvent.Kind.PROP_DESTROYED, StringName("TAG_%d" % index),
 			100, 0.0, true
 		))
-	var summary: RunSummarySnapshot = session.freeze_summary(6, 2, {
+	var summary: RunSummarySnapshot = session.freeze_summary(2, 2, {
 		"completed": true,
 		"contract_succeeded": true,
 		"directive_path": &"SKYBREAKER",

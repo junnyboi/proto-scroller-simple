@@ -15,9 +15,6 @@ const SOURCE_DENSITY_SCALE: int = 2
 const EXPECTED_CELL_SIZES: Dictionary[StringName, Vector2i] = {
 	&"SETTLEMENT_ENGINE": Vector2i(628, 390),
 	&"SAMARITAN": Vector2i(692, 418),
-	&"MIMESIS": Vector2i(744, 374),
-	&"CANTOR_PALE_ENGINE": Vector2i(720, 424),
-	&"CHOIR_PRIME": Vector2i(768, 432),
 }
 
 const SETTLEMENT_ATLAS: Texture2D = preload(
@@ -25,15 +22,6 @@ const SETTLEMENT_ATLAS: Texture2D = preload(
 )
 const SAMARITAN_ATLAS: Texture2D = preload(
 	"res://art/bosses/animated/samaritan-15-atlas.webp"
-)
-const MIMESIS_ATLAS: Texture2D = preload(
-	"res://art/bosses/animated/mimesis-04-atlas.webp"
-)
-const CANTOR_ATLAS: Texture2D = preload(
-	"res://art/bosses/animated/cantor-31-atlas.webp"
-)
-const CHOIR_PRIME_ATLAS: Texture2D = preload(
-	"res://art/bosses/animated/choir-prime-atlas.webp"
 )
 
 
@@ -43,12 +31,6 @@ static func texture_for_preset(preset: StringName) -> Texture2D:
 			return SETTLEMENT_ATLAS
 		&"SAMARITAN":
 			return SAMARITAN_ATLAS
-		&"MIMESIS":
-			return MIMESIS_ATLAS
-		&"CANTOR_PALE_ENGINE":
-			return CANTOR_ATLAS
-		&"CHOIR_PRIME":
-			return CHOIR_PRIME_ATLAS
 	return SETTLEMENT_ATLAS
 
 
@@ -82,9 +64,6 @@ static func validation_errors() -> Array[String]:
 	var textures: Dictionary[StringName, Texture2D] = {
 		&"SETTLEMENT_ENGINE": SETTLEMENT_ATLAS,
 		&"SAMARITAN": SAMARITAN_ATLAS,
-		&"MIMESIS": MIMESIS_ATLAS,
-		&"CANTOR_PALE_ENGINE": CANTOR_ATLAS,
-		&"CHOIR_PRIME": CHOIR_PRIME_ATLAS,
 	}
 	for preset: StringName in textures:
 		var texture: Texture2D = textures[preset]

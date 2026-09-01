@@ -8,10 +8,10 @@ const TARGET_MARK_SUPPORT: Texture2D = preload(
 	"res://art/presentation/target_mark_support.png"
 )
 const JAMMER_PULSE: Texture2D = preload(
-	"res://art/city/effects/support/jammer-pulse.png"
+	"res://art/presentation/target_mark_support.png"
 )
 const SHIELD_PULSE: Texture2D = preload(
-	"res://art/city/effects/support/shield-pulse.png"
+	"res://art/presentation/target_mark_support.png"
 )
 const FIRING_PULSE_MINIMUM_AMPLITUDE: float = 0.04
 const FIRING_PULSE_MAXIMUM_AMPLITUDE: float = 0.32

@@ -118,7 +118,7 @@ func snapshot_summary(
 	overdrive_activations: int,
 	run_metrics: Dictionary = {}
 ) -> RunSummarySnapshot:
-	var completed: bool = bool(run_metrics.get("completed", waves_cleared >= 6))
+	var completed: bool = bool(run_metrics.get("completed", waves_cleared >= 2))
 	var mastery: Dictionary = MasteryEvaluator.evaluate({
 		"completed": completed,
 		"highest_act": waves_cleared,

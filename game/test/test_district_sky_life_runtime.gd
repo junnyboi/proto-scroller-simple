@@ -84,18 +84,18 @@ func test_district_transition_grades_panorama_depth_and_life_together() -> void:
 	var parallax: DistrictParallaxRuntime = city.get_node(^"ParallaxCity")
 	var life: DistrictSkyLifeRuntime = parallax.sky_life_runtime()
 	var start_grade: Color = life.district_grade()
-	assert_true(parallax.transition_to(&"ENTERTAINMENT"))
+	assert_true(parallax.transition_to(&"RESIDENTIAL"))
 	parallax._process(DistrictParallaxRuntime.CROSSFADE_SECONDS * 0.5)
 	var midpoint_grade: Color = life.district_grade()
 	assert_gt(_color_distance(start_grade, midpoint_grade), 0.01)
 	assert_gt(
-		_color_distance(midpoint_grade, life.profile_for(&"ENTERTAINMENT").grade),
+		_color_distance(midpoint_grade, life.profile_for(&"RESIDENTIAL").grade),
 		0.01
 	)
 	parallax._process(DistrictParallaxRuntime.CROSSFADE_SECONDS * 0.5)
-	assert_eq(parallax.current_district_id, &"ENTERTAINMENT")
-	assert_eq(life.current_district_id, &"ENTERTAINMENT")
-	assert_eq(life.district_grade(), life.profile_for(&"ENTERTAINMENT").grade)
+	assert_eq(parallax.current_district_id, &"RESIDENTIAL")
+	assert_eq(life.current_district_id, &"RESIDENTIAL")
+	assert_eq(life.district_grade(), life.profile_for(&"RESIDENTIAL").grade)
 	var active_sprite: Sprite2D = parallax.get_node(^"Sky/DistrictPanorama1")
 	var material: ShaderMaterial = active_sprite.material as ShaderMaterial
 	assert_eq(material.get_shader_parameter(&"district_grade"), life.district_grade())
@@ -111,7 +111,7 @@ func test_reset_preserves_world_clock_and_origin_compensation() -> void:
 	var parallax: DistrictParallaxRuntime = city.get_node(^"ParallaxCity")
 	var life: DistrictSkyLifeRuntime = parallax.sky_life_runtime()
 	parallax.set_time_phase(0.36)
-	assert_true(parallax.transition_to(&"ROYAL", true))
+	assert_true(parallax.transition_to(&"RESIDENTIAL", true))
 	var traffic_before: float = life.traffic_offset()
 	var offset: Vector2 = Vector2(-CityWorldStream.CHUNK_WIDTH, 0.0)
 	parallax.compensate_origin(offset)

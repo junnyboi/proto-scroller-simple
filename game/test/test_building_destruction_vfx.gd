@@ -19,7 +19,7 @@ func test_section_burst_pool_is_fixed_and_recycles_oldest_slot() -> void:
 		Vector2(30.0, 40.0), Vector2.LEFT, 520.0, glass
 	)
 	var third: BuildingSectionBurst2D = pool.spawn(
-		Vector2(50.0, 60.0), Vector2.UP, 620.0, steel, &"MILITARY"
+		Vector2(50.0, 60.0), Vector2.UP, 620.0, steel, &"RESIDENTIAL"
 	)
 	assert_not_null(first)
 	assert_not_null(second)
@@ -31,7 +31,7 @@ func test_section_burst_pool_is_fixed_and_recycles_oldest_slot() -> void:
 	assert_eq(pool.rubble_dust_spawn_count, 3)
 	assert_eq(pool.get_child_count(), child_count)
 	assert_eq(pool.last_material_id, &"steel")
-	assert_eq(pool.last_district_id, &"MILITARY")
+	assert_eq(pool.last_district_id, &"RESIDENTIAL")
 	assert_eq(pool.last_origin, Vector2(50.0, 60.0))
 	assert_same(third.fragments.texture, BuildingSectionBurst2D.STEEL_TEXTURE)
 	assert_eq(third.fragments.amount, 6)
@@ -39,12 +39,12 @@ func test_section_burst_pool_is_fixed_and_recycles_oldest_slot() -> void:
 	assert_eq(third.dust.amount, 5)
 	assert_true(third.falling_debris.emitting)
 	assert_true(third.dust.emitting)
-	assert_eq(third.district_id, &"MILITARY")
+	assert_eq(third.district_id, &"RESIDENTIAL")
 	assert_eq(
 		third.dust.color,
 		BuildingSectionBurst2D._district_dust_color(
 			Color(1.0, 0.58, 0.24, 0.45),
-			&"MILITARY"
+			&"RESIDENTIAL"
 		)
 	)
 	assert_not_null(third.ruin_smoke)
@@ -70,11 +70,11 @@ func test_rubble_formation_dust_is_subtle_district_tinted_and_fixed_pool() -> vo
 	var first: BuildingSectionBurst2D = pool.spawn_rubble_dust(
 		Vector2(80.0, 90.0),
 		180.0,
-		&"ENTERTAINMENT"
+		&"BUSINESS"
 	)
 	assert_not_null(first)
 	assert_true(first.dust_only)
-	assert_eq(first.district_id, &"ENTERTAINMENT")
+	assert_eq(first.district_id, &"BUSINESS")
 	assert_true(first.dust.emitting)
 	assert_false(first.fragments.emitting)
 	assert_false(first.falling_debris.emitting)
@@ -85,16 +85,16 @@ func test_rubble_formation_dust_is_subtle_district_tinted_and_fixed_pool() -> vo
 	assert_lt(first.dust.color.a, 0.30)
 	assert_eq(
 		first.dust.color,
-		BuildingSectionBurst2D.dust_color_for_district(&"ENTERTAINMENT")
+		BuildingSectionBurst2D.dust_color_for_district(&"BUSINESS")
 	)
 	assert_eq(pool.spawn_count, 0)
 	assert_eq(pool.rubble_dust_spawn_count, 1)
 	assert_eq(pool.last_material_id, &"rubble_dust")
-	assert_eq(pool.last_district_id, &"ENTERTAINMENT")
+	assert_eq(pool.last_district_id, &"BUSINESS")
 	var recycled: BuildingSectionBurst2D = pool.spawn_rubble_dust(
 		Vector2(100.0, 110.0),
 		220.0,
-		&"ROYAL"
+		&"RESIDENTIAL"
 	)
 	assert_same(recycled, first)
 	assert_eq(pool.recycle_count, 1)
@@ -115,15 +115,12 @@ func test_rubble_formation_dust_is_subtle_district_tinted_and_fixed_pool() -> vo
 	assert_almost_eq(full_burst.dust.damping_max, 120.0, 0.001)
 
 
-func test_persistent_rubble_has_five_distinct_district_style_tints() -> void:
+func test_persistent_rubble_has_two_distinct_district_style_tints() -> void:
 	var rubble: PersistentRubbleBed2D = PersistentRubbleBed2D.new()
 	add_child_autofree(rubble)
 	var district_ids: Array[StringName] = [
 		&"BUSINESS",
 		&"RESIDENTIAL",
-		&"ENTERTAINMENT",
-		&"MILITARY",
-		&"ROYAL",
 	]
 	var piece_tints: Dictionary[StringName, Color] = {}
 	for district_id: StringName in district_ids:

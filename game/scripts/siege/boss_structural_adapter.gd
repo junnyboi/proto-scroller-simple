@@ -3,7 +3,7 @@ extends Node2D
 
 const MASK_COUNT: int = 1 << StructuralBuilding2D.CELL_COUNT
 const CONDUCTOR_CAPACITY: int = StructuralBuilding2D.CELL_COUNT
-const WEAK_POINT_TEXTURE: Texture2D = preload("res://art/finale/choir-pylon.png")
+const WEAK_POINT_TEXTURE: Texture2D = preload("res://art/player/vfx/photon_core_orb.png")
 
 var building: StructuralBuilding2D
 var definition: BossEncounterDefinition

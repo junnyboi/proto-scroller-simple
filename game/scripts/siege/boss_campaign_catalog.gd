@@ -6,32 +6,19 @@ const BASE_ARMOR: float = 330.0
 const BASE_HEALTH: float = 320.0
 const BASE_ARMOR_MILESTONE_STEP: float = 110.0
 
-const DEFINITION_COUNT: int = 5
+const DEFINITION_COUNT: int = 2
 const CANONICAL_TRIGGERS: Array[int] = [
 	CityDistrictCatalog.FACADE_ENCOUNTERS_PER_DISTRICT - 1,
 	CityDistrictCatalog.CHUNKS_PER_DISTRICT
-	+ CityDistrictCatalog.FACADE_ENCOUNTERS_PER_DISTRICT - 1,
-	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 2
-	+ CityDistrictCatalog.FACADE_ENCOUNTERS_PER_DISTRICT - 1,
-	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 3
-	+ CityDistrictCatalog.FACADE_ENCOUNTERS_PER_DISTRICT - 1,
-	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 4
 	+ CityDistrictCatalog.FACADE_ENCOUNTERS_PER_DISTRICT - 1,
 ]
 const CANONICAL_UNLOCKS: Array[int] = [
 	CityDistrictCatalog.CHUNKS_PER_DISTRICT,
 	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 2,
-	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 3,
-	CityDistrictCatalog.CHUNKS_PER_DISTRICT * 4,
 	-1,
 ]
 const CANONICAL_EVIDENCE: Array[StringName] = [
-	&"LEDGER", &"NURSERY", &"STAGE", &"ARSENAL", &"CROWN",
-]
-const EXPECTED_OUTCOMES: Array[int] = [
-	BossOutcome.PURGE,
-	BossOutcome.DISENTANGLE,
-	BossOutcome.ASCENSION_FAILURE,
+	&"LEDGER", &"NURSERY",
 ]
 
 static var _definitions: Array[BossEncounterDefinition] = []
@@ -170,9 +157,6 @@ static func _validate_canonical_order(
 			errors.append("unexpected trigger at boss index %d" % index)
 		if definition_value.evidence_flag_id != CANONICAL_EVIDENCE[index]:
 			errors.append("unexpected evidence flag at boss index %d" % index)
-	var finale: BossEncounterDefinition = definitions_value.back()
-	if finale != null and Array(finale.outcomes) != EXPECTED_OUTCOMES:
-		errors.append("royal outcome policy does not contain all three canonical outcomes")
 
 
 static func _ensure_catalog() -> void:
@@ -219,7 +203,7 @@ static func _ensure_catalog() -> void:
 				&"pod_visuals": 4,
 				&"wreck_receivers": 1,
 			},
-			{&"procedural_siege": 1, &"procedural_light": 1},
+			{&"procedural_infantry": 1, &"procedural_light": 1},
 			[
 				&"TRIAGE_SWEEP",
 				&"PRESSURE_SENTENCE",
@@ -227,87 +211,7 @@ static func _ensure_catalog() -> void:
 				&"BLACKOUT_HARVEST",
 			]
 		),
-				_make_definition(
-						&"MIMESIS_04",
-						&"ENTERTAINMENT",
-						CANONICAL_TRIGGERS[2],
-						CANONICAL_UNLOCKS[2],
-			"boss.mimesis_04.name",
-			"MIMESIS-04 — The Afterimage Conductor",
-			&"entertainment_house_of_static",
-			&"AUDIENCE_OF_ONE_0417_CONTINUITY",
-			&"STAGE",
-			&"MIMESIS",
-			{
-				&"markers": 8,
-				&"lane_damage_areas": 2,
-				&"line_areas": 2,
-				&"wreck_receivers": 1,
-			},
-			{&"procedural_air": 1},
-			[
-				&"DEAD_AIR_SWEEP", &"MEMORY_BLOCKING",
-				&"ARMED_AFTERIMAGE", &"ENCORE_IMPACT",
-			]
-		),
-				_make_definition(
-						&"CANTOR_31_PALE_ENGINE",
-						&"MILITARY",
-						CANONICAL_TRIGGERS[3],
-						CANONICAL_UNLOCKS[3],
-			"boss.cantor_31.name",
-			"CANTOR-31 / PALE ENGINE — The Export Surgeon",
-			&"military_prefect_war_keep",
-			&"EXPORT_LITANY_31",
-			&"ARSENAL",
-			&"CANTOR_PALE_ENGINE",
-			{
-				&"markers": 3,
-				&"lane_damage_areas": 3,
-				&"line_areas": 2,
-				&"collapse_listeners": 2,
-				&"reclamation_anchors": 3,
-				&"wreck_receivers": 1,
-			},
-			{&"procedural_light": 1},
-			[
-				&"SUTURE_SALVO", &"DISPATCH_HARNESS",
-				&"PALE_RECLAMATION", &"COMPRESSION_PSALM",
-			]
-		),
-				_make_definition(
-						&"CHOIR_PRIME",
-						&"ROYAL",
-						CANONICAL_TRIGGERS[4],
-						CANONICAL_UNLOCKS[4],
-			"boss.choir_prime.name",
-			"CHOIR Prime — The Last Sovereign",
-			&"royal_palace_last_sovereign",
-			&"CROWN_05_CONSENT_EXCISION_ORDER",
-			&"CROWN",
-			&"CHOIR_PRIME",
-			{
-				&"markers": 8,
-				&"lane_damage_areas": 3,
-				&"line_areas": 2,
-				&"collapse_listeners": 2,
-				&"pod_visuals": 4,
-				&"reclamation_anchors": 3,
-				&"pylon_presentations": 5,
-				&"projection_slots": 4,
-				&"wreck_receivers": 2,
-			},
-			{},
-			[&"FIVEFOLD_TESTIMONY", &"SIBLING_PROCESS", &"THE_LAST_CONSENT"],
-			PackedInt32Array(EXPECTED_OUTCOMES),
-			PackedVector2Array([Vector2(-128.0, 0.0), Vector2(128.0, 0.0)])
-			),
-		]
-	var finale: BossEncounterDefinition = _definitions.back()
-	finale.armor = BASE_ARMOR * BOSS_DURABILITY_MULTIPLIER
-	finale.armor_milestone_step = (
-		BASE_ARMOR_MILESTONE_STEP * BOSS_DURABILITY_MULTIPLIER
-	)
+	]
 	_definitions_by_id.clear()
 	_definitions_by_trigger.clear()
 	for definition_value: BossEncounterDefinition in _definitions:
@@ -363,10 +267,8 @@ static func _make_definition(
 	definition_value.structural_fallback_policy = &"SAME_ANCHOR_DIRECT_DAMAGE"
 	definition_value.capstone_dossier_id = capstone_dossier_id
 	definition_value.evidence_flag_id = evidence_flag_id
-	definition_value.evidence_recovery_eligible = evidence_flag_id != &"CROWN"
-	definition_value.evidence_recovery_rule = (
-		&"ELITE_DROP" if evidence_flag_id != &"CROWN" else &"MANDATORY_PYLON_TRANSACTION"
-	)
+	definition_value.evidence_recovery_eligible = true
+	definition_value.evidence_recovery_rule = &"ELITE_DROP"
 	definition_value.narrative_event_keys = PackedStringArray([
 		"boss.%s.armor_break" % String(boss_id).to_lower(),
 		"boss.%s.wreck" % String(boss_id).to_lower(),
@@ -376,9 +278,7 @@ static func _make_definition(
 		&"veyr": "boss.%s.veyr" % String(boss_id).to_lower(),
 	}
 	definition_value.wreck_mode = &"FRESH_MELEE"
-	definition_value.outcome_policy = (
-		&"ROYAL_THREE_OUTCOME" if boss_id == &"CHOIR_PRIME" else &"STANDARD_PURGE"
-	)
+	definition_value.outcome_policy = &"STANDARD_PURGE"
 	definition_value.outcomes = outcomes
 	definition_value.portrait_socket_overrides = {
 		&"presentation_scale": Vector2(0.82, 1.0),

@@ -2,14 +2,11 @@ extends SceneTree
 
 const ARTIFACT_DIR: String = "res://artifacts/district_enemy_variants"
 const DISTRICT_ORDER: Array[StringName] = [
-	&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
+	&"BUSINESS", &"RESIDENTIAL",
 ]
 const DISTRICT_COLORS: Dictionary[StringName, Color] = {
 	&"BUSINESS": Color("68dbe0"),
 	&"RESIDENTIAL": Color("78d2a9"),
-	&"ENTERTAINMENT": Color("c58cff"),
-	&"MILITARY": Color("e0a268"),
-	&"ROYAL": Color("e8cf77"),
 }
 
 var checks: Array[Dictionary] = []
@@ -30,33 +27,30 @@ func _run() -> void:
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 	_check(
-		"catalog_twenty_variants",
-		EnemyArchetypeCatalog.DISTRICT_VARIANT_IDS.size() == 20,
+		"catalog_eight_variants",
+		EnemyArchetypeCatalog.DISTRICT_VARIANT_IDS.size() == 8,
 		"count=%d" % EnemyArchetypeCatalog.DISTRICT_VARIANT_IDS.size()
 	)
 	_check(
-		"twenty_cards",
-		_count_cards(gallery) == 20,
+		"eight_cards",
+		_count_cards(gallery) == 8,
 		"count=%d" % _count_cards(gallery)
 	)
 	_check(
-		"vfx_catalog_twenty_variants",
-		EnemyAttackVfxCatalog.SPECS.size() == 20,
+		"vfx_catalog_covers_retained_variants",
+		EnemyAttackVfxCatalog.SPECS.size() == 8,
 		"count=%d" % EnemyAttackVfxCatalog.SPECS.size()
 	)
 	_check(
 		"vfx_delivery_split",
-		EnemyAttackVfxCatalog.RANGED_IDS.size() == 9,
-		"ranged=9 actor=11"
+		EnemyAttackVfxCatalog.RANGED_IDS.size() == 3,
+		"ranged=3 actor=5"
 	)
 	_check(
-		"five_district_groups",
+		"two_district_groups",
 		_district_card_counts(gallery) == {
 			&"BUSINESS": 4,
 			&"RESIDENTIAL": 4,
-			&"ENTERTAINMENT": 4,
-			&"MILITARY": 4,
-			&"ROYAL": 4,
 		},
 		"counts=%s" % _district_card_counts(gallery)
 	)
@@ -126,7 +120,7 @@ func _build_gallery(target_size: Vector2i, portrait: bool) -> Control:
 	title.add_theme_font_size_override("font_size", 22 if portrait else 25)
 	content.add_child(title)
 	var subtitle: Label = Label.new()
-	subtitle.text = "20 CONCRETE VARIANTS // 5 DISTRICTS // FIXED-POOL RUNTIME"
+	subtitle.text = "8 CONCRETE VARIANTS // 2 DISTRICTS // FIXED-POOL RUNTIME"
 	subtitle.add_theme_color_override("font_color", Color("7896a8"))
 	subtitle.add_theme_font_size_override("font_size", 12)
 	content.add_child(subtitle)

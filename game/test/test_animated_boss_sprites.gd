@@ -3,13 +3,10 @@ extends GutTest
 const PRESETS: Array[StringName] = [
 	&"SETTLEMENT_ENGINE",
 	&"SAMARITAN",
-	&"MIMESIS",
-	&"CANTOR_PALE_ENGINE",
-	&"CHOIR_PRIME",
 ]
 
 
-func test_animation_catalog_covers_all_five_bosses() -> void:
+func test_animation_catalog_covers_both_bosses() -> void:
 	assert_eq(BossAnimationCatalog.validation_errors(), [])
 	for preset: StringName in PRESETS:
 		var texture: Texture2D = BossAnimationCatalog.texture_for_preset(preset)
@@ -69,7 +66,7 @@ func test_rig_animation_never_moves_mechanical_regions_or_sockets() -> void:
 	assert_eq(rig.animation_signature().sequence_row, 3)
 
 
-func test_all_five_campaign_bosses_are_50_percent_larger_and_touch_road() -> void:
+func test_both_campaign_bosses_are_50_percent_larger_and_touch_road() -> void:
 	for definition: BossEncounterDefinition in BossCampaignCatalog.definitions():
 		var rig := BossRig2D.new()
 		add_child_autofree(rig)
@@ -115,7 +112,7 @@ func test_defeated_pose_freezes_final_attack_frame_and_darkens_rig() -> void:
 	var rig := BossRig2D.new()
 	add_child_autofree(rig)
 	var definition := BossEncounterDefinition.new()
-	definition.rig_preset = &"MIMESIS"
+	definition.rig_preset = &"SAMARITAN"
 	var host := TankEnemy.new()
 	add_child_autofree(host)
 	assert_true(rig.configure(definition, host))

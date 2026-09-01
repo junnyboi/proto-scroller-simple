@@ -11,38 +11,10 @@ const PROFILE_CASES: Array[Dictionary] = [
 			&"EXTRACTION_CLAMP", &"BLACKOUT_HARVEST",
 		],
 	},
-	{
-		"boss_id": &"MIMESIS_04",
-		"district_index": 2,
-		"signature": &"AFTERIMAGE_SPIRAL",
-		"attacks": [
-			&"DEAD_AIR_SWEEP", &"MEMORY_BLOCKING",
-			&"ARMED_AFTERIMAGE", &"ENCORE_IMPACT",
-		],
-	},
-	{
-		"boss_id": &"CANTOR_31_PALE_ENGINE",
-		"district_index": 3,
-		"signature": &"ORDNANCE_SPARK_RAIN",
-		"attacks": [
-			&"SUTURE_SALVO", &"DISPATCH_HARNESS",
-			&"PALE_RECLAMATION", &"COMPRESSION_PSALM",
-		],
-	},
-	{
-		"boss_id": &"CHOIR_PRIME",
-		"district_index": 4,
-		"signature": &"SOVEREIGN_HALO_EMBERS",
-		"attacks": [
-			&"LEDGER_SETTLEMENT_SWEEP", &"NURSERY_BRACED_SHOCK",
-			&"STAGE_ARMED_RING", &"ARSENAL_PRODUCTION_LANES",
-			&"CROWN_RADIAL_VERDICT",
-		],
-	},
 ]
 
 
-func test_district_two_onward_bosses_have_unique_complete_particle_profiles() -> void:
+func test_residential_boss_has_a_complete_particle_profile() -> void:
 	assert_true(BossAttackParticleCatalog.profile_for_boss(
 		&"SETTLEMENT_ENGINE_S04"
 	).is_empty())
@@ -74,7 +46,7 @@ func test_district_two_onward_bosses_have_unique_complete_particle_profiles() ->
 				signature,
 				attack_id
 			)
-	assert_eq(signatures.size(), 4)
+	assert_eq(signatures.size(), 1)
 
 
 func test_attack_areas_emit_profiled_warnings_and_stop_for_safe_or_hidden_states() -> void:
@@ -110,16 +82,6 @@ func test_attack_areas_emit_profiled_warnings_and_stop_for_safe_or_hidden_states
 		&"BLACKOUT_HARVEST"
 	)
 	assert_false(bool(area.attack_particle_snapshot().warning_emitting))
-	area.configure_footprint(
-		area.global_position,
-		area.footprint_size,
-		BossAttackArea2D.VisualState.TELEGRAPH,
-		&"DEAD_AIR_SWEEP"
-	)
-	assert_eq(
-		StringName(area.attack_particle_snapshot().signature),
-		&"AFTERIMAGE_SPIRAL"
-	)
 	area.deactivate()
 	assert_true(StringName(area.attack_particle_snapshot().signature).is_empty())
 	assert_false(bool(area.attack_particle_snapshot().warning_emitting))
@@ -147,15 +109,15 @@ func test_projectile_attack_particle_pool_is_fixed_and_reuses_unique_signatures(
 			).texture
 		)
 	var release: CPUParticles2D = pool.play_release(
-		&"CHOIR_PRIME", Vector2.ZERO, Vector2.LEFT, 1.5
+		&"SAMARITAN_15", Vector2.ZERO, Vector2.LEFT, 1.5
 	)
 	assert_not_null(release)
 	var snapshot: Dictionary = pool.signature_snapshot()
 	assert_eq(int(snapshot.slots), BossAttackParticlePool2D.SLOT_CAPACITY)
-	assert_eq(int(snapshot.telegraphs), 4)
+	assert_eq(int(snapshot.telegraphs), 1)
 	assert_eq(int(snapshot.releases), 1)
-	assert_eq(StringName(snapshot.boss_id), &"CHOIR_PRIME")
-	assert_eq(StringName(snapshot.signature), &"SOVEREIGN_HALO_EMBERS")
+	assert_eq(StringName(snapshot.boss_id), &"SAMARITAN_15")
+	assert_eq(StringName(snapshot.signature), &"TRIAGE_LIFT_MOTES")
 	assert_eq(StringName(snapshot.cue), &"RELEASE")
 	pool.stop_all()
 	assert_eq(pool.active_slot_count(), 0)
@@ -172,13 +134,7 @@ func test_live_boss_controllers_prime_their_own_warning_signature() -> void:
 		assert_true(session.start_definition(BossCampaignCatalog.definition(boss_id)))
 		var expected_signature: StringName = StringName(test_case.signature)
 		var projectile_signature: Dictionary
-		match boss_id:
-			&"SAMARITAN_15":
-				projectile_signature = session.utility_pool.vertical_slice.projectile_signature()
-			&"MIMESIS_04", &"CANTOR_31_PALE_ENGINE":
-				projectile_signature = session.utility_pool.escalation.projectile_signature()
-			&"CHOIR_PRIME":
-				projectile_signature = session.royal_finale.projectile_signature()
+		projectile_signature = session.utility_pool.vertical_slice.projectile_signature()
 		assert_eq(
 			StringName(projectile_signature.particle_signature),
 			expected_signature,

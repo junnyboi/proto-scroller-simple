@@ -26,7 +26,7 @@ const WRECK_RECEIVER_CAPACITY: int = 2
 const BOSS_RUBBLE_DISPLAY_SIZE: Vector2 = Vector2(460.0, 150.0)
 const ATTACK_PRESENTATION_Z_INDEX: int = 72
 const MIMESIS_AFTERIMAGE_TEXTURE: Texture2D = preload(
-	"res://art/siege/mimesis-armed-afterimage.png"
+	"res://art/presentation/impact_spark.png"
 )
 const ARCHIVE_TREASURY_TEXTURE: Texture2D = preload(
 	"res://art/bosses/utilities/boss-archive-treasury-bracket.png"
@@ -38,18 +38,18 @@ const EXTRACTION_CLAMP_TEXTURE: Texture2D = preload(
 	"res://art/bosses/utilities/boss-extraction-clamp.png"
 )
 const SHOW_CONTROL_CABINET_TEXTURE: Texture2D = preload(
-	"res://art/bosses/utilities/boss-show-control-cabinet.png"
+	"res://art/bosses/utilities/boss-archive-treasury-bracket.png"
 )
 const RUBBLE_BED_TEXTURE: Texture2D = preload(
 	"res://art/bosses/utilities/boss-rubble-bed.png"
 )
 const FREIGHT_RECLAMATION_ANCHOR_TEXTURE: Texture2D = preload(
-	"res://art/bosses/utilities/boss-freight-reclamation-anchor.png"
+	"res://art/bosses/utilities/boss-extraction-clamp.png"
 )
 const SERAPH_PROJECTION_TEXTURE: Texture2D = preload(
-	"res://art/bosses/utilities/boss-seraph-production-projection.png"
+	"res://art/player/vfx/photon_core_orb.png"
 )
-const CHOIR_PYLON_TEXTURE: Texture2D = preload("res://art/finale/choir-pylon.png")
+const CHOIR_PYLON_TEXTURE: Texture2D = preload("res://art/player/vfx/photon_core_orb.png")
 const CHOIR_PYLON_OFFSETS: Array[Vector2] = [
 	Vector2(-360.0, -160.0), Vector2(-180.0, -245.0), Vector2(0.0, -280.0),
 	Vector2(180.0, -245.0), Vector2(360.0, -160.0),

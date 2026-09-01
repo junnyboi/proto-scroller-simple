@@ -464,7 +464,7 @@ func deploy_breacher() -> EnemyActor2D:
 	):
 		return null
 	_active_breacher = encounter_runtime.acquire(
-		&"goliath", center + Vector2(-470.0, 0.0), &"BREAKER"
+		&"reclaimed_breacher", center + Vector2(-470.0, 0.0), &"BREAKER"
 	)
 	if _active_breacher != null:
 		(_active_breacher as ProceduralEnemy).configure_boss_support(&"reclaimed_breacher")

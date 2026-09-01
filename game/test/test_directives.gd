@@ -4,10 +4,6 @@ const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
 const BREACH: DirectiveProfile = preload(
 	"res://resources/directives/demolition_breach.tres"
 )
-const AFTERSHOCK: DirectiveProfile = preload(
-	"res://resources/directives/aftershock_breaks.tres"
-)
-const SKYBREAKER: DirectiveProfile = preload("res://resources/directives/skybreaker.tres")
 
 var city: CitySlice
 var session: DirectiveSession
@@ -43,36 +39,6 @@ func test_breach_decorates_jab_cross_only_and_caps_multiplier() -> void:
 		96.0
 	)
 	assert_almost_eq(session.decorate_attack(smash).structural_damage, 200.0, 0.01)
-
-
-func test_aftershock_deduplicates_one_secondary_query_per_attack() -> void:
-	assert_true(session.select(AFTERSHOCK))
-	var smash: AttackSpec = session.decorate_attack(
-		city.contextual_attacks.resolver.resolve(222, 1, 0.0, 100.0, 1000.0, 96.0)
-	)
-	session.attack_active(smash)
-	session.attack_active(smash)
-	assert_eq(session._seen_aftershocks.size(), 1)
-	await get_tree().create_timer(0.18).timeout
-	assert_eq(session._seen_aftershocks.size(), 1)
-
-
-func test_skybreaker_redirects_at_most_three_pooled_bodies() -> void:
-	assert_true(session.select(SKYBREAKER))
-	for index: int in range(5):
-		city.debris_pool.acquire(
-			Transform2D(0.0, city.robot.global_position + Vector2(float(index) * 12.0, 0.0)),
-			Vector2.ZERO
-		)
-	var smash: AttackSpec = session.decorate_attack(
-		city.contextual_attacks.resolver.resolve(333, 1, 0.0, 100.0, 1000.0, 96.0)
-	)
-	session.attack_active(smash)
-	var redirected: int = 0
-	for body: DebrisBody2D in city.debris_pool.active_bodies():
-		if body.linear_velocity.y <= -900.0:
-			redirected += 1
-	assert_eq(redirected, DirectiveSession.SKYBREAKER_BODY_CAP)
 
 
 func test_failure_deducts_twenty_percent_of_secured_run_score() -> void:
@@ -276,4 +242,4 @@ func test_choice_overlay_pauses_runtime_and_selects_exactly_once() -> void:
 	assert_false(city.gameplay_hud.directive_choice_overlay.visible)
 	assert_not_null(session.active_profile)
 	assert_eq(city.projectile_root.process_mode, projectile_process_before)
-	assert_false(session.select(AFTERSHOCK))
+	assert_false(session.select(BREACH))

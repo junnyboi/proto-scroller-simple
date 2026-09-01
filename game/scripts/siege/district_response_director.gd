@@ -13,8 +13,6 @@ const STATE_RECOVERY: int = 2
 const MAX_PENDING_RECORDS: int = RuntimeBudget.PENDING_BEAT_RECORDS
 const MAXIMUM_ACT_OVERRUN: float = 20.0
 const LOW_THREAT_WEIGHT: int = 2
-const RETALIATION_TRIGGER_SCALE: float = 0.75
-const RETALIATION_MINIMUM_RECOVERY: float = 0.75
 const ELITE_SYSTEM_SALT: int = 0x0E11E77
 const CHAOS_SYSTEM_SALT: int = 0x0C4A05
 const ELITE_AFFIXES: Array[StringName] = EnemyArchetypeCatalog.RANDOM_AFFIXES
@@ -547,17 +545,13 @@ func _try_start_next_beat() -> void:
 		)
 		peak_hazard_pending = maxi(peak_hazard_pending, _hazard_pending.size())
 	peak_pending_records = maxi(peak_pending_records, _beat_pending.size())
-	var trigger_scale: float = _trigger_scale(act)
 	pressure_remaining = EnemySpawnTuning.scaled_interval(
-		next_beat.pressure_seconds * trigger_scale
+		next_beat.pressure_seconds
 	)
 	recovery_remaining = maxf(
-		EnemySpawnTuning.scaled_interval(
-			RETALIATION_MINIMUM_RECOVERY if _is_retaliation(act) else 1.0
-		),
+		EnemySpawnTuning.scaled_interval(1.0),
 		EnemySpawnTuning.scaled_interval(
 			next_beat.recovery_seconds
-			* trigger_scale
 			* current_pressure_profile.recovery_scale
 		)
 	)
@@ -791,17 +785,9 @@ func _progression_tier() -> int:
 	return _effective_pressure_profile().district_index
 
 
-func _is_retaliation(act: DistrictAct) -> bool:
-	return act != null and act.act_id == &"RETALIATION"
-
-
-func _trigger_scale(act: DistrictAct) -> float:
-	return RETALIATION_TRIGGER_SCALE if _is_retaliation(act) else 1.0
-
-
 func _scaled_target_duration(act: DistrictAct) -> float:
 	return (
-		EnemySpawnTuning.scaled_interval(act.target_duration * _trigger_scale(act))
+		EnemySpawnTuning.scaled_interval(act.target_duration)
 		if act != null
 		else 0.0
 	)

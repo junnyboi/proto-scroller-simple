@@ -38,6 +38,7 @@ func _run() -> void:
 	await process_frame
 	await physics_frame
 	city.urban_siege.stop_run()
+	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.gameplay_hud.first_run_tutorial.visible = false
 	city.encounter_runtime.release_all()
 	var catalog_digest: String = _catalog_digest()
@@ -181,6 +182,38 @@ func _run() -> void:
 			city.streamed_destructibles.mutation_count(),
 		]
 	)
+	var sprint_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
+		&"RESIDENTIAL",
+		city.rampage_session.run_experience.level
+	)
+	_check(
+		"residential_pressure_is_readiness_gated",
+		city.world_stream.progression_tier() == CityWorldStream.MAX_PROGRESSION_TIER
+		and sprint_profile.district_id == &"BUSINESS",
+		"distance_tier=%d level=%d effective=%s max_chunk=%d"
+		% [
+			city.world_stream.progression_tier(),
+			city.rampage_session.run_experience.level,
+			sprint_profile.district_id,
+			city.world_stream.maximum_visited_chunk,
+		]
+	)
+	city.rampage_session.run_experience.level = 2
+	var ready_profile: DistrictPressureProfile = DistrictPressureCatalog.effective_profile(
+		&"RESIDENTIAL",
+		city.rampage_session.run_experience.level
+	)
+	_check(
+		"residential_pressure_unlocks_at_level_two",
+		ready_profile.district_id == &"RESIDENTIAL"
+		and ready_profile.live_threat_ceiling == 11,
+		"level=%d effective=%s threat_ceiling=%d"
+		% [
+			city.rampage_session.run_experience.level,
+			ready_profile.district_id,
+			ready_profile.live_threat_ceiling,
+		]
+	)
 	city.robot.global_position.x = (
 		city.world_stream.runtime_x_for_logical_index(40)
 		+ CityWorldStream.CHUNK_WIDTH * 0.48
@@ -189,7 +222,7 @@ func _run() -> void:
 	city.camera_rig.global_position = Vector2(city.robot.global_position.x, 360.0)
 	city.camera_rig.follow_speed = 10000.0
 	city.camera_rig.reset_after_origin_shift()
-	var enemy_kinds: Array[StringName] = [&"soldier", &"bulwark", &"lancer", &"helicopter"]
+	var enemy_kinds: Array[StringName] = [&"soldier", &"bulwark", &"lobber", &"helicopter"]
 	var enemy_offsets: Array[Vector2] = [
 		Vector2(-460.0, 542.5 - city.robot.global_position.y),
 		Vector2(-280.0, 542.5 - city.robot.global_position.y),

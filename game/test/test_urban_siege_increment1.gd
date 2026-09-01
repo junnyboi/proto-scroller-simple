@@ -14,7 +14,7 @@ func before_each() -> void:
 
 
 func test_contact_resource_has_bounded_pressure_and_recovery() -> void:
-	assert_eq(DISTRICT.acts.size(), 6)
+	assert_eq(DISTRICT.acts.size(), 2)
 	assert_eq(DISTRICT.acts[0].beats.size(), 4)
 	for act: DistrictAct in DISTRICT.acts:
 		for beat: DistrictBeat in act.beats:
@@ -88,7 +88,7 @@ func test_transformer_is_prewarmed_once_and_triggers_from_damage() -> void:
 		0,
 		TRANSFORMER,
 		Vector2(1100.0, 590.0),
-		&"ROYAL"
+		&"RESIDENTIAL"
 	)
 	assert_eq(catalysts.active_count(), 1)
 	var event: DamageEvent = DamageEvent.new(
@@ -148,16 +148,16 @@ func test_transformer_is_prewarmed_once_and_triggers_from_damage() -> void:
 		DestructibleProp2D.TERMINAL_RUBBLE_PIECE_COUNT
 	)
 	assert_true(transformer.terminal_rubble.uses_only_rubble_fragments())
-	assert_eq(transformer.terminal_rubble.district_id(), &"ROYAL")
+	assert_eq(transformer.terminal_rubble.district_id(), &"RESIDENTIAL")
 	assert_eq(
 		transformer.terminal_rubble.district_tint(),
-		PersistentRubbleBed2D.tint_for_district(&"ROYAL")
+		PersistentRubbleBed2D.tint_for_district(&"RESIDENTIAL")
 	)
 	assert_eq(
 		city.building_section_burst_pool.rubble_dust_spawn_count,
 		dust_before_finish + 1
 	)
-	assert_eq(city.building_section_burst_pool.last_district_id, &"ROYAL")
+	assert_eq(city.building_section_burst_pool.last_district_id, &"RESIDENTIAL")
 	assert_true(city.building_section_burst_pool.active_slots()[-1].dust_only)
 	assert_eq(transformer.collision_layer, 0)
 	assert_eq(transformer.trigger_count, 1)

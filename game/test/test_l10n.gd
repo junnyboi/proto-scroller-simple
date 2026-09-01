@@ -96,11 +96,6 @@ func test_simplified_chinese_title_screen_uses_catalog_copy() -> void:
 		(screen.get_node("%InstructionLabel") as Label).text,
 		L10n.t("title.command_hook")
 	)
-	assert_null(screen.get_node_or_null("%BriefingArt"))
-	assert_eq(
-		screen.campaign_panel.codex_button.text,
-		L10n.t("narrative.campaign.open_codex")
-	)
 	var title_font: Font = (screen.get_node("%TitleLabel") as Label).get_theme_font(&"font")
 	assert_true(title_font.has_char("中".unicode_at(0)))
 	for token_character: String in ">ADENSPCTB[]/·":
@@ -109,11 +104,10 @@ func test_simplified_chinese_title_screen_uses_catalog_copy() -> void:
 			"Missing invariant control glyph: %s" % token_character
 		)
 	assert_null(screen.get_node_or_null("HintLabel"))
-	assert_eq((screen.get_node("%TitleLabel") as Label).text, "PROTOS")
+	assert_eq((screen.get_node("%TitleLabel") as Label).text, "2D Scroller")
 	assert_eq(
 		(screen.get_node("%InstructionLabel") as Label).text,
-		"他们杀尽了你爱的人，并用纳米技术，以义体替代人体的体液与组织，"
-		+ "还将其称作人类进化……是时候终结他们的恐怖统治了！"
+		"专为高效构建和原型开发 2d 卷轴游戏而设计的精简游戏基础"
 	)
 	assert_null(screen.get_node_or_null("StatusRail"))
 	assert_null(screen.get_node_or_null("%ControlsLabel"))
@@ -127,7 +121,8 @@ func test_simplified_chinese_title_screen_uses_catalog_copy() -> void:
 	assert_eq((screen.get_node("%EnglishButton") as Button).text, "EN")
 	assert_eq((screen.get_node("%ChineseButton") as Button).text, "CN")
 	assert_null(screen.get_node_or_null("%AutomaticButton"))
-	assert_true((screen.get_node("%BriefingToggle") as Button).text.contains("[TAB]"))
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
+	assert_null(screen.get_node_or_null("%BriefingLayer"))
 	_assert_locale_font_coverage("zh-CN", title_font)
 	_assert_locale_font_coverage("en", ThemeDB.fallback_font, [&"title.language_zh_cn"])
 

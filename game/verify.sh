@@ -24,11 +24,9 @@ mkdir -p \
 	  artifacts/visible_facade_cycle \
 		  artifacts/project_choir_wp1 \
 		  artifacts/project_choir_enemies \
-			  artifacts/project_choir_finale \
 			  artifacts/boss_attack_matrix \
 			  artifacts/boss_rig_gallery \
 			  artifacts/boss_vertical_slice \
-			  artifacts/boss_escalation \
 			  artifacts/enemy_variety \
 	  artifacts/street_volatility \
 	  artifacts/power_box_repair \
@@ -72,10 +70,7 @@ python3 ../scripts/verify-title-loop-seam.py \
 	| tee artifacts/title-loop-seam.json
 for boss_art in \
 	art/bosses/animated/settlement-engine-s04-atlas.webp \
-	art/bosses/animated/samaritan-15-atlas.webp \
-	art/bosses/animated/mimesis-04-atlas.webp \
-	art/bosses/animated/cantor-31-atlas.webp \
-	art/bosses/animated/choir-prime-atlas.webp; do
+	art/bosses/animated/samaritan-15-atlas.webp; do
 	test -s "$boss_art"
 done
 for herald_tier in \
@@ -99,8 +94,7 @@ done
 CITY_SLICE_LINES="$(wc -l < scripts/gameplay/city_slice.gd)"
 test "$CITY_SLICE_LINES" -le 650
 printf 'city_slice_lines=%s\n' "$CITY_SLICE_LINES"
-test -z "$(find art audio -type f \( -iname '*candidate*' -o -iname '*carrier*' -o -iname '*original*' \) \
-  ! -iname '25-seraph-carrier.png*' -print -quit)"
+test -z "$(find art audio -type f \( -iname '*candidate*' -o -iname '*carrier*' -o -iname '*original*' \) -print -quit)"
 for cue in \
 	  audio/sfx/rampage/overdrive_activation.wav \
 	  audio/sfx/rampage/combo_break.wav \
@@ -144,8 +138,7 @@ awk -v duration="$TRANSITION_BOOM_DURATION" 'BEGIN {
 test "$(sha256sum audio/sfx/ui/transition_full_black_boom.wav | cut -d' ' -f1)" = \
 	"cca66e67364e69695febad14faa30f09c2cf5a906abae4cd8205fa2b623a558f"
 for campaign_import in \
-	art/city/enemies/archetypes/{21-reclaimed-breacher,22-graft-runner,23-choir-siren,24-ossuary-crawler,25-seraph-carrier,26-pale-engine}.png.import \
-	art/finale/*.png.import \
+	art/city/enemies/archetypes/{21-reclaimed-breacher,22-graft-runner}.png.import \
 	art/narrative/*.{png,jpg}.import; do
 	grep -Fq 'compress/mode=1' "$campaign_import"
 	grep -Fq 'compress/lossy_quality=0.75' "$campaign_import"
@@ -227,7 +220,7 @@ run_engine "$GODOT" --headless --fixed-fps 60 --path . \
 printf '%s\n' '[L4] district-building gallery headless scenario'
 run_engine "$GODOT" --headless --fixed-fps 60 --path . \
   -s selftest/district_building_gallery_scenario.gd
-jq -e '.done == true and .result == "PASS" and (.districts | length) == 5' \
+jq -e '.done == true and .result == "PASS" and (.districts | length) == 2' \
   artifacts/district_gallery/report.json >/dev/null
 
 printf '%s\n' '[L4] building destruction VFX headless scenario'
@@ -252,29 +245,13 @@ run_engine "$GODOT" --headless --fixed-fps 60 --path . \
 jq -e '.done == true and .result == "PASS" and .shot.status == "SKIP"' \
   artifacts/endless_terrain/report.json >/dev/null
 
-printf '%s\n' '[L4] Project CHOIR finale headless scenario'
-run_engine "$GODOT" --headless --audio-driver Dummy --fixed-fps 60 --path . \
-	-s selftest/project_choir_finale_scenario.gd
-jq -e '
-	.done == true
-	and .result == "PASS"
-	and .boss_id == "CHOIR_PRIME"
-	and .pylon_count == 5
-	and .armor_connections == 3
-	and .eligible.disentangle_eligible == true
-	and .completion_payload.severance_windows_completed == 5
-	and .boss_shot == ""
-	and .choice_shot == ""
-	and .ending_shot == ""
-' artifacts/project_choir_finale/report-landscape.json >/dev/null
-
 printf '%s\n' '[L4] boss attack matrix headless scenario'
 run_engine "$GODOT" --headless --audio-driver Dummy --fixed-fps 60 --path . \
 	-s selftest/boss_attack_matrix_scenario.gd
 jq -e '
 	.done == true
 	and .result == "PASS"
-	and .facade_rows == 320
+	and .facade_rows == 128
 	and ([.checks[].passed] | all)
 ' artifacts/boss_attack_matrix/report.json >/dev/null
 
@@ -285,7 +262,7 @@ jq -e '
 	.done == true
 	and .result == "PASS"
 	and .orientation == "landscape"
-	and (.boss_ids | length) == 5
+	and (.boss_ids | length) == 2
 	and ([.checks[].passed] | all)
 	and .shot == ""
 ' artifacts/boss_rig_gallery/report-landscape.json >/dev/null
@@ -303,22 +280,6 @@ jq -e '
 	and ([.checks[].passed] | all)
 ' artifacts/boss_vertical_slice/report-landscape.json >/dev/null
 
-printf '%s\n' '[L4] Entertainment and Military boss escalation'
-run_engine "$GODOT" --headless --audio-driver Dummy --fixed-fps 60 --path . \
-	-s selftest/boss_escalation_scenario.gd
-jq -e '
-	.done == true
-	and .result == "PASS"
-	and .orientation == "landscape"
-	and (.entertainment.attacks | length) == 4
-	and .entertainment.marker_count == 8
-	and .entertainment.history_damages == false
-	and (.military.attacks | length) == 4
-	and .military.anchors == 3
-	and .military.live_seraphs == 0
-	and ([.checks[].passed] | all)
-' artifacts/boss_escalation/report-landscape.json >/dev/null
-
 SHOT_HASH=""
 if [[ "$MODE" == "full" ]]; then
   printf '%s\n' '[L5] windowed render scenario'
@@ -331,14 +292,6 @@ if [[ "$MODE" == "full" ]]; then
   grep -Fq '1280 x 720' <<< "$DIMENSIONS"
   cp artifacts/title_screen/title-screen.png \
     artifacts/title_screen/title-screen-landscape.png
-  test -s artifacts/title_screen/title-screen-briefing.png
-  test -s artifacts/title_screen/title-screen-codex.png
-  grep -Fq '1280 x 720' <<< "$(file artifacts/title_screen/title-screen-briefing.png)"
-  grep -Fq '1280 x 720' <<< "$(file artifacts/title_screen/title-screen-codex.png)"
-  cp artifacts/title_screen/title-screen-briefing.png \
-    artifacts/project_choir_wp1/briefing-landscape.png
-  cp artifacts/title_screen/title-screen-codex.png \
-    artifacts/project_choir_wp1/codex-landscape.png
   SHOT_HASH="$(sha256sum artifacts/title_screen/title-screen.png | cut -d' ' -f1)"
   printf 'shot_sha256=%s\n' "$SHOT_HASH"
 
@@ -351,12 +304,6 @@ if [[ "$MODE" == "full" ]]; then
   grep -Fq '720 x 1280' <<< "$PORTRAIT_TITLE_DIMENSIONS"
   mv artifacts/title_screen/title-screen.png \
     artifacts/title_screen/title-screen-portrait.png
-  grep -Fq '720 x 1280' <<< "$(file artifacts/title_screen/title-screen-briefing.png)"
-  grep -Fq '720 x 1280' <<< "$(file artifacts/title_screen/title-screen-codex.png)"
-  cp artifacts/title_screen/title-screen-briefing.png \
-    artifacts/project_choir_wp1/briefing-portrait.png
-  cp artifacts/title_screen/title-screen-codex.png \
-    artifacts/project_choir_wp1/codex-portrait.png
 	cp artifacts/title_screen/title-screen-landscape.png \
 	  artifacts/title_screen/title-screen.png
 
@@ -444,10 +391,10 @@ if [[ "$MODE" == "full" ]]; then
 		  printf '%s\n' '[L5] landscape district-building gallery scenario'
 	  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \
 	    -s selftest/district_building_gallery_scenario.gd
-	  jq -e '.done == true and .result == "PASS" and (.districts | length) == 5' \
+	  jq -e '.done == true and .result == "PASS" and (.districts | length) == 2' \
 	    artifacts/district_gallery/report.json >/dev/null
 	  test "$(find artifacts/district_gallery -maxdepth 1 -type f \
-	    -name '*-landscape.png' -size +0c | wc -l)" -eq 5
+	    -name '*-landscape.png' -size +0c | wc -l)" -eq 2
 	  while IFS= read -r gallery_shot; do
 	    grep -Fq '1280 x 720' <<< "$(file "$gallery_shot")"
 	  done < <(find artifacts/district_gallery -maxdepth 1 -type f \
@@ -456,10 +403,10 @@ if [[ "$MODE" == "full" ]]; then
 	  printf '%s\n' '[L5] portrait district-building gallery scenario'
 	  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
 	    --resolution 720x1280 -s selftest/district_building_gallery_scenario.gd
-	  jq -e '.done == true and .result == "PASS" and (.districts | length) == 5' \
+	  jq -e '.done == true and .result == "PASS" and (.districts | length) == 2' \
 	    artifacts/district_gallery/report.json >/dev/null
 	  test "$(find artifacts/district_gallery -maxdepth 1 -type f \
-	    -name '*-portrait.png' -size +0c | wc -l)" -eq 5
+	    -name '*-portrait.png' -size +0c | wc -l)" -eq 2
 	  while IFS= read -r gallery_shot; do
 	    grep -Fq '720 x 1280' <<< "$(file "$gallery_shot")"
 	  done < <(find artifacts/district_gallery -maxdepth 1 -type f \
@@ -513,7 +460,7 @@ if [[ "$MODE" == "full" ]]; then
 	  printf '%s\n' '[L5] Project CHOIR hybrid gallery landscape'
 	  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
 	    --resolution 1280x720 -s selftest/project_choir_enemy_gallery_scenario.gd
-	  jq -e '.done == true and .result == "PASS" and (.hybrids | length) == 6' \
+	  jq -e '.done == true and .result == "PASS" and (.hybrids | length) == 2' \
 	    artifacts/project_choir_enemies/report-landscape.json >/dev/null
 	  test -s artifacts/project_choir_enemies/hybrid-gallery-landscape.png
 	  grep -Fq '1280 x 720' \
@@ -536,7 +483,7 @@ if [[ "$MODE" == "full" ]]; then
 	    .done == true
 	    and .result == "PASS"
 	    and .orientation == "landscape"
-	    and (.boss_ids | length) == 5
+	    and (.boss_ids | length) == 2
 	    and ([.checks[].passed] | all)
 	  ' artifacts/boss_rig_gallery/report-landscape.json >/dev/null
 	  test -s artifacts/boss_rig_gallery/boss-rig-gallery-landscape.png
@@ -551,7 +498,7 @@ if [[ "$MODE" == "full" ]]; then
 	    .done == true
 	    and .result == "PASS"
 	    and .orientation == "portrait"
-	    and (.boss_ids | length) == 5
+	    and (.boss_ids | length) == 2
 	    and ([.checks[].passed] | all)
 	  ' artifacts/boss_rig_gallery/report-portrait.json >/dev/null
 	  test -s artifacts/boss_rig_gallery/boss-rig-gallery-portrait.png
@@ -582,59 +529,6 @@ if [[ "$MODE" == "full" ]]; then
 		  diff \
 			    <(jq -S '[.business.signature, .residential.signature]' artifacts/boss_vertical_slice/report-landscape.json) \
 			    <(jq -S '[.business.signature, .residential.signature]' artifacts/boss_vertical_slice/report-portrait.json)
-
-			  printf '%s\n' '[L5] Entertainment and Military boss escalation landscape'
-			  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
-			    --resolution 1280x720 -s selftest/boss_escalation_scenario.gd
-			  jq -e '.done == true and .result == "PASS" and .orientation == "landscape"
-			    and ([.checks[].passed] | all)' \
-			    artifacts/boss_escalation/report-landscape.json >/dev/null
-			  test -s artifacts/boss_escalation/entertainment-landscape.png
-			  test -s artifacts/boss_escalation/military-landscape.png
-
-			  printf '%s\n' '[L5] Entertainment and Military boss escalation portrait'
-			  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" \
-			    --audio-driver Dummy --path . --resolution 720x1280 \
-			    -s selftest/boss_escalation_scenario.gd
-			  jq -e '.done == true and .result == "PASS" and .orientation == "portrait"
-			    and ([.checks[].passed] | all)' \
-			    artifacts/boss_escalation/report-portrait.json >/dev/null
-			  test -s artifacts/boss_escalation/entertainment-portrait.png
-			  test -s artifacts/boss_escalation/military-portrait.png
-			  diff \
-			    <(jq -S '[.entertainment.signature, .military.signature]' artifacts/boss_escalation/report-landscape.json) \
-			    <(jq -S '[.entertainment.signature, .military.signature]' artifacts/boss_escalation/report-portrait.json)
-
-				  printf '%s\n' '[L5] Project CHOIR finale landscape'
-			  run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . \
-			    --resolution 1280x720 -s selftest/project_choir_finale_scenario.gd
-			  jq -e '.done == true and .result == "PASS" and .pylon_count == 5
-			    and .armor_connections == 3
-			    and .completion_payload.severance_windows_completed == 5
-			    and .ending_actions_valid == true' \
-		    artifacts/project_choir_finale/report-landscape.json >/dev/null
-	  test "$(find artifacts/project_choir_finale -maxdepth 1 -type f \
-	    -name '*-landscape.png' -size +0c | wc -l)" -eq 3
-	  while IFS= read -r finale_shot; do
-	    grep -Fq '1280 x 720' <<< "$(file "$finale_shot")"
-	  done < <(find artifacts/project_choir_finale -maxdepth 1 -type f \
-	    -name '*-landscape.png' | LC_ALL=C sort)
-
-	  printf '%s\n' '[L5] Project CHOIR finale portrait'
-			  PROTO_SCROLLER_PORTRAIT=1 run_engine xvfb-run -a "$GODOT" \
-			    --audio-driver Dummy --path . --resolution 720x1280 \
-			    -s selftest/project_choir_finale_scenario.gd
-			  jq -e '.done == true and .result == "PASS" and .pylon_count == 5
-			    and .armor_connections == 3
-			    and .completion_payload.severance_windows_completed == 5
-			    and .ending_actions_valid == true' \
-		    artifacts/project_choir_finale/report-portrait.json >/dev/null
-	  test "$(find artifacts/project_choir_finale -maxdepth 1 -type f \
-	    -name '*-portrait.png' -size +0c | wc -l)" -eq 3
-	  while IFS= read -r finale_shot; do
-	    grep -Fq '720 x 1280' <<< "$(file "$finale_shot")"
-	  done < <(find artifacts/project_choir_finale -maxdepth 1 -type f \
-	    -name '*-portrait.png' | LC_ALL=C sort)
 
   printf '%s\n' '[L5] windowed street-volatility render scenario'
   run_engine xvfb-run -a "$GODOT" --audio-driver Dummy --path . --resolution 1280x720 \

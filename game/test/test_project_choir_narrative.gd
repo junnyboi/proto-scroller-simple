@@ -117,7 +117,7 @@ func test_city_narrative_collects_once_without_background_and_survives_finish() 
 	city.run_lifecycle.robot_defeated()
 	assert_eq(store.continuity_generation(), 1)
 	assert_true(city.game_over_active)
-	assert_true(city.gameplay_hud.overlay_summary.text.contains("DOSSIERS 1/25"))
+	assert_true(city.gameplay_hud.overlay_summary.text.contains("DOSSIERS 1/10"))
 	assert_true(city.gameplay_hud.overlay_summary.text.contains("GENERATION 1"))
 
 
@@ -134,50 +134,6 @@ func test_all_district_facades_have_no_cross_section_background_nodes() -> void:
 				String(variant.variant_id)
 			)
 			_assert_no_cross_section_backgrounds(city)
-
-
-func test_entertainment_containment_breach_releases_two_bounded_crawler_variants() -> void:
-	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
-	add_child_autofree(city)
-	await get_tree().process_frame
-	city.urban_siege.stop_run()
-	city.encounter_runtime.release_all()
-	var entertainment_chunk: int = 2 * CityDistrictCatalog.CHUNKS_PER_DISTRICT
-	var district: CityDistrictProfile = CityDistrictCatalog.district_for_chunk(
-		entertainment_chunk
-	)
-	var variant: StructuralBuildingVariant = district.building_variants[0]
-	assert_true(city.building.apply_variant(variant))
-	var definition: DossierDefinition = DossierCatalog.definition_for_variant(variant.variant_id)
-	var release_id: StringName = city.project_choir_runtime._containment_variant_id(
-		variant.variant_id,
-		definition.trigger_column,
-		definition.trigger_row
-	)
-	assert_true(EnemyArchetypeCatalog.is_district_variant(release_id))
-	assert_eq(EnemyArchetypeCatalog.canonical_id(release_id), &"ossuary_crawler")
-	city.project_choir_runtime._on_building_cell_destroyed(
-		city.building,
-		definition.trigger_column,
-		definition.trigger_row,
-		null
-	)
-	assert_eq(
-		city.encounter_runtime.active_count(release_id),
-		EnemySpawnTuning.QUANTITY_MULTIPLIER
-	)
-	assert_eq(city.project_choir_runtime.containment_release_count(), 1)
-	city.project_choir_runtime._on_building_cell_destroyed(
-		city.building,
-		definition.trigger_column,
-		definition.trigger_row,
-		null
-	)
-	assert_eq(
-		city.encounter_runtime.active_count(release_id),
-		EnemySpawnTuning.QUANTITY_MULTIPLIER
-	)
-	assert_eq(city.project_choir_runtime.containment_release_count(), 1)
 
 
 func test_transmission_toast_is_bounded_deduped_and_nonblocking() -> void:

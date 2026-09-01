@@ -1,24 +1,8 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/title_screen.gd" id="1_script"]
 [ext_resource type="Theme" path="res://resources/title_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://art/ui/title_screen/command_deck_landscape.jpg" id="3_landscape"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBriefingTips"]
-bg_color = Color(0.00392157, 0.0196078, 0.0313725, 0.97)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.27451, 0.956863, 0.780392, 0.72)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-content_margin_left = 22.0
-content_margin_top = 14.0
-content_margin_right = 22.0
-content_margin_bottom = 14.0
 
 [sub_resource type="StyleBoxFlat" id="StyleChipPanel"]
 bg_color = Color(0.00392157, 0.027451, 0.0509804, 0.76)
@@ -35,12 +19,6 @@ content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
 content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxEmpty" id="StyleToggleEmpty"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id="StyleToggleFocus"]
 bg_color = Color(0.0117647, 0.0509804, 0.0862745, 0.72)
@@ -238,24 +216,6 @@ theme_override_styles/pressed = SubResource("StyleLanguagePressed")
 theme_override_styles/focus = SubResource("StyleToggleFocus")
 text = ""
 
-[node name="BriefingToggle" type="Button" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 850.0
-offset_top = 648.0
-offset_right = 1248.0
-offset_bottom = 706.0
-focus_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.301961, 0.454902, 0.470588, 1)
-theme_override_colors/font_hover_color = Color(0.345098, 0.909804, 0.811765, 1)
-theme_override_colors/font_focus_color = Color(0.345098, 0.909804, 0.811765, 1)
-theme_override_styles/normal = SubResource("StyleToggleEmpty")
-theme_override_styles/hover = SubResource("StyleToggleEmpty")
-theme_override_styles/pressed = SubResource("StyleToggleEmpty")
-theme_override_styles/focus = SubResource("StyleToggleFocus")
-text = ""
-
 [node name="SettingsButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -291,58 +251,6 @@ theme_override_styles/hover = SubResource("StyleLanguageHover")
 theme_override_styles/pressed = SubResource("StyleLanguagePressed")
 theme_override_styles/focus = SubResource("StyleToggleFocus")
 text = ""
-
-[node name="BriefingLayer" type="Control" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-
-[node name="BriefingBackground" type="ColorRect" parent="BriefingLayer"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0.0117647, 0.0235294, 1)
-
-[node name="BriefingBackdrop" type="Button" parent="BriefingLayer"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-focus_mode = 0
-mouse_default_cursor_shape = 2
-flat = true
-
-[node name="BriefingTipsPanel" type="PanelContainer" parent="BriefingLayer"]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 52.0
-offset_top = 474.0
-offset_right = 726.0
-offset_bottom = 628.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBriefingTips")
-
-[node name="BriefingTipsLabel" type="Label" parent="BriefingLayer/BriefingTipsPanel"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.870588, 1, 0.956863, 1)
-theme_override_constants/line_spacing = 4
-text = ""
-vertical_alignment = 1
 
 [node name="SettingsLayer" type="Control" parent="."]
 unique_name_in_owner = true

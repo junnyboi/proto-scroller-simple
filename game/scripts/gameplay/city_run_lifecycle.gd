@@ -3,6 +3,8 @@ extends Node
 
 signal run_finished(completed: bool, summary: RunSummarySnapshot)
 
+const ACT_COUNT: int = 2
+
 var city: CitySlice
 var _pending_ending_id: StringName = &"NONE"
 
@@ -81,7 +83,11 @@ func _boss_attempt_summary() -> RunSummarySnapshot:
 		)
 		run_metrics.run_seed = city.urban_siege.run_seed
 		run_metrics.cycle_count = city.urban_siege.cycle_count
-	var waves_cleared: int = clampi(city.encounter_director.phase_index + 1, 0, 6)
+	var waves_cleared: int = clampi(
+		city.encounter_director.phase_index + 1,
+		0,
+		ACT_COUNT
+	)
 	var summary: RunSummarySnapshot = city.rampage_session.snapshot_summary(
 		waves_cleared,
 		city.overdrive_session.activation_count,
@@ -151,16 +157,16 @@ func _on_combo_milestone(tier: int, _chain_count: int, _multiplier: int) -> void
 func _on_encounter_phase_changed(index: int, display_name: String) -> void:
 	city.gameplay_hud.set_objective("objective.act", {
 		"current": index + 1,
-		"total": 6,
+		"total": ACT_COUNT,
 		"name": L10n.t(display_name),
 	})
-	city.gameplay_hud.set_siege_progress(index, 6, display_name, false)
+	city.gameplay_hud.set_siege_progress(index, ACT_COUNT, display_name, false)
 
 
 func _on_beat_changed(act_index: int, _beat_index: int, _beat_id: StringName) -> void:
 	city.gameplay_hud.set_siege_progress(
 		act_index,
-		6,
+		ACT_COUNT,
 		city.encounter_director.current_phase_name(),
 		false
 	)
@@ -169,13 +175,14 @@ func _on_beat_changed(act_index: int, _beat_index: int, _beat_id: StringName) ->
 func _on_recovery_started(_duration: float) -> void:
 	city.gameplay_hud.set_siege_progress(
 		city.encounter_director.phase_index,
-		6,
+		ACT_COUNT,
 		city.encounter_director.current_phase_name(),
 		true
 	)
 
 
 func _on_directive_selected(profile: DirectiveProfile) -> void:
+	city.upgrade_assembler.session.set_presentation_blocked(false)
 	city.gameplay_hud.show_directive(
 		profile,
 		0,
@@ -186,6 +193,7 @@ func _on_directive_selected(profile: DirectiveProfile) -> void:
 
 
 func _on_directive_choices_offered(profiles: Array[DirectiveProfile]) -> void:
+	city.upgrade_assembler.session.set_presentation_blocked(true)
 	city.gameplay_hud.directive_choice_overlay.show_choices(profiles)
 
 
@@ -238,8 +246,10 @@ func _on_directive_withdrawn() -> void:
 
 
 func _on_district_completed() -> void:
-	if city.urban_siege.present_finale_choice():
-		return
+	_on_final_act_completed()
+
+
+func _on_final_act_completed() -> void:
 	city.urban_siege.prepare_terminal_choice()
 	city.gameplay_hud.show_cycle_choice(
 		city.urban_siege.cycle_count,
@@ -258,6 +268,7 @@ func _on_continue_pressed() -> void:
 	city.prepare_new_game_plus_world()
 	if city.urban_siege.continue_cycle():
 		_pending_ending_id = &"NONE"
+		city.upgrade_assembler.session.continue_cycle()
 		city.gameplay_hud.hide_terminal_overlay()
 		var recipe_key: String = (
 			"siege.recipe.%s" % String(city.urban_siege.selected_recipe.recipe_id).to_lower()
@@ -295,6 +306,7 @@ func _finish_run(completed: bool, ending_id: StringName = &"NONE") -> void:
 	if city.game_over_active:
 		return
 	city.game_over_active = true
+	city.upgrade_assembler.session.stop_run()
 	var run_metrics: Dictionary = {"completed": completed}
 	if not completed:
 		run_metrics.defeat_source_id = city.last_player_damage_source_id
@@ -325,10 +337,10 @@ func _finish_run(completed: bool, ending_id: StringName = &"NONE") -> void:
 	city.impact_feedback_pool.reset_runtime_state()
 	city.overdrive_session.end_overdrive()
 	city.mobile_controls.set_controls_enabled(true)
-	var waves_cleared: int = 6 if completed else clampi(
+	var waves_cleared: int = ACT_COUNT if completed else clampi(
 		city.encounter_director.phase_index + 1,
 		0,
-		6
+		ACT_COUNT
 	)
 	var summary: RunSummarySnapshot = city.rampage_session.freeze_summary(
 		waves_cleared,

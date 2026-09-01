@@ -6,9 +6,6 @@ const TRACKS: Dictionary[StringName, AudioStream] = {
 		"res://audio/music/bosses/settlement-engine-s04.ogg"
 	),
 	&"SAMARITAN_15": preload("res://audio/music/bosses/samaritan-15.ogg"),
-	&"MIMESIS_04": preload("res://audio/music/bosses/mimesis-04.ogg"),
-	&"CANTOR_31_PALE_ENGINE": preload("res://audio/music/bosses/cantor-31.ogg"),
-	&"CHOIR_PRIME": preload("res://audio/music/bosses/choir-prime.ogg"),
 }
 
 var player: AudioStreamPlayer

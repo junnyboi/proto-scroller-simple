@@ -4,13 +4,10 @@ const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
 const EXPECTED_EFFECTS: Dictionary = {
 	&"BUSINESS": &"acid_drizzle",
 	&"RESIDENTIAL": &"utility_rain",
-	&"ENTERTAINMENT": &"neon_drizzle",
-	&"MILITARY": &"wind_ash",
-	&"ROYAL": &"royal_embers",
 }
 
 
-func test_all_five_districts_have_unique_fixed_budget_weather_profiles() -> void:
+func test_both_districts_have_unique_fixed_budget_weather_profiles() -> void:
 	var city: CitySlice = await _spawn_city()
 	var weather: DistrictWeatherRuntime = city.get_node(^"DistrictWeather")
 	var baseline_nodes: int = _node_count(weather)
@@ -30,7 +27,7 @@ func test_all_five_districts_have_unique_fixed_budget_weather_profiles() -> void
 		effects[weather.active_effect()] = true
 	assert_eq(effects.size(), CityDistrictCatalog.DISTRICT_COUNT)
 	assert_eq(weather.post_warm_creation_count, 0)
-	assert_false(weather.transition_to(&"ROYAL"))
+	assert_false(weather.transition_to(&"UNKNOWN_DISTRICT"))
 	assert_false(weather.transition_to(&"UNKNOWN"))
 
 
@@ -72,8 +69,8 @@ func test_portrait_density_is_reduced_and_new_game_reset_returns_to_business() -
 	assert_eq(portrait_count, 81)
 	assert_lt(portrait_count, landscape_count)
 	assert_eq(weather.particle_count_for_viewport(&"UNKNOWN", Vector2.ONE), 0)
-	assert_true(weather.transition_to(&"ROYAL", true))
-	assert_eq(weather.active_effect(), &"royal_embers")
+	assert_true(weather.transition_to(&"RESIDENTIAL", true))
+	assert_eq(weather.active_effect(), &"utility_rain")
 	CityWorldBuilder.reset_environment(city)
 	assert_eq(weather.current_district_id, &"BUSINESS")
 	assert_eq(weather.active_effect(), &"acid_drizzle")

@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="DistrictMissionPool" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="DistrictMissionPool" format=3 uid="uid://orah7cdnxaa6"]
 
-[ext_resource type="Script" path="res://scripts/directives/district_mission_pool.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/directives/directive_profile.gd" id="2"]
+[ext_resource type="Script" uid="uid://bjkfr2tj1ibrf" path="res://scripts/directives/district_mission_pool.gd" id="1"]
+[ext_resource type="Script" uid="uid://d30gldvvy7fsl" path="res://scripts/directives/directive_profile.gd" id="2"]
 [ext_resource type="Resource" path="res://resources/directives/demolition_breach.tres" id="3"]
-[ext_resource type="Texture2D" path="res://art/ui/directives/breach.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://daijbg0xubn0j" path="res://art/ui/directives/breach.png" id="4"]
 
 [sub_resource type="Resource" id="AssetLiquidation"]
 script = ExtResource("2")

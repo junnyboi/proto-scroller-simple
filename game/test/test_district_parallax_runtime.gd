@@ -4,13 +4,10 @@ const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
 const EXPECTED_PATHS: Dictionary = {
 	&"BUSINESS": "res://art/city/parallax/districts/business_panorama.webp",
 	&"RESIDENTIAL": "res://art/city/parallax/districts/residential_panorama.webp",
-	&"ENTERTAINMENT": "res://art/city/parallax/districts/entertainment_panorama.webp",
-	&"MILITARY": "res://art/city/parallax/districts/military_panorama.webp",
-	&"ROYAL": "res://art/city/parallax/districts/royal_panorama.webp",
 }
 
 
-func test_all_five_districts_use_unique_prewarmed_panorama_assets() -> void:
+func test_both_districts_use_unique_prewarmed_panorama_assets() -> void:
 	var city: CitySlice = await _spawn_city()
 	var runtime: DistrictParallaxRuntime = city.get_node(^"ParallaxCity")
 	var baseline_nodes: int = _node_count(runtime)
@@ -84,7 +81,7 @@ func test_spatial_transition_crossfades_without_growing_the_scene_tree() -> void
 func test_reset_returns_to_business_and_preserves_origin_compensation() -> void:
 	var city: CitySlice = await _spawn_city()
 	var runtime: DistrictParallaxRuntime = city.get_node(^"ParallaxCity")
-	assert_true(runtime.transition_to(&"ROYAL", true))
+	assert_true(runtime.transition_to(&"RESIDENTIAL", true))
 	var offset: Vector2 = Vector2(-CityWorldStream.CHUNK_WIDTH * 3.0, 0.0)
 	runtime.compensate_origin(offset)
 	var far: Parallax2D = runtime.get_node(^"FarSkyline") as Parallax2D

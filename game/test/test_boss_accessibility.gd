@@ -26,19 +26,3 @@ func test_grayscale_presentation_does_not_change_damage_geometry() -> void:
 		assert_eq(rig.mechanical_signature(), geometry, definition.boss_id)
 		assert_gt(rig.active_part_count, 0, definition.boss_id)
 		assert_gt(rig.active_hurt_region_count, 0, definition.boss_id)
-
-
-func test_royal_pylons_keep_distinct_textual_identity_without_color() -> void:
-	var pool: BossUtilityPool = BossUtilityPool.new()
-	add_child_autofree(pool)
-	var identities: Dictionary[StringName, bool] = {}
-	var pylons: Array[StringName] = [&"LEDGER", &"NURSERY", &"STAGE", &"ARSENAL", &"CROWN"]
-	for index: int in range(pylons.size()):
-		assert_true(pool.configure_royal_pylon(index, pylons[index]))
-		var node: Node2D = pool.pylon_presentations[index]
-		var identity: StringName = node.get_meta(&"pylon_id", &"") as StringName
-		assert_eq(identity, pylons[index])
-		assert_false(identities.has(identity), identity)
-		identities[identity] = true
-		assert_true(node.name.to_upper().contains(String(identity)))
-	assert_eq(identities.size(), 5)

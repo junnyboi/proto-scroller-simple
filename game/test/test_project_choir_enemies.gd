@@ -22,10 +22,6 @@ func test_hybrid_profiles_reconfigure_existing_family_shells() -> void:
 	var pairs: Array[Array] = [
 		[&"bulwark", &"reclaimed_breacher"],
 		[&"jackal", &"graft_runner"],
-		[&"needle", &"choir_siren"],
-		[&"static", &"ossuary_crawler"],
-		[&"hive", &"seraph_carrier"],
-		[&"goliath", &"pale_engine"],
 	]
 	for pair: Array in pairs:
 		var baseline: ProceduralEnemy = runtime.acquire(
@@ -49,17 +45,11 @@ func test_spatial_resolver_is_deterministic_and_never_mutates_authored_entries()
 	var base: DistrictBeat = _family_beat()
 	var original: Array[StringName] = _kinds(base)
 	var districts: Array[StringName] = [
-		&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
+		&"BUSINESS", &"RESIDENTIAL",
 	]
 	var expected_eligible: Array[Array] = [
 		[],
 		[&"reclaimed_breacher", &"graft_runner"],
-		[&"choir_siren", &"ossuary_crawler", &"graft_runner"],
-		[&"seraph_carrier", &"pale_engine", &"graft_runner"],
-		[
-			&"reclaimed_breacher", &"graft_runner", &"choir_siren",
-			&"ossuary_crawler", &"seraph_carrier", &"pale_engine",
-		],
 	]
 	for index: int in range(districts.size()):
 		var first: DistrictBeat = HybridEncounterResolver.resolve_beat(
@@ -75,20 +65,15 @@ func test_spatial_resolver_is_deterministic_and_never_mutates_authored_entries()
 		)
 		if districts[index] == &"BUSINESS":
 			assert_ne(first, base)
-			for resolved_kind: StringName in _kinds(first):
-				assert_false(
-					resolved_kind in HybridEncounterResolver.eligible_hybrids(&"ROYAL"),
-					resolved_kind
-				)
+			for change: Dictionary in HybridEncounterResolver.substitutions(base, first):
+				assert_false(bool(change.get("hybrid_applied", false)))
 		else:
 			assert_gt(HybridEncounterResolver.substitutions(base, first).size(), 0)
 	assert_eq(_kinds(base), original)
 
 
-func test_authored_campaign_exposes_each_districts_complete_hybrid_roster() -> void:
-	for district_id: StringName in [
-		&"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
-	]:
+func test_two_act_campaign_exposes_residential_hybrid_roster() -> void:
+	for district_id: StringName in [&"RESIDENTIAL"]:
 		var seen: Dictionary[StringName, bool] = {}
 		for act_index: int in range(DISTRICT.acts.size()):
 			var act: DistrictAct = DISTRICT.acts[act_index]
@@ -104,10 +89,8 @@ func test_authored_campaign_exposes_each_districts_complete_hybrid_roster() -> v
 			assert_true(seen.has(hybrid_id), "%s/%s" % [district_id, hybrid_id])
 
 
-func test_authored_campaign_exposes_each_districts_complete_variant_roster() -> void:
-	for district_id: StringName in [
-		&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
-	]:
+func test_two_act_campaign_exposes_retained_district_variant_rosters() -> void:
+	for district_id: StringName in [&"BUSINESS", &"RESIDENTIAL"]:
 		var seen: Dictionary[StringName, bool] = {}
 		for run_seed: int in range(900, 940):
 			for act_index: int in range(DISTRICT.acts.size()):
@@ -119,16 +102,18 @@ func test_authored_campaign_exposes_each_districts_complete_variant_roster() -> 
 					for change: Dictionary in resolution.substitutions:
 						if bool(change.variant_applied):
 							seen[StringName(change.after)] = true
-		for variant_id: StringName in EnemyArchetypeCatalog.variants_for_district(
+		assert_gt(seen.size(), 0, district_id)
+		var available: Array[StringName] = EnemyArchetypeCatalog.variants_for_district(
 			district_id
-		):
-			assert_true(seen.has(variant_id), "%s/%s" % [district_id, variant_id])
+		)
+		for variant_id: StringName in seen:
+			assert_true(available.has(variant_id), "%s/%s" % [district_id, variant_id])
 
 
 func test_final_variant_resolution_preserves_family_threat_and_staged_trace() -> void:
 	var base: DistrictBeat = _family_beat()
 	for district_id: StringName in [
-		&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
+		&"BUSINESS", &"RESIDENTIAL",
 	]:
 		var resolution: Dictionary = HybridEncounterResolver.resolve_with_trace(
 			base, district_id, 3, 2, 2026
@@ -160,7 +145,7 @@ func test_final_variant_resolution_preserves_family_threat_and_staged_trace() ->
 				)
 
 
-func test_breacher_frontal_brace_and_pale_armor_are_independent() -> void:
+func test_breacher_frontal_brace_reduces_frontal_jab_damage() -> void:
 	city.robot.global_position = Vector2(800.0, 600.0)
 	var breacher: ProceduralEnemy = runtime.acquire(
 		&"reclaimed_breacher", Vector2(1100.0, 540.0)
@@ -175,50 +160,6 @@ func test_breacher_frontal_brace_and_pale_armor_are_independent() -> void:
 	)))
 	assert_almost_eq(breacher.current_health, 280.0, 0.01)
 	runtime.release(breacher)
-	var pale: ProceduralEnemy = runtime.acquire(
-		&"pale_engine", Vector2(1200.0, 482.0)
-	) as ProceduralEnemy
-	assert_almost_eq(pale.ablative_armor, 180.0, 0.01)
-	assert_true(pale.receive_damage(DamageEvent.new(
-		90_003, city.robot, 100.0, &"jab_cross", pale.global_position, Vector2.RIGHT
-	)))
-	assert_almost_eq(pale.current_health, pale.max_health, 0.01)
-	assert_almost_eq(pale.ablative_armor, 80.0, 0.01)
-	assert_true(pale.receive_damage(DamageEvent.new(
-		90_004, city.robot, 100.0, &"jab_cross", pale.global_position, Vector2.RIGHT
-	)))
-	assert_almost_eq(pale.current_health, pale.max_health - 20.0, 0.01)
-
-
-func test_siren_mark_enables_runner_and_seraph_deploys_bounded_pack() -> void:
-	city.robot.global_position = Vector2(800.0, 600.0)
-	var runner: ProceduralEnemy = runtime.acquire(
-		&"graft_runner", Vector2(1040.0, 554.0)
-	) as ProceduralEnemy
-	assert_false(runner._can_attack())
-	runtime.release(runner)
-	var siren: ProceduralEnemy = runtime.acquire(
-		&"choir_siren", Vector2(1200.0, 210.0)
-	) as ProceduralEnemy
-	siren._begin_attack()
-	assert_true(siren.is_telegraphing())
-	siren._complete_attack()
-	assert_gt(runtime.target_mark_remaining, 0.0)
-	runtime.release(siren)
-	runner = runtime.acquire(&"graft_runner", Vector2(1040.0, 554.0)) as ProceduralEnemy
-	assert_true(runner._can_attack())
-	runtime.release(runner)
-	var seraph: ProceduralEnemy = runtime.acquire(
-		&"seraph_carrier", Vector2(1260.0, 180.0)
-	) as ProceduralEnemy
-	seraph._begin_attack()
-	seraph._complete_attack()
-	assert_eq(runtime.active_count(&"graft_runner"), RuntimeBudget.PROCEDURAL_LIGHT)
-	assert_eq(seraph._spawned_children, RuntimeBudget.PROCEDURAL_LIGHT)
-	assert_eq(runtime.available_family_count(&"light"), 0)
-	runtime.release_all()
-	assert_eq(city.projectile_root.reservation_count(), 0)
-	assert_eq(city.telegraph_presenter.active_count(), 0)
 
 
 func test_hybrid_first_contact_transmission_fires_once_per_run() -> void:
@@ -257,59 +198,6 @@ func test_variant_support_reuses_exact_repair_and_mark_values() -> void:
 	assert_true(testament._complete_support_attack())
 	assert_almost_eq(runtime.target_mark_remaining, ProceduralEnemy.MARK_DURATION, 0.01)
 	runtime.release_all()
-	var lantern: ProceduralEnemy = runtime.acquire(
-		&"recall_lantern", Vector2(1100.0, 210.0)
-	) as ProceduralEnemy
-	assert_true(lantern._complete_support_attack())
-	assert_almost_eq(runtime.target_mark_remaining, ProceduralEnemy.MARK_DURATION + 1.0, 0.01)
-
-
-func test_concrete_variant_canonicalizes_first_contact_without_duplicate_event() -> void:
-	city.project_choir_runtime.director.transmission_requested.connect(
-		_capture_transmission
-	)
-	var double: ProceduralEnemy = runtime.acquire(
-		&"glassback_double", Vector2(1100.0, 554.0)
-	) as ProceduralEnemy
-	assert_eq(double.base_archetype_id, &"ossuary_crawler")
-	runtime.release(double)
-	var crawler: ProceduralEnemy = runtime.acquire(
-		&"ossuary_crawler", Vector2(1100.0, 552.0)
-	) as ProceduralEnemy
-	runtime.release(crawler)
-	assert_eq(transmission_ids.count(&"hybrid_ossuary_crawler_contact"), 1)
-
-
-func test_glassback_double_live_body_and_wreck_are_half_previous_size() -> void:
-	var archetype_id: StringName = &"glassback_double"
-	var profile: Dictionary = EnemyArchetypeCatalog.profile(archetype_id)
-	assert_true(EnemyArchetypeCatalog.is_ground_vehicle(archetype_id))
-	assert_almost_eq(
-		EnemyArchetypeCatalog.presentation_scale(archetype_id),
-		EnemyArchetypeCatalog.GROUND_VEHICLE_SCALE * 0.5,
-		0.001
-	)
-	var actor: ProceduralEnemy = runtime.acquire(
-		archetype_id, Vector2(1100.0, float(profile.spawn_y))
-	) as ProceduralEnemy
-	assert_not_null(actor)
-	var rendered_size: Vector2 = actor.visual.texture.get_size() * actor.visual.scale.abs()
-	assert_almost_eq(rendered_size.y, 100.0, 0.01)
-	assert_lte(rendered_size.x, 220.0)
-	var body: RectangleShape2D = (
-		actor.get_node(^"CollisionShape2D").shape as RectangleShape2D
-	)
-	var hurtbox: RectangleShape2D = (
-		actor.get_node(^"Hurtbox/CollisionShape2D").shape as RectangleShape2D
-	)
-	assert_eq(body.size, Vector2(190.0, 72.0))
-	assert_eq(hurtbox.size, Vector2(190.0, 72.0) * 1.12)
-	var wreck: EnemyWreck2D = city.enemy_remains_factory.spawn_wreck(
-		actor, DamageEvent.new(91_000, city.robot, actor.current_health)
-	)
-	assert_not_null(wreck)
-	assert_eq(wreck.display_size, Vector2(220.0, 100.0))
-	assert_eq(wreck.collision_size, Vector2(190.0, 72.0))
 
 
 func _capture_transmission(
@@ -326,7 +214,7 @@ func _family_beat() -> DistrictBeat:
 	var beat: DistrictBeat = DistrictBeat.new()
 	beat.beat_id = &"HYBRID_TEST"
 	beat.maximum_threat = 20
-	for kind: StringName in [&"bulwark", &"jackal", &"needle", &"goliath"]:
+	for kind: StringName in [&"bulwark", &"jackal", &"needle", &"lobber"]:
 		var entry: EnemySpawnEntry = EnemySpawnEntry.new()
 		entry.kind = String(kind)
 		beat.spawns.append(entry)

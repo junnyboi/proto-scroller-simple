@@ -17,11 +17,10 @@ signal district_arrived(district_id: StringName)
 signal evidence_recovered(evidence_id: StringName, drop_id: StringName)
 
 const DISTRICT_IDS: Array[StringName] = [
-	&"BUSINESS", &"RESIDENTIAL", &"ENTERTAINMENT", &"MILITARY", &"ROYAL",
+	&"BUSINESS", &"RESIDENTIAL",
 ]
 const HYBRID_IDS: Array[StringName] = [
-	&"reclaimed_breacher", &"graft_runner", &"choir_siren",
-	&"ossuary_crawler", &"seraph_carrier", &"pale_engine",
+	&"reclaimed_breacher", &"graft_runner",
 ]
 
 var campaign_progress: CampaignProgressStore
@@ -123,20 +122,12 @@ func handle_boss_completed(
 	if campaign_progress.has_transaction(transaction_id):
 		_active_boss = null
 		return true
-	if definition.evidence_flag_id == &"CROWN":
-		var crown_committed: bool = campaign_progress.has_transaction(
-			ProjectChoirRuntime.CROWN_PYLON_TRANSACTION_ID
-		)
-		_active_boss = null if crown_committed else _active_boss
-		return crown_committed
 	var capstone: DossierDefinition = DossierCatalog.capstone_for_boss(definition.boss_id)
 	if capstone == null:
 		return false
 	var evidence_ids: Array[StringName] = []
 	var optional_result: Dictionary = {}
-	if definition.evidence_flag_id == &"CROWN":
-		evidence_ids.append(&"CROWN")
-	elif definition.boss_id == &"SETTLEMENT_ENGINE_S04":
+	if definition.boss_id == &"SETTLEMENT_ENGINE_S04":
 		var archive_preserved: bool = bool(canonical_evidence_event.get(
 			"archive_preserved", false
 		))
@@ -156,33 +147,6 @@ func handle_boss_completed(
 			),
 			"rescue_tally": clampi(
 				int(canonical_evidence_event.get("rescue_tally", 4)), 0, 4
-			),
-		}
-	elif definition.boss_id == &"MIMESIS_04":
-		var record_preserved: bool = bool(canonical_evidence_event.get(
-			"stage_record_preserved", false
-		))
-		if record_preserved:
-			evidence_ids.append(&"STAGE")
-		optional_result = {
-			"stage_record_preserved": record_preserved,
-			"biological_termination_time": String(canonical_evidence_event.get(
-				"biological_termination_time", ""
-			)),
-			"continuity_boot_delay_seconds": float(canonical_evidence_event.get(
-				"continuity_boot_delay_seconds", 0.0
-			)),
-		}
-	elif definition.boss_id == &"CANTOR_31_PALE_ENGINE":
-		var export_preserved: bool = bool(canonical_evidence_event.get(
-			"arsenal_record_preserved", false
-		))
-		if export_preserved:
-			evidence_ids.append(&"ARSENAL")
-		optional_result = {
-			"arsenal_record_preserved": export_preserved,
-			"export_destinations": canonical_evidence_event.get(
-				"export_destinations", PackedStringArray()
 			),
 		}
 	var committed: bool = campaign_progress.commit_boss_transaction({

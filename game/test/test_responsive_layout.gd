@@ -40,7 +40,7 @@ func test_ultrawide_layout_uses_full_available_width() -> void:
 	await get_tree().process_frame
 	screen._apply_landscape_layout(Vector2(ULTRAWIDE_SIZE))
 	assert_eq((screen.get_node("%SettingsButton") as Control).get_rect().end.x, 2032.0)
-	assert_eq((screen.get_node("%BriefingToggle") as Control).get_rect().end.x, 2016.0)
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
 	assert_eq((screen.get_node("%SettingsPanel") as Control).position.x, 714.0)
 	var city: CitySlice = CITY_SCENE.instantiate() as CitySlice
 	add_child_autofree(city)
@@ -61,7 +61,6 @@ func test_title_reflows_inside_portrait_and_returns_to_landscape() -> void:
 	var background: TextureRect = screen.get_node("%BackgroundArt") as TextureRect
 	var instruction_label: Label = screen.get_node("%InstructionLabel") as Label
 	var initialize_button: Button = screen.get_node("%InitializeButton") as Button
-	var briefing_toggle: Button = screen.get_node("%BriefingToggle") as Button
 	var settings_button: Button = screen.get_node("%SettingsButton") as Button
 	var settings_panel: PanelContainer = screen.get_node("%SettingsPanel") as PanelContainer
 	assert_eq(background.texture.resource_path, "res://art/ui/title_screen/command_deck_portrait.jpg")
@@ -71,7 +70,7 @@ func test_title_reflows_inside_portrait_and_returns_to_landscape() -> void:
 	assert_null(screen.get_node_or_null("StatusRail"))
 	assert_null(screen.get_node_or_null("%ControlsLabel"))
 	assert_true(_inside_viewport(initialize_button, PORTRAIT_SIZE))
-	assert_true(_inside_viewport(briefing_toggle, PORTRAIT_SIZE))
+	assert_null(screen.get_node_or_null("%BriefingToggle"))
 	assert_true(_inside_viewport(settings_button, PORTRAIT_SIZE))
 	assert_eq(settings_button.position, Vector2(504.0, 20.0))
 	assert_eq(settings_button.get_rect().end.x, 704.0)
@@ -95,9 +94,6 @@ func test_title_reflows_inside_portrait_and_returns_to_landscape() -> void:
 			),
 			"Portrait %s escaped the settings panel." % control_name
 		)
-	assert_false(
-		initialize_button.get_global_rect().intersects(briefing_toggle.get_global_rect())
-	)
 	assert_gte(
 		(screen.get_node("%LanguageSelector") as Control).position.y,
 		initialize_button.get_rect().end.y + 16.0
@@ -108,7 +104,6 @@ func test_title_reflows_inside_portrait_and_returns_to_landscape() -> void:
 	assert_null(screen.get_node_or_null("StatusRail"))
 	assert_eq(instruction_label.get_visible_line_count(), instruction_label.get_line_count())
 	assert_eq(background.texture.resource_path, "res://art/ui/title_screen/command_deck_landscape.jpg")
-	assert_true(_inside_viewport(briefing_toggle, LANDSCAPE_SIZE))
 	assert_true(_inside_viewport(settings_button, LANDSCAPE_SIZE))
 	assert_eq(settings_button.position, Vector2(1068.0, 16.0))
 	assert_eq(settings_button.get_rect().end.x, 1264.0)
@@ -154,7 +149,7 @@ func test_city_portrait_hud_camera_and_mobile_controls_use_safe_zones() -> void:
 		hud_footprint.get_area() / (float(PORTRAIT_SIZE.x) * float(PORTRAIT_SIZE.y)),
 		0.08
 	)
-	assert_eq(city.gameplay_hud.siege_progress.segments.size(), 6)
+	assert_eq(city.gameplay_hud.siege_progress.segments.size(), 2)
 	assert_true(_inside_viewport(city.gameplay_hud.status_panel, PORTRAIT_SIZE))
 	assert_true(_inside_viewport(city.gameplay_hud.score_panel, PORTRAIT_SIZE))
 	assert_true(_inside_viewport(city.gameplay_hud.directive_card, PORTRAIT_SIZE))

@@ -39,6 +39,8 @@ func test_destroyed_building_and_prop_restore_after_slot_reuse() -> void:
 		^"DamagedVisual"
 	) as BuildingDamagePattern2D
 	var pattern_signature: String = partial_pattern.pattern_signature()
+	var detail_mask: int = partial_pattern.damage_detail_mask()
+	assert_gt(partial_pattern.damage_detail_count(), 0)
 	city.car.current_health = 1.0
 	city.car.receive_damage(_fatal_event(city, city.car, 31_002))
 	assert_true(cell.is_destroyed())
@@ -62,6 +64,9 @@ func test_destroyed_building_and_prop_restore_after_slot_reuse() -> void:
 		^"DamagedVisual"
 	) as BuildingDamagePattern2D
 	assert_eq(restored_pattern.pattern_signature(), pattern_signature)
+	assert_eq(restored_pattern.damage_detail_mask(), detail_mask)
+	assert_gt(restored_pattern.damage_detail_count(), 0)
+	assert_eq(restored_pattern.active_damage_effect_count(), 0)
 	assert_true(city.car.is_broken)
 	assert_ne(city.building.get_instance_id(), 0)
 	assert_eq(city.streamed_destructibles.post_warm_creation_count, 0)
@@ -163,7 +168,7 @@ func test_destroyed_cell_disables_hurtbox_and_reset_restores_it() -> void:
 	_record_test_execution()
 
 
-func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> void:
+func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> void:
 	var city: CitySlice = await _spawn_city()
 	var cell: Destructible2D = city.building.get_cell(1, 1)
 	var upper_cell: Destructible2D = city.building.get_cell(1, 0)
@@ -180,9 +185,38 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> v
 	assert_false(pattern.is_destroyed_stage())
 	assert_gt(_hollow_progress(pattern), 0.0)
 	var damaged_extents: Vector2 = _hollow_extents(pattern)
-	assert_null(pattern.get_node_or_null(^"DanglingCables"))
-	assert_null(pattern.get_node_or_null(^"BrokenWaterPipe"))
-	assert_null(pattern.get_node_or_null(^"SevereDamageFx"))
+	var cable: BuildingDamageAttachment2D = pattern.get_node(
+		^"DanglingCables"
+	) as BuildingDamageAttachment2D
+	var pipe: BuildingDamageAttachment2D = pattern.get_node(
+		^"BrokenWaterPipe"
+	) as BuildingDamageAttachment2D
+	assert_eq(cable.particles.name, "CableSparks")
+	assert_eq(pipe.particles.name, "WaterSpray")
+	assert_eq(pipe.display_size(), Vector2(31.5, 57.0))
+	assert_lte(
+		cable.particles.amount,
+		BuildingDamageAttachment2D.MAX_SPARK_PARTICLES
+	)
+	assert_lte(
+		pipe.particles.amount,
+		BuildingDamageAttachment2D.MAX_WATER_PARTICLES
+	)
+	assert_eq(pattern.damage_detail_count(), 1)
+	assert_true(
+		cable.visible
+		or pipe.visible
+		or (pattern.damage_detail_mask() & BuildingDamagePattern2D.FIRE_DETAIL_BIT) != 0
+	)
+	if cable.visible:
+		var initial_rotation: float = cable.rotation
+		for _step: int in range(8):
+			cable._process(0.1)
+		assert_ne(cable.rotation, initial_rotation)
+		assert_ne(pattern.cable_sway_offset(), 0.0)
+		assert_lte(absf(pattern.cable_sway_offset()), 0.26)
+	else:
+		assert_false(cable.is_processing())
 	assert_true(cell.receive_damage(_fatal_event(city, cell, 31_102)))
 	assert_true(cell.is_destroyed())
 	assert_true(pattern.visible)
@@ -192,9 +226,10 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> v
 	assert_gt(_hollow_extents(pattern).y, damaged_extents.y)
 	assert_eq(pattern.contour().size(), BuildingDamagePattern2D.CONTOUR_POINTS)
 	assert_gt(pattern.crack_count(), 0)
-	assert_null(pattern.get_node_or_null(^"DanglingCables"))
-	assert_null(pattern.get_node_or_null(^"BrokenWaterPipe"))
-	assert_null(pattern.get_node_or_null(^"SevereDamageFx"))
+	assert_eq(pattern.damage_detail_count(), 0)
+	assert_eq(pattern.damage_detail_mask(), 0)
+	assert_false(cable.is_processing())
+	assert_false(pipe.visible)
 	assert_almost_eq(
 		pattern.cavity_darken_strength(),
 		BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH,
@@ -239,6 +274,7 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> v
 	cell.restore_stream_state(captured)
 	assert_eq(pattern.pattern_signature(), signature)
 	assert_true(pattern.is_destroyed_stage())
+	assert_eq(pattern.damage_detail_count(), 0)
 	cell.restore_stream_state({"destroyed": true, "health": 0.0})
 	assert_true(cell.is_destroyed())
 	assert_true(pattern.visible)
@@ -247,6 +283,7 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> v
 		BuildingDamagePattern2D.RUIN_RUBBLE_SPRITE_COUNT
 	)
 	assert_gt(pattern.pattern_signature().length(), 0)
+	assert_eq(pattern.damage_detail_count(), 0)
 	_record_test_execution()
 
 
@@ -305,6 +342,8 @@ func test_damage_progressively_hollows_the_authored_facade_into_jagged_side_and_
 	assert_gt(0.5 - terminal_extents.x, 0.09)
 	assert_gt(BuildingDamagePattern2D.HOLLOW_CENTER_Y - terminal_extents.y, 0.09)
 	assert_gte(BuildingDamagePattern2D.HOLLOW_CENTER_Y + terminal_extents.y, 0.94)
+	assert_eq(pattern.damage_detail_count(), 0)
+	assert_eq(pattern.damage_detail_mask(), 0)
 	assert_gte(pattern.crack_count(), 1)
 	assert_lte(pattern.crack_count(), BuildingDamagePattern2D.BASE_CRACK_COUNT + 3)
 	assert_lt(BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH, 0.5)
@@ -340,91 +379,6 @@ func test_run_reset_clears_sparse_mutations_without_reallocating() -> void:
 			city.streamed_destructibles.buildings[index].get_instance_id(),
 			building_ids[index]
 		)
-	_record_test_execution()
-
-
-func test_authored_district_scales_enemy_and_hazard_pressure_inside_caps() -> void:
-	var city: CitySlice = await _spawn_city()
-	await _move_to_logical_chunk(city, CityDistrictCatalog.CHUNKS_PER_DISTRICT * 3)
-	assert_eq(city.world_stream.progression_tier(), 3)
-	assert_eq(city.world_stream.current_district_id, &"MILITARY")
-	var director: DistrictResponseDirector = city.urban_siege.director
-	director.stop()
-	city.encounter_runtime.release_all()
-	var act: DistrictAct = city.urban_siege.district.acts[3]
-	var beat: DistrictBeat = act.beats[0]
-	var business: DistrictPressureProfile = DistrictPressureCatalog.profile_by_index(0)
-	var military: DistrictPressureProfile = DistrictPressureCatalog.profile_by_index(3)
-	var base_copies: Dictionary[int, int] = director._progression_copy_plan(
-		beat,
-		business
-	)
-	var scaled_copies: Dictionary[int, int] = director._progression_copy_plan(
-		beat,
-		military
-	)
-	assert_eq(base_copies.size(), 0)
-	assert_gt(scaled_copies.size(), 0)
-	assert_lte(
-		director._planned_threat(beat, scaled_copies),
-		EnemySpawnTuning.scaled_threat(military.live_threat_ceiling)
-	)
-	var base_elites: Dictionary[int, StringName] = director._roll_elite_plan(act, beat, 0)
-	var scaled_elites: Dictionary[int, StringName] = director._roll_elite_plan(act, beat, 3)
-	assert_gte(scaled_elites.size(), base_elites.size())
-	var controller: HazardPressureController = city.urban_siege.hazard_pressure
-	controller.configure(4401, 1)
-	var base_hazards: Array[Dictionary] = controller.plan_for_beat(
-		3,
-		0,
-		act,
-		beat,
-		city.robot.global_position.x,
-		business
-	)
-	var base_budget: int = controller.last_used_budget
-	controller.configure(4401, 1)
-	var scaled_hazards: Array[Dictionary] = controller.plan_for_beat(
-		3,
-		0,
-		act,
-		beat,
-		city.robot.global_position.x,
-		military
-	)
-	assert_gte(scaled_hazards.size(), base_hazards.size())
-	assert_gte(controller.last_used_budget, base_budget)
-	assert_lte(controller.last_used_budget, RuntimeBudget.HAZARD_PRESSURE)
-	assert_lte(scaled_hazards.size(), RuntimeBudget.PENDING_HAZARDS)
-	city.encounter_runtime.release_all()
-	director.ledger.cancel_all()
-	director.phase_index = 3
-	director.beat_index = -1
-	director.state = director.STATE_WAITING
-	var active_scaled_copies: Dictionary[int, int] = director._progression_copy_plan(
-		beat,
-		military
-	)
-	director._try_start_next_beat()
-	var authored_pending: int = 0
-	var expected_pending: int = 0
-	for entry_index: int in range(beat.spawns.size()):
-		var entry: EnemySpawnEntry = beat.spawns[entry_index]
-		authored_pending += EnemySpawnTuning.scaled_count(
-			EnemyArchetypeCatalog.spawn_multiplier(StringName(entry.kind))
-		)
-		expected_pending += EnemySpawnTuning.scaled_count(
-			EnemyArchetypeCatalog.spawn_multiplier(StringName(entry.kind))
-			+ int(active_scaled_copies.get(entry_index, 0))
-		)
-	assert_gte(director._beat_pending.size(), authored_pending)
-	assert_lte(director._beat_pending.size(), expected_pending)
-	assert_eq(director.progression_peak_tier, 3)
-	assert_lte(
-		director.progression_peak_threat,
-		EnemySpawnTuning.scaled_threat(military.live_threat_ceiling)
-	)
-	assert_lte(director._hazard_pending.size(), RuntimeBudget.PENDING_HAZARDS)
 	_record_test_execution()
 
 

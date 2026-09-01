@@ -5,8 +5,6 @@ const MAX_FRAMES: int = 240
 const MINIMUM_TEXT_HEIGHT: float = 32.0
 const REPORT_PATH: String = "res://artifacts/title_screen/report.json"
 const SHOT_PATH: String = "res://artifacts/title_screen/title-screen.png"
-const BRIEFING_SHOT_PATH: String = "res://artifacts/title_screen/title-screen-briefing.png"
-const CODEX_SHOT_PATH: String = "res://artifacts/title_screen/title-screen-codex.png"
 const SETTINGS_SHOT_PATH: String = "res://artifacts/title_screen/title-screen-settings.png"
 const LEADERBOARD_LOCAL_SHOT_PATH: String = (
 	"res://artifacts/title_screen/title-screen-leaderboard-local.png"
@@ -56,16 +54,6 @@ func _run() -> void:
 		return
 
 	var screen: TitleScreen = scene_resource.instantiate() as TitleScreen
-	screen.configure_campaign({
-		"dossiers": PackedStringArray([
-			"dossier_business_mercy_exchange_annex",
-			"dossier_business_helix_clearinghouse_spine",
-			"dossier_business_orison_custody_vault",
-		]),
-		"dossier_count": 3,
-		"continuity_generation": 2,
-		"seen_endings": PackedStringArray(["PURGE", "DISENTANGLE"]),
-	})
 	screen.locale_preference_path = LANGUAGE_PREFERENCE_PATH
 	screen.audio_preference_path = AUDIO_PREFERENCE_PATH
 	screen.input_preference_path = INPUT_PREFERENCE_PATH
@@ -85,24 +73,30 @@ func _run() -> void:
 		"text=%s" % [title_label.text]
 	)
 	_check(
-		"begin_expedition_action",
-		button.text.contains(L10n.t("title.begin")),
+		"start_game_action",
+		button.text == L10n.t("title.begin"),
 		"text=%s" % [button.text]
 	)
 	_check(
-		"reign_of_terror_hook",
-		(screen.get_node("%InstructionLabel") as Label).text.contains(
-			"It's time to put an end to their reign of terror!"
-		),
+		"template_description",
+		(screen.get_node("%InstructionLabel") as Label).text
+		== "lightweight game template designed for rapid scaffolding and prototyping of 2d scroller style games",
 		"text=%s" % [(screen.get_node("%InstructionLabel") as Label).text]
 	)
 	_check("input_hint_removed", screen.get_node_or_null("HintLabel") == null, "removed=true")
-	_check_briefing_content(screen)
+	_check(
+		"field_briefing_removed",
+		screen.get_node_or_null("%BriefingToggle") == null
+		and screen.get_node_or_null("%BriefingLayer") == null,
+		"toggle=%s layer=%s" % [
+			screen.get_node_or_null("%BriefingToggle") != null,
+			screen.get_node_or_null("%BriefingLayer") != null,
+		]
+	)
 	_check_language_selector(screen)
 	_check("button_focused", button.has_focus(), "focused=%s" % [button.has_focus()])
 	_check_minimum_text_height(screen, button)
 	_check_layout_contract(screen, button)
-	_check_briefing_interaction(screen)
 
 	var shot_status: String = "SKIP"
 	var shot_path: String = ""
@@ -125,40 +119,6 @@ func _run() -> void:
 			image.get_size() == target_size,
 			"size=%s" % [image.get_size()]
 		)
-		screen.open_briefing()
-		await RenderingServer.frame_post_draw
-		var briefing_image: Image = root.get_texture().get_image()
-		var briefing_save_error: Error = briefing_image.save_png(
-			ProjectSettings.globalize_path(BRIEFING_SHOT_PATH)
-		)
-		_check(
-			"briefing_shot_saved",
-			briefing_save_error == OK,
-			"error=%s size=%s" % [briefing_save_error, briefing_image.get_size()]
-		)
-		screen.campaign_panel.codex_button.pressed.emit()
-		await RenderingServer.frame_post_draw
-		var codex_image: Image = root.get_texture().get_image()
-		var codex_save_error: Error = codex_image.save_png(
-			ProjectSettings.globalize_path(CODEX_SHOT_PATH)
-		)
-		_check(
-			"codex_shot_saved",
-			codex_save_error == OK,
-			"error=%s size=%s" % [codex_save_error, codex_image.get_size()]
-		)
-		_check(
-			"codex_progress_visible",
-			screen.dossier_codex.visible
-			and screen.dossier_codex.progress_label.text.contains("3 / 25"),
-			"visible=%s progress=%s" % [
-				screen.dossier_codex.visible,
-				screen.dossier_codex.progress_label.text,
-			]
-		)
-		_check_codex_header_clear(screen.dossier_codex)
-		screen.dossier_codex.close(false)
-		screen.close_briefing()
 		screen.open_settings()
 		(screen.get_node("%MasterVolumeSlider") as HSlider).value = 82.0
 		(screen.get_node("%MusicVolumeSlider") as HSlider).value = 35.0
@@ -288,28 +248,6 @@ func _run() -> void:
 	_finish(shot_status, shot_path)
 
 
-func _check_codex_header_clear(codex: DossierCodexOverlay) -> void:
-	var evidence_rect: Rect2 = codex.evidence_label.get_global_rect()
-	var list_rect: Rect2 = codex.dossier_list.get_global_rect()
-	var font: Font = codex.evidence_label.get_theme_font(&"font")
-	var font_size: int = codex.evidence_label.get_theme_font_size(&"font_size")
-	var rendered_bottom: float = (
-		evidence_rect.position.y
-		+ font.get_height(font_size) * float(codex.evidence_label.get_line_count())
-	)
-	_check(
-		"codex_header_clear_of_list",
-		list_rect.position.y >= rendered_bottom + 8.0,
-		"evidence=%s lines=%s rendered_bottom=%.2f list=%s"
-		% [
-			evidence_rect,
-			codex.evidence_label.get_line_count(),
-			rendered_bottom,
-			list_rect,
-		]
-	)
-
-
 func _check_minimum_text_height(screen: TitleScreen, button: Button) -> void:
 	var measured_controls: int = 0
 	var minimum_height: float = INF
@@ -328,17 +266,10 @@ func _check_minimum_text_height(screen: TitleScreen, button: Button) -> void:
 
 
 func _check_layout_contract(screen: TitleScreen, button: Button) -> void:
-	var briefing_toggle: Button = screen.get_node("%BriefingToggle") as Button
 	var language_selector: HBoxContainer = screen.get_node("%LanguageSelector") as HBoxContainer
 	var settings_button: Button = screen.get_node("%SettingsButton") as Button
 	var button_rect: Rect2 = button.get_global_rect()
-	var briefing_toggle_rect: Rect2 = briefing_toggle.get_global_rect()
 	var viewport_rect: Rect2 = Rect2(Vector2.ZERO, Vector2(root.size))
-	_check(
-		"action_briefing_separation",
-		not button_rect.intersects(briefing_toggle_rect),
-		"button=%s briefing=%s" % [button_rect, briefing_toggle_rect]
-	)
 	_check(
 		"language_below_launch",
 		language_selector.get_global_rect().position.y >= button_rect.end.y + 16.0,
@@ -365,56 +296,6 @@ func _check_layout_contract(screen: TitleScreen, button: Button) -> void:
 		"generated_art_fills_viewport",
 		background.get_global_rect() == viewport_rect,
 		"background=%s viewport=%s" % [background.get_global_rect(), viewport_rect]
-	)
-
-
-func _check_briefing_content(screen: TitleScreen) -> void:
-	var story: String = (screen.get_node("%InstructionLabel") as Label).text
-	var controls: String = (
-		screen.get_node("SemanticContract/BriefingControlsLabel") as Label
-	).text
-	var field_note: String = (screen.get_node("SemanticContract/FieldNote") as Label).text
-	var tips: String = (screen.get_node("%BriefingTipsLabel") as Label).text
-	var panel: Control = screen.get_node("SemanticContract") as Control
-	var briefing_text: String = ""
-	for label_node: Node in panel.find_children("*", "Label", true, false):
-		briefing_text += (label_node as Label).text + "\n"
-	_check(
-		"story_present",
-		story == L10n.t("title.command_hook"),
-		"text=%s" % [story]
-	)
-	_check(
-		"tutorial_present",
-			controls == L10n.t(
-				"title.controls_body",
-				InputBindingSettings.display_placeholders()
-			)
-			and field_note == L10n.t(
-				"title.field_note",
-				InputBindingSettings.display_placeholders()
-			),
-		"controls=%s note=%s" % [controls, field_note]
-	)
-	_check(
-		"objectives_present",
-		briefing_text.contains(L10n.t("title.primary_objective"))
-		and briefing_text.contains(L10n.t("title.objective_one"))
-		and briefing_text.contains(L10n.t("title.objective_three")),
-		"text=%s" % [briefing_text]
-	)
-	_check(
-		"enemy_and_retry_intel_present",
-		briefing_text.contains(L10n.t("title.enemy_intel"))
-		and briefing_text.contains(L10n.t("title.run_protocol")),
-		"text=%s" % [briefing_text]
-	)
-	_check(
-		"movement_melee_doctrine_present",
-		tips.count("\n") == 5
-		and tips
-		== L10n.t("briefing.tips_body", InputBindingSettings.display_placeholders()),
-		"tips=%s" % [tips]
 	)
 
 
@@ -460,47 +341,6 @@ func _check_language_selector(screen: TitleScreen) -> void:
 		and L10n.preferred_locale(LANGUAGE_PREFERENCE_PATH) == initial_locale,
 		"locale=%s persisted=%s"
 		% [L10n.current_locale(), L10n.preferred_locale(LANGUAGE_PREFERENCE_PATH)]
-	)
-
-
-func _check_briefing_interaction(screen: TitleScreen) -> void:
-	var briefing_layer: Control = screen.get_node("%BriefingLayer") as Control
-	var briefing_background: ColorRect = (
-		screen.get_node("%BriefingBackground") as ColorRect
-	)
-	var opened: bool = screen.open_briefing()
-	_check(
-		"briefing_opens",
-		opened and briefing_layer.visible,
-		"visible=%s" % [briefing_layer.visible]
-	)
-	_check(
-		"briefing_uses_minimal_background",
-		screen.get_node_or_null("%BriefingArt") == null
-		and briefing_background.color.a > 0.95,
-		"background=%s" % [briefing_background.color]
-	)
-	_check(
-		"briefing_shows_only_controls_and_archive_action",
-		screen.briefing_tips_panel.is_visible_in_tree()
-		and screen.campaign_panel.codex_button.is_visible_in_tree()
-		and not screen.campaign_panel.panel.visible
-		and not screen.campaign_panel.heading_label.visible
-		and not screen.campaign_panel.progress_label.visible
-		and not screen.campaign_panel.evidence_label.visible
-		and not screen.campaign_panel.continuity_label.visible
-		and not screen.campaign_panel.endings_label.visible,
-		"controls=%s archive=%s"
-		% [
-			screen.briefing_tips_panel.is_visible_in_tree(),
-			screen.campaign_panel.codex_button.is_visible_in_tree(),
-		]
-	)
-	var closed: bool = screen.close_briefing()
-	_check(
-		"briefing_closes",
-		closed and not briefing_layer.visible,
-		"visible=%s" % [briefing_layer.visible]
 	)
 
 

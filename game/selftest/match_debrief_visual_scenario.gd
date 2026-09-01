@@ -186,8 +186,8 @@ func _build_history(
 				"unique_enemy_types": 14 if index == 7 else 5 + index,
 				"enemy_kills": {
 					&"covenant_warden": 12 + index,
-					&"choir_siren": 4 + index,
-					&"pale_engine": index,
+					&"needle": 4 + index,
+					&"reclaimed_breacher": index,
 				},
 				"weapon_kills": weapon_kills,
 				"preferred_weapon": preferred_weapon,

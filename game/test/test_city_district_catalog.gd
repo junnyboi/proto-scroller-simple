@@ -1,7 +1,7 @@
 extends GutTest
 
 
-func test_catalog_has_five_districts_and_twenty_five_unique_buildings() -> void:
+func test_catalog_has_two_districts_and_ten_unique_buildings() -> void:
 	var districts: Array[CityDistrictProfile] = CityDistrictCatalog.districts()
 	assert_eq(districts.size(), CityDistrictCatalog.DISTRICT_COUNT)
 	var district_ids: Dictionary[StringName, bool] = {}
@@ -26,12 +26,12 @@ func test_forward_chunk_boundaries_select_the_authored_districts() -> void:
 		8: &"BUSINESS",
 		9: &"RESIDENTIAL",
 		17: &"RESIDENTIAL",
-		18: &"ENTERTAINMENT",
-		26: &"ENTERTAINMENT",
-		27: &"MILITARY",
-		35: &"MILITARY",
-		36: &"ROYAL",
-		96: &"ROYAL",
+		18: &"RESIDENTIAL",
+		26: &"RESIDENTIAL",
+		27: &"RESIDENTIAL",
+		35: &"RESIDENTIAL",
+		36: &"RESIDENTIAL",
+		96: &"RESIDENTIAL",
 	}
 	for logical_index: int in expectations:
 		var blueprint: CityChunkBlueprint = CityChunkBlueprint.generate(731, logical_index)

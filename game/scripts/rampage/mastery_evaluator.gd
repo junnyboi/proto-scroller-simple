@@ -5,7 +5,7 @@ extends RefCounted
 static func evaluate(metrics: Dictionary) -> Dictionary:
 	var sections: Dictionary[StringName, float] = {
 		&"DISTRICT": 25.0 if bool(metrics.get("completed", false)) else 0.0,
-		&"ACTS": clampf(float(metrics.get("highest_act", 0)) / 6.0, 0.0, 1.0) * 15.0,
+		&"ACTS": clampf(float(metrics.get("highest_act", 0)) / 2.0, 0.0, 1.0) * 15.0,
 		&"DEFENSE": maxf(20.0 - float(metrics.get("heavy_hits", 0)) * 4.0, 0.0),
 		&"VARIETY": minf(float(metrics.get("unique_actions", 0)), 5.0) * 3.0,
 		&"CAUSALITY": minf(float(metrics.get("causal_depth", 0)), 5.0) * 3.0,

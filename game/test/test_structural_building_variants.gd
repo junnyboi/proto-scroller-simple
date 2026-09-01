@@ -188,6 +188,8 @@ func test_all_twenty_five_facades_keep_alpha_and_every_section_can_break() -> vo
 						String(variant.variant_id)
 					)
 					assert_gt(pattern.crack_count(), 0, String(variant.variant_id))
+					assert_eq(pattern.damage_detail_count(), 0, String(variant.variant_id))
+					assert_eq(pattern.damage_detail_mask(), 0, String(variant.variant_id))
 					assert_almost_eq(
 						pattern.cavity_darken_strength(),
 						BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH,
@@ -371,7 +373,7 @@ func test_stream_state_restores_only_to_the_matching_variant() -> void:
 	assert_eq(building.destroyed_cell_count(), 0)
 
 
-func test_forward_boundaries_emit_four_spatial_district_transitions() -> void:
+func test_forward_boundary_emits_the_residential_transition() -> void:
 	var city: CitySlice = await _spawn_city()
 	var transitions: Array[Dictionary] = []
 	city.world_stream.district_changed.connect(
@@ -382,20 +384,17 @@ func test_forward_boundaries_emit_four_spatial_district_transitions() -> void:
 				"chunk": chunk,
 			})
 	)
-	for logical_index: int in [7, 14, 21, 28]:
+	for logical_index: int in [9]:
 		_unlock_current_district(city.world_stream)
 		await _move_to_logical_chunk(city, logical_index)
-	assert_eq(transitions.size(), 4)
+		assert_false(city.weapon_shop_assembler.session.active)
+	assert_eq(transitions.size(), 1)
 	assert_eq(transitions[0].previous, &"BUSINESS")
 	assert_eq(transitions[0].district, &"RESIDENTIAL")
-	assert_eq(transitions[0].chunk, 7)
-	assert_eq(transitions[1].district, &"ENTERTAINMENT")
-	assert_eq(transitions[2].district, &"MILITARY")
-	assert_eq(transitions[3].district, &"ROYAL")
-	assert_eq(transitions[3].chunk, 28)
-	assert_eq(city.world_stream.current_district_id, &"ROYAL")
-	assert_eq(city.world_stream.current_district().district_id, &"ROYAL")
-	assert_eq(city.district_transition_banner.presentation_count, 4)
+	assert_eq(transitions[0].chunk, 9)
+	assert_eq(city.world_stream.current_district_id, &"RESIDENTIAL")
+	assert_eq(city.world_stream.current_district().district_id, &"RESIDENTIAL")
+	assert_eq(city.district_transition_banner.presentation_count, 1)
 	assert_true(city.district_transition_banner.panel.visible)
 
 

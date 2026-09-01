@@ -3,14 +3,11 @@ extends RefCounted
 
 const DOSSIER_DIRECTORY: String = "res://resources/narrative/dossiers"
 const EVIDENCE_FLAGS: Array[StringName] = [
-	&"LEDGER", &"NURSERY", &"STAGE", &"ARSENAL", &"CROWN",
+	&"LEDGER", &"NURSERY",
 ]
 const LEGACY_CAPSTONE_ALIASES: Dictionary = {
 	&"dossier_business_crown_reserve_treasury": &"B05_EASTBOUND_CONSIDERATION",
 	&"dossier_residential_nightglass_mutual_clinic": &"ASHWATER_INTAKE_MANIFEST",
-	&"dossier_entertainment_house_of_static": &"AUDIENCE_OF_ONE_0417_CONTINUITY",
-	&"dossier_military_prefect_war_keep": &"EXPORT_LITANY_31",
-	&"dossier_royal_palace_last_sovereign": &"CROWN_05_CONSENT_EXCISION_ORDER",
 }
 
 static var _definitions: Array[DossierDefinition] = []
@@ -79,9 +76,15 @@ static func validation_errors() -> PackedStringArray:
 			% [_definitions.size(), CityDistrictCatalog.BUILDING_VARIANT_COUNT]
 		)
 	if _capstones_by_boss.size() != BossCampaignCatalog.DEFINITION_COUNT:
-		errors.append("capstone_count=%d expected=5" % _capstones_by_boss.size())
+		errors.append(
+			"capstone_count=%d expected=%d"
+			% [_capstones_by_boss.size(), BossCampaignCatalog.DEFINITION_COUNT]
+		)
 	if EVIDENCE_FLAGS.size() != BossCampaignCatalog.DEFINITION_COUNT:
-		errors.append("evidence_count=%d expected=5" % EVIDENCE_FLAGS.size())
+		errors.append(
+			"evidence_count=%d expected=%d"
+			% [EVIDENCE_FLAGS.size(), BossCampaignCatalog.DEFINITION_COUNT]
+		)
 	var district_counts: Dictionary[StringName, int] = {}
 	var dossier_ids: Dictionary[StringName, bool] = {}
 	var variant_ids: Dictionary[StringName, bool] = {}

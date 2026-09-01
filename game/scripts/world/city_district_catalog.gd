@@ -1,7 +1,7 @@
 class_name CityDistrictCatalog
 extends RefCounted
 
-const DISTRICT_COUNT: int = 5
+const DISTRICT_COUNT: int = 2
 const VARIANTS_PER_DISTRICT: int = 5
 const FACADE_ENCOUNTERS_PER_DISTRICT: int = 7
 const FACADE_PASSES_PER_DISTRICT: int = 2
@@ -59,51 +59,6 @@ const FACADE_TEXTURE_PATHS: Dictionary = {
 	),
 	&"residential_nightglass_mutual_clinic": (
 		"res://art/city/destructibles/districts/residential/nightglass_mutual_clinic.png"
-	),
-	&"entertainment_voltage_chapel": (
-		"res://art/city/destructibles/districts/entertainment/voltage_chapel.png"
-	),
-	&"entertainment_orpheum_vanta": (
-		"res://art/city/destructibles/districts/entertainment/orpheum_vanta.png"
-	),
-	&"entertainment_halcyon_stack_hotel": (
-		"res://art/city/destructibles/districts/entertainment/halcyon_stack_hotel.png"
-	),
-	&"entertainment_prism_crown_revue": (
-		"res://art/city/destructibles/districts/entertainment/prism_crown_revue.png"
-	),
-	&"entertainment_house_of_static": (
-		"res://art/city/destructibles/districts/entertainment/house_of_static_casino_hotel.png"
-	),
-	&"military_ordnance_transload_bastion": (
-		"res://art/city/destructibles/districts/military/ordnance_transload_bastion.png"
-	),
-	&"military_revetment_armory_stack": (
-		"res://art/city/destructibles/districts/military/revetment_armory_stack.png"
-	),
-	&"military_aegis_signal_citadel": (
-		"res://art/city/destructibles/districts/military/aegis_signal_citadel.png"
-	),
-	&"military_manticore_repair_gantry": (
-		"res://art/city/destructibles/districts/military/manticore_siege_repair_gantry.png"
-	),
-	&"military_prefect_war_keep": (
-		"res://art/city/destructibles/districts/military/prefect_war_keep.png"
-	),
-	&"royal_laureate_processional_gate": (
-		"res://art/city/destructibles/districts/royal/laureate_processional_gate.png"
-	),
-	&"royal_aurelian_conservatory": (
-		"res://art/city/destructibles/districts/royal/aurelian_menagerie_conservatory.png"
-	),
-	&"royal_tribunal_nine_seals": (
-		"res://art/city/destructibles/districts/royal/tribunal_of_nine_seals.png"
-	),
-	&"royal_ministry_privilege_spire": (
-		"res://art/city/destructibles/districts/royal/ministry_of_privilege_spire.png"
-	),
-	&"royal_palace_last_sovereign": (
-		"res://art/city/destructibles/districts/royal/palace_of_last_sovereign.png"
 	),
 }
 
@@ -367,156 +322,6 @@ static func _ensure_catalog() -> void:
 					["glass", "concrete", "steel", "glass", "concrete", "steel"],
 					&"clinic_blackout_backfeed",
 					Color("e6f6f7")
-				),
-			]
-		),
-		_district(
-			2,
-			&"ENTERTAINMENT",
-			"The Afterglow Strip",
-			Color("2d3038"),
-			Color("e33c8f"),
-			"../docs/concepts/districts/entertainment-district-concept.jpg",
-			[
-				_variant(
-					&"entertainment_voltage_chapel",
-					"Voltage Chapel",
-					Vector2(420.0, 360.0),
-					["concrete", "steel", "concrete", "glass", "concrete", "steel"],
-					&"switchgear_arc_cascade",
-					Color("e0f9fa")
-				),
-				_variant(
-					&"entertainment_orpheum_vanta",
-					"Orpheum Vanta",
-					Vector2(540.0, 410.0),
-					["concrete", "glass", "steel", "glass", "concrete", "steel"],
-					&"marquee_anchor_peel",
-					Color("f6e1ed")
-				),
-				_variant(
-					&"entertainment_halcyon_stack_hotel",
-					"Halcyon Stack Hotel",
-					Vector2(470.0, 500.0),
-					["glass", "steel", "concrete", "glass", "concrete", "steel"],
-					&"hotel_pump_core_spill",
-					Color("e0f0f2")
-				),
-				_variant(
-					&"entertainment_prism_crown_revue",
-					"Prism Crown Revue",
-					Vector2(610.0, 390.0),
-					["concrete", "steel", "concrete", "concrete", "glass", "steel"],
-					&"pyrotechnic_crown_flash",
-					Color("f0dff5")
-				),
-				_variant(
-					&"entertainment_house_of_static",
-					"House of Static Casino Hotel",
-					Vector2(570.0, 500.0),
-					["concrete", "steel", "concrete", "glass", "concrete", "steel"],
-					&"neon_crownfall",
-					Color("f4deed")
-				),
-			]
-		),
-		_district(
-			3,
-			&"MILITARY",
-			"The Iron Corridor",
-			Color("343a39"),
-			Color("d99a3d"),
-			"../docs/concepts/districts/military-district-concept.jpg",
-			[
-				_variant(
-					&"military_ordnance_transload_bastion",
-					"Ordnance Transload Bastion",
-					Vector2(620.0, 350.0),
-					["concrete", "steel", "concrete", "steel", "concrete", "steel"],
-					&"ordnance_horizontal_cookoff",
-					Color("e7e2d2")
-				),
-				_variant(
-					&"military_revetment_armory_stack",
-					"Revetment Armory Stack",
-					Vector2(390.0, 330.0),
-					["concrete", "steel", "concrete", "steel", "concrete", "steel"],
-					&"vault_cassette_unzip",
-					Color("dfe2d5")
-				),
-				_variant(
-					&"military_aegis_signal_citadel",
-					"Aegis Signal Citadel",
-					Vector2(420.0, 500.0),
-					["steel", "concrete", "steel", "steel", "concrete", "steel"],
-					&"antenna_blackout_collapse",
-					Color("d9e4e5")
-				),
-				_variant(
-					&"military_manticore_repair_gantry",
-					"Manticore Siege Repair Gantry",
-					Vector2(650.0, 390.0),
-					["concrete", "steel", "concrete", "steel", "glass", "steel"],
-					&"gantry_rail_buckle",
-					Color("e4e1d5")
-				),
-				_variant(
-					&"military_prefect_war_keep",
-					"Prefect War Keep",
-					Vector2(560.0, 500.0),
-					["concrete", "steel", "concrete", "steel", "concrete", "steel"],
-					&"command_breach_kneel",
-					Color("e1ded3")
-				),
-			]
-		),
-		_district(
-			4,
-			&"ROYAL",
-			"The Crownward",
-			Color("3a3737"),
-			Color("9a7746"),
-			"../docs/concepts/districts/royal-district-concept.jpg",
-			[
-				_variant(
-					&"royal_laureate_processional_gate",
-					"Laureate Processional Gate",
-					Vector2(540.0, 400.0),
-					["concrete", "steel", "concrete", "concrete", "glass", "concrete"],
-					&"keystone_entablature_unzip",
-					Color("eee1c8")
-				),
-				_variant(
-					&"royal_aurelian_conservatory",
-					"Aurelian Menagerie Conservatory",
-					Vector2(620.0, 400.0),
-					["glass", "glass", "glass", "concrete", "steel", "concrete"],
-					&"crystal_vault_rain",
-					Color("e0f2ec")
-				),
-				_variant(
-					&"royal_tribunal_nine_seals",
-					"Tribunal of the Nine Seals",
-					Vector2(650.0, 470.0),
-					["concrete", "glass", "concrete", "concrete", "steel", "concrete"],
-					&"sentence_gallery_collapse",
-					Color("eee4d5")
-				),
-				_variant(
-					&"royal_ministry_privilege_spire",
-					"Ministry of Privilege Spire",
-					Vector2(420.0, 540.0),
-					["steel", "glass", "steel", "concrete", "steel", "concrete"],
-					&"archive_spine_zipper",
-					Color("e4ded2")
-				),
-				_variant(
-					&"royal_palace_last_sovereign",
-					"Palace of the Last Sovereign",
-					Vector2(680.0, 540.0),
-					["concrete", "steel", "concrete", "steel", "concrete", "steel"],
-					&"sovereign_crownfall",
-					Color("eee0c8")
 				),
 			]
 		),

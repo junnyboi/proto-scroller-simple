@@ -5,11 +5,12 @@ const ACTIVE_COLOR: Color = Color("f1b36f")
 const COMPLETE_COLOR: Color = Color("5dc9c2")
 const INACTIVE_COLOR: Color = Color(0.10, 0.14, 0.17, 0.92)
 const RECOVERY_COLOR: Color = Color("8ad7ff")
+const MAX_ACTS: int = 2
 
 var segments: Array[ColorRect] = []
 var label: Label
 var current_index: int = 0
-var total_acts: int = 6
+var total_acts: int = MAX_ACTS
 var recovery_active: bool = false
 var compact_mode: bool = false
 
@@ -23,7 +24,7 @@ func _ready() -> void:
 	label.add_theme_font_size_override(&"font_size", 14)
 	label.modulate = ACTIVE_COLOR
 	add_child(label)
-	for index: int in range(6):
+	for index: int in range(MAX_ACTS):
 		var segment: ColorRect = ColorRect.new()
 		segment.position = Vector2(float(index) * 82.0 + 8.0, 22.0)
 		segment.size = Vector2(72.0, 6.0)
@@ -35,8 +36,8 @@ func _ready() -> void:
 
 
 func set_progress(index: int, total: int, display_name: String, recovery: bool) -> void:
-	current_index = clampi(index, 0, 5)
-	total_acts = clampi(total, 1, 6)
+	current_index = clampi(index, 0, MAX_ACTS - 1)
+	total_acts = clampi(total, 1, MAX_ACTS)
 	recovery_active = recovery
 	if label != null:
 		label.text = L10n.t("siege.progress", {
@@ -67,8 +68,8 @@ func apply_width(available_width: float) -> void:
 	var gap: float = 4.0 if compact_mode else 10.0
 	var inset: float = 4.0 if compact_mode else 8.0
 	var segment_width: float = (
-		available_width - inset * 2.0 - gap * 5.0
-	) / 6.0
+		available_width - inset * 2.0 - gap * float(MAX_ACTS - 1)
+	) / float(MAX_ACTS)
 	for index: int in range(segments.size()):
 		segments[index].position = Vector2(
 			inset + float(index) * (segment_width + gap),

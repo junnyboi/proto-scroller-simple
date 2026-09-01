@@ -12,7 +12,7 @@ func test_every_airborne_archetype_spawns_as_a_physical_crash() -> void:
 	await get_tree().process_frame
 
 	var airborne_archetypes: Array[StringName] = _airborne_archetypes()
-	assert_eq(airborne_archetypes.size(), 12)
+	assert_eq(airborne_archetypes.size(), 4)
 	for index: int in range(airborne_archetypes.size()):
 		var archetype_id: StringName = airborne_archetypes[index]
 		var profile: Dictionary = EnemyArchetypeCatalog.profile(archetype_id)
