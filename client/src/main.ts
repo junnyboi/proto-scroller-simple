@@ -1,12 +1,5 @@
 import "./index.css";
-import {
-  calculateLoadingPercent,
-  createGodotFileSizes,
-  DownloadTelemetryTracker,
-  formatDownloadSpeed,
-  formatEta,
-  loadingStage,
-} from "./lib/godotLoaderState";
+import { createGodotFileSizes } from "./lib/godotLoaderState";
 import {
   calculateWebRenderResolution,
   selectWebRenderTier,
@@ -83,8 +76,6 @@ const REMOTE_ENGINE_PATH = "/manus-storage/game_e2f01e77";
 const REMOTE_PACK_PATH = `/manus-storage/game_ffe4d3c1.pck?v=${GAME_PACK_VERSION}`;
 const ENGINE_WASM_BYTES = 39_513_091;
 const GAME_PACK_BYTES = 7_763_444;
-const SLOW_LOAD_NOTICE_MS = 15_000;
-const RETRY_NOTICE_MS = 45_000;
 const searchParameters = new URLSearchParams(window.location.search);
 const root = document.getElementById("root");
 
@@ -111,30 +102,13 @@ root.innerHTML = `
       <source media="(orientation: portrait)" src="/title-video/title-loop-portrait.mp4" type="video/mp4" />
       <source src="/title-video/title-loop-landscape.mp4" type="video/mp4" />
     </video>
-    <canvas id="canvas" class="game-canvas" tabindex="0" aria-label="Proto Scroller">
+    <canvas id="canvas" class="game-canvas" tabindex="0" aria-label="Game template - scroller">
       Your browser does not support the canvas element.
     </canvas>
     <section id="runtime-state" class="runtime-state" role="status" aria-live="polite">
-      <div class="loader-console">
-        <p class="loader-kicker">PROTO SCROLLER // WEB RUNTIME</p>
-        <p id="loader-stage" class="loader-stage">PREPARING ENGINE</p>
-        <div class="loader-progress-row">
-          <progress id="loader-progress" class="loader-progress" max="100"></progress>
-          <span id="loader-percent" class="loader-percent">CONNECTING</span>
-        </div>
-        <dl class="loader-telemetry" aria-label="Download telemetry">
-          <div class="loader-telemetry-item">
-            <dt>SPEED</dt>
-            <dd id="loader-speed">MEASURING</dd>
-          </div>
-          <div class="loader-telemetry-item">
-            <dt>ETA</dt>
-            <dd id="loader-eta">CALCULATING</dd>
-          </div>
-        </dl>
-        <p id="loader-detail" class="loader-detail">Loading the Web runtime…</p>
-        <button id="loader-retry" class="loader-retry" type="button" hidden>RETRY DOWNLOAD</button>
-      </div>
+      <img class="runtime-splash" src="/game/game.png" alt="" />
+      <progress id="runtime-progress" class="runtime-progress"></progress>
+      <div id="runtime-notice" class="runtime-notice"></div>
     </section>
   </main>
 `;
@@ -554,21 +528,13 @@ window.addEventListener("resize", () => selectTitleVideoSource(), {
 });
 selectTitleVideoSource();
 const runtimeState = requireElement<HTMLElement>("runtime-state");
-const loaderStage = requireElement<HTMLElement>("loader-stage");
-const loaderProgress = requireElement<HTMLProgressElement>("loader-progress");
-const loaderPercent = requireElement<HTMLElement>("loader-percent");
-const loaderSpeed = requireElement<HTMLElement>("loader-speed");
-const loaderEta = requireElement<HTMLElement>("loader-eta");
-const loaderDetail = requireElement<HTMLElement>("loader-detail");
-const loaderRetry = requireElement<HTMLButtonElement>("loader-retry");
+const runtimeProgress = requireElement<HTMLProgressElement>("runtime-progress");
+const runtimeNotice = requireElement<HTMLElement>("runtime-notice");
 const renderTier = selectWebRenderTier(
   searchParameters.get("renderTier"),
   navigator.maxTouchPoints
 );
 let resizeFrame = 0;
-let loadingComplete = false;
-let latestPercent: number | null = null;
-const downloadTelemetry = new DownloadTelemetryTracker();
 
 window.protoScrollerSetTitleBackdropActive = (active: boolean): void => {
   document.body.classList.toggle("title-backdrop-active", active);
@@ -587,8 +553,6 @@ titleVideoBackdrop.addEventListener(
 // Smoke capture may observe the decoded impact frame; synchronization remains rAF-driven.
 titleVideoBackdrop.requestVideoFrameCallback?.(() => undefined);
 window.protoScrollerSetTitleBackdropActive(true);
-
-loaderRetry.addEventListener("click", () => window.location.reload());
 
 function updateCanvasResolution(): void {
   const bounds = canvas.getBoundingClientRect();
@@ -611,40 +575,21 @@ function queueCanvasResolutionUpdate(): void {
   resizeFrame = window.requestAnimationFrame(updateCanvasResolution);
 }
 
-function formatMebibytes(bytes: number): string {
-  return `${(bytes / 1_048_576).toFixed(1)} MiB`;
-}
-
 function showDownloadProgress(current: number, total: number): void {
-  const percent = calculateLoadingPercent(current, total);
-  const telemetry = downloadTelemetry.sample(current, total, performance.now());
-  latestPercent = percent;
-  if (percent === null) {
-    loaderProgress.removeAttribute("value");
-    loaderPercent.textContent = "CONNECTING";
-    loaderSpeed.textContent = "MEASURING";
-    loaderEta.textContent = "CALCULATING";
-    return;
+  if (current > 0 && total > 0) {
+    runtimeProgress.value = current;
+    runtimeProgress.max = total;
+  } else {
+    runtimeProgress.removeAttribute("value");
+    runtimeProgress.removeAttribute("max");
   }
-
-  loaderProgress.value = percent;
-  loaderPercent.textContent = `${percent}%`;
-  loaderSpeed.textContent = formatDownloadSpeed(telemetry.bytesPerSecond);
-  loaderEta.textContent = formatEta(telemetry.etaSeconds);
-  loaderStage.textContent = loadingStage(percent);
-  loaderDetail.textContent = `${formatMebibytes(current)} / ${formatMebibytes(total)}`;
 }
 
 function showError(message: string): void {
   console.error(message);
-  runtimeState.classList.add("is-error");
-  loaderStage.textContent = "LOAD FAILED";
-  loaderPercent.textContent = "OFFLINE";
-  loaderSpeed.textContent = "—";
-  loaderEta.textContent = "RETRY";
-  loaderDetail.textContent = message;
-  loaderProgress.hidden = true;
-  loaderRetry.hidden = false;
+  runtimeProgress.hidden = true;
+  runtimeNotice.textContent = message;
+  runtimeNotice.hidden = false;
 }
 
 function nextPaint(): Promise<void> {
@@ -655,21 +600,6 @@ updateCanvasResolution();
 window.addEventListener("resize", queueCanvasResolutionUpdate, {
   passive: true,
 });
-
-const slowLoadTimer = window.setTimeout(() => {
-  if (loadingComplete) return;
-  loaderDetail.textContent =
-    latestPercent === null
-      ? "Connecting to game storage. This can take longer on a cold deployment…"
-      : `${loaderPercent.textContent} received. Initializing the ${formatMebibytes(ENGINE_WASM_BYTES + GAME_PACK_BYTES)} runtime…`;
-}, SLOW_LOAD_NOTICE_MS);
-
-const retryTimer = window.setTimeout(() => {
-  if (loadingComplete) return;
-  loaderDetail.textContent =
-    "Loading is taking longer than expected. You can retry safely.";
-  loaderRetry.hidden = false;
-}, RETRY_NOTICE_MS);
 
 async function startEngine(): Promise<void> {
   const Engine = window.Engine;
@@ -712,20 +642,8 @@ async function startEngine(): Promise<void> {
     mainPack,
   });
 
-  loaderStage.textContent = "DOWNLOADING GAME DATA";
-  loaderDetail.textContent = "Downloading engine and game pack…";
-
   try {
     await engine.startGame({ onProgress: showDownloadProgress });
-    loadingComplete = true;
-    window.clearTimeout(slowLoadTimer);
-    window.clearTimeout(retryTimer);
-    loaderStage.textContent = "STARTING GAME";
-    loaderPercent.textContent = "100%";
-    loaderSpeed.textContent = "COMPLETE";
-    loaderEta.textContent = "READY";
-    loaderProgress.value = 100;
-    loaderDetail.textContent = "Runtime ready.";
     canvas.classList.add("is-ready");
     await nextPaint();
     await nextPaint();
