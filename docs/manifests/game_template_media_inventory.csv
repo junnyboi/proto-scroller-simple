@@ -166,7 +166,6 @@ docs/concepts/district-enemies/13-suture-marshal.png,816083,other_images,.png,0
 docs/concepts/district-enemies/03-testament-kite.png,805693,other_images,.png,0
 docs/concepts/district-enemies/16-triage-kite.png,802218,other_images,.png,0
 docs/combo-feedback-carriers/overkill.mp4,800933,video,.mp4,0
-game/art/destruction/damage_details/interior_fire_loop.webp,788664,other_images,.webp,1
 game/art/finale/choir-prime-core.png,784521,other_images,.png,1
 docs/concepts/choir-attack-vfx/14-mercy-raker-attack-vfx.png,782141,other_images,.png,0
 docs/concepts/district-bosses/04-military-cantor31-pale-engine.jpg,779981,boss_images,.jpg,0
@@ -504,11 +503,9 @@ game/art/ui/weapon_shop/siege_breaching_load.webp,7744,ui_images,.webp,1
 game/art/player/weapons/missile_explosion_smoke.png,7659,player_images,.png,4
 game/art/city/enemies/archetypes/01-needle-spotter-drone.png,7093,enemy_images,.png,1
 game/art/player/weapons/anti_air_impact.png,6795,player_images,.png,3
-game/art/destruction/damage_details/dangling_cables.png,5945,other_images,.png,1
 client/public/game/game.icon.png,5700,generated_web_bundle,.png,0
 game/art/presentation/scorch_decal.png,5649,ui_images,.png,4
 game/art/player/weapons/missile_pod_mount.png,4796,player_images,.png,3
-game/art/destruction/damage_details/broken_water_pipe.png,4435,other_images,.png,1
 game/art/player/weapons/anti_air_emitter.png,4203,player_images,.png,3
 game/art/player/weapons/machine_gun_impact.png,3969,player_images,.png,3
 game/addons/gut/images/eyey.png,3721,other_images,.png,1

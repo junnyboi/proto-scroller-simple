@@ -20,7 +20,6 @@ func test_runtime_snapshot_matches_every_approved_cap() -> void:
 	assert_eq(snapshot.player_bullet_total, 8)
 	assert_eq(snapshot.structural_debris_total, 24)
 	assert_eq(snapshot.building_damage_patterns, RuntimeBudget.BUILDING_DAMAGE_PATTERNS)
-	assert_eq(snapshot.building_severe_damage_fx, RuntimeBudget.BUILDING_DAMAGE_PATTERNS)
 	assert_eq(snapshot.structural_rubble_sprites, RuntimeBudget.STRUCTURAL_RUBBLE_SPRITES)
 	assert_eq(snapshot.prop_rubble_sprites, RuntimeBudget.PROP_RUBBLE_SPRITES)
 	assert_eq(snapshot.catalyst_rubble_sprites, RuntimeBudget.CATALYST_RUBBLE_SPRITES)

@@ -188,8 +188,6 @@ func test_all_twenty_five_facades_keep_alpha_and_every_section_can_break() -> vo
 						String(variant.variant_id)
 					)
 					assert_gt(pattern.crack_count(), 0, String(variant.variant_id))
-					assert_eq(pattern.damage_detail_count(), 0, String(variant.variant_id))
-					assert_eq(pattern.damage_detail_mask(), 0, String(variant.variant_id))
 					assert_almost_eq(
 						pattern.cavity_darken_strength(),
 						BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH,

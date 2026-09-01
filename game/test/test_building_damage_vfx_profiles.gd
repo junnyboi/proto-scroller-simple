@@ -3,12 +3,17 @@ extends GutTest
 const CITY_SCENE: PackedScene = preload("res://scenes/gameplay/city_slice.tscn")
 
 
-func test_damaged_sections_choose_one_accent_and_terminal_damage_culls_it() -> void:
+func test_damaged_sections_never_mount_cables_pipes_or_fire() -> void:
 	var city: CitySlice = await _spawn_city()
-	var fire_cell: Destructible2D
-	var fire_pattern: BuildingDamagePattern2D
-	var damaged_cells: Array[Destructible2D] = []
 	var attack_id: int = 910_001
+	for building: StructuralBuilding2D in city.streamed_destructibles.buildings:
+		for row: int in range(StructuralBuilding2D.ROWS):
+			for column: int in range(StructuralBuilding2D.COLUMNS):
+				var cell: Destructible2D = building.get_cell(column, row)
+				var pattern: BuildingDamagePattern2D = cell.get_node(
+					^"DamagedVisual"
+				) as BuildingDamagePattern2D
+				_assert_no_damage_decorations(pattern)
 	for row: int in range(StructuralBuilding2D.ROWS):
 		for column: int in range(StructuralBuilding2D.COLUMNS):
 			var cell: Destructible2D = city.building.get_cell(column, row)
@@ -24,62 +29,34 @@ func test_damaged_sections_choose_one_accent_and_terminal_damage_culls_it() -> v
 				Vector2.RIGHT
 			)))
 			attack_id += 1
-			assert_eq(pattern.damage_detail_count(), 1)
 			assert_eq(pattern.get_child_count(), baseline_children)
-			var mask: int = pattern.damage_detail_mask()
-			assert_true(mask in [
-				BuildingDamagePattern2D.CABLE_DETAIL_BIT,
-				BuildingDamagePattern2D.PIPE_DETAIL_BIT,
-				BuildingDamagePattern2D.FIRE_DETAIL_BIT,
-			])
-			damaged_cells.append(cell)
-			if mask == BuildingDamagePattern2D.FIRE_DETAIL_BIT:
-				fire_cell = cell
-				fire_pattern = pattern
-	assert_not_null(fire_cell)
-	assert_not_null(fire_pattern)
-	var severe_fx: BuildingSevereDamageFx2D = fire_pattern.get_node(
-		^"SevereDamageFx"
-	) as BuildingSevereDamageFx2D
-	assert_true(severe_fx.is_active())
-	assert_gt(severe_fx.fire_intensity, 0.0)
-	assert_almost_eq(severe_fx.arc_intensity, 0.0, 0.0001)
-	assert_not_null(severe_fx.fire_sprite)
-	assert_true(severe_fx.fire_sprite.is_playing())
-	assert_eq(
-		severe_fx.fire_sprite.sprite_frames.get_frame_count(&"burn"),
-		BuildingSevereDamageFx2D.FIRE_FRAME_COUNT
-	)
-	for cell: Destructible2D in damaged_cells:
-		var pattern: BuildingDamagePattern2D = cell.get_node(
-			^"DamagedVisual"
-		) as BuildingDamagePattern2D
-		var cable: BuildingDamageAttachment2D = pattern.get_node(
-			^"DanglingCables"
-		) as BuildingDamageAttachment2D
-		var pipe: BuildingDamageAttachment2D = pattern.get_node(
-			^"BrokenWaterPipe"
-		) as BuildingDamageAttachment2D
-		assert_true(cell.receive_damage(_event(
-			attack_id,
-			cell,
-			cell.current_health + 1.0,
-			&"missile",
-			Vector2.LEFT
-		)))
-		attack_id += 1
-		assert_true(cell.is_destroyed())
-		assert_eq(pattern.damage_detail_count(), 0)
-		assert_eq(pattern.damage_detail_mask(), 0)
-		assert_eq(pattern.active_damage_effect_count(), 0)
-		assert_false(cable.visible)
-		assert_false(pipe.visible)
-		assert_false(cable.particles.emitting)
-		assert_false(pipe.particles.emitting)
-	assert_false(severe_fx.is_active())
-	assert_false(severe_fx.fire_sprite.is_playing())
-	assert_eq(fire_pattern.damage_detail_count(), 0)
-	assert_eq(fire_pattern.damage_detail_mask(), 0)
+			_assert_no_damage_decorations(pattern)
+			assert_true(cell.receive_damage(_event(
+				attack_id,
+				cell,
+				cell.current_health + 1.0,
+				&"missile",
+				Vector2.LEFT
+			)))
+			attack_id += 1
+			assert_true(cell.is_destroyed())
+			assert_eq(pattern.get_child_count(), baseline_children)
+			_assert_no_damage_decorations(pattern)
+	assert_false(FileAccess.file_exists(
+		"res://art/destruction/damage_details/dangling_cables.png"
+	))
+	assert_false(FileAccess.file_exists(
+		"res://art/destruction/damage_details/broken_water_pipe.png"
+	))
+	assert_false(FileAccess.file_exists(
+		"res://art/destruction/damage_details/interior_fire_loop.webp"
+	))
+
+
+func _assert_no_damage_decorations(pattern: BuildingDamagePattern2D) -> void:
+	assert_null(pattern.get_node_or_null(^"DanglingCables"))
+	assert_null(pattern.get_node_or_null(^"BrokenWaterPipe"))
+	assert_null(pattern.get_node_or_null(^"SevereDamageFx"))
 
 
 func test_attack_families_select_distinct_persistent_cavity_profiles() -> void:

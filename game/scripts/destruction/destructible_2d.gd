@@ -132,8 +132,6 @@ func _apply_stage(show_damaged: bool, show_destroyed: bool) -> void:
 		)
 		if damage_pattern != null:
 			damage_pattern.set_destroyed_stage(show_destroyed)
-			if show_destroyed or not show_damaged:
-				damage_pattern.cull_damage_details()
 	if _intact_collision != null:
 		_intact_collision.set_deferred("disabled", show_destroyed)
 	if _hurtbox_collision != null:

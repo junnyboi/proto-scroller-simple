@@ -151,7 +151,6 @@ static func snapshot(city: CitySlice) -> Dictionary:
 		"building_section_burst_slots": city.building_section_burst_pool.slot_count(),
 		"building_section_burst_peak": city.building_section_burst_pool.peak_active_count,
 		"building_damage_patterns": _building_damage_pattern_count(city),
-		"building_severe_damage_fx": _building_severe_damage_fx_count(city),
 		"structural_rubble_sprites": _structural_rubble_sprite_count(city),
 		"prop_rubble_sprites": _prop_rubble_sprite_count(city),
 		"catalyst_rubble_sprites": _catalyst_rubble_sprite_count(city),
@@ -305,12 +304,6 @@ static func validation_errors(city: CitySlice) -> PackedStringArray:
 	)
 	_check_equal(errors, data, "hostile_projectile_total", BULLETS + SHELLS + ROCKETS)
 	_check_equal(errors, data, "player_bullet_total", PLAYER_BULLETS)
-	_check_equal(
-		errors,
-		data,
-		"building_severe_damage_fx",
-		BUILDING_DAMAGE_PATTERNS
-	)
 	_check_equal(errors, data, "structural_debris_total", STRUCTURAL_DEBRIS)
 	_check_equal(errors, data, "building_damage_patterns", BUILDING_DAMAGE_PATTERNS)
 	_check_equal(errors, data, "structural_rubble_sprites", STRUCTURAL_RUBBLE_SPRITES)
@@ -561,22 +554,6 @@ static func _building_damage_pattern_count(city: CitySlice) -> int:
 			for column: int in range(StructuralBuilding2D.COLUMNS):
 				var cell: Destructible2D = building.get_cell(column, row)
 				if cell.get_node_or_null(^"DamagedVisual") is BuildingDamagePattern2D:
-					count += 1
-	return count
-
-
-static func _building_severe_damage_fx_count(city: CitySlice) -> int:
-	var count: int = 0
-	for building: StructuralBuilding2D in city.streamed_destructibles.buildings:
-		for row: int in range(StructuralBuilding2D.ROWS):
-			for column: int in range(StructuralBuilding2D.COLUMNS):
-				var cell: Destructible2D = building.get_cell(column, row)
-				var pattern: BuildingDamagePattern2D = cell.get_node_or_null(
-					^"DamagedVisual"
-				) as BuildingDamagePattern2D
-				if pattern != null and pattern.get_node_or_null(
-					^"SevereDamageFx"
-				) is BuildingSevereDamageFx2D:
 					count += 1
 	return count
 

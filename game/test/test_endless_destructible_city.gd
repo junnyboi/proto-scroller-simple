@@ -39,8 +39,6 @@ func test_destroyed_building_and_prop_restore_after_slot_reuse() -> void:
 		^"DamagedVisual"
 	) as BuildingDamagePattern2D
 	var pattern_signature: String = partial_pattern.pattern_signature()
-	var detail_mask: int = partial_pattern.damage_detail_mask()
-	assert_gt(partial_pattern.damage_detail_count(), 0)
 	city.car.current_health = 1.0
 	city.car.receive_damage(_fatal_event(city, city.car, 31_002))
 	assert_true(cell.is_destroyed())
@@ -64,9 +62,6 @@ func test_destroyed_building_and_prop_restore_after_slot_reuse() -> void:
 		^"DamagedVisual"
 	) as BuildingDamagePattern2D
 	assert_eq(restored_pattern.pattern_signature(), pattern_signature)
-	assert_eq(restored_pattern.damage_detail_mask(), detail_mask)
-	assert_gt(restored_pattern.damage_detail_count(), 0)
-	assert_eq(restored_pattern.active_damage_effect_count(), 0)
 	assert_true(city.car.is_broken)
 	assert_ne(city.building.get_instance_id(), 0)
 	assert_eq(city.streamed_destructibles.post_warm_creation_count, 0)
@@ -168,7 +163,7 @@ func test_destroyed_cell_disables_hurtbox_and_reset_restores_it() -> void:
 	_record_test_execution()
 
 
-func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> void:
+func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_rubble() -> void:
 	var city: CitySlice = await _spawn_city()
 	var cell: Destructible2D = city.building.get_cell(1, 1)
 	var upper_cell: Destructible2D = city.building.get_cell(1, 0)
@@ -185,38 +180,9 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> 
 	assert_false(pattern.is_destroyed_stage())
 	assert_gt(_hollow_progress(pattern), 0.0)
 	var damaged_extents: Vector2 = _hollow_extents(pattern)
-	var cable: BuildingDamageAttachment2D = pattern.get_node(
-		^"DanglingCables"
-	) as BuildingDamageAttachment2D
-	var pipe: BuildingDamageAttachment2D = pattern.get_node(
-		^"BrokenWaterPipe"
-	) as BuildingDamageAttachment2D
-	assert_eq(cable.particles.name, "CableSparks")
-	assert_eq(pipe.particles.name, "WaterSpray")
-	assert_eq(pipe.display_size(), Vector2(31.5, 57.0))
-	assert_lte(
-		cable.particles.amount,
-		BuildingDamageAttachment2D.MAX_SPARK_PARTICLES
-	)
-	assert_lte(
-		pipe.particles.amount,
-		BuildingDamageAttachment2D.MAX_WATER_PARTICLES
-	)
-	assert_eq(pattern.damage_detail_count(), 1)
-	assert_true(
-		cable.visible
-		or pipe.visible
-		or (pattern.damage_detail_mask() & BuildingDamagePattern2D.FIRE_DETAIL_BIT) != 0
-	)
-	if cable.visible:
-		var initial_rotation: float = cable.rotation
-		for _step: int in range(8):
-			cable._process(0.1)
-		assert_ne(cable.rotation, initial_rotation)
-		assert_ne(pattern.cable_sway_offset(), 0.0)
-		assert_lte(absf(pattern.cable_sway_offset()), 0.26)
-	else:
-		assert_false(cable.is_processing())
+	assert_null(pattern.get_node_or_null(^"DanglingCables"))
+	assert_null(pattern.get_node_or_null(^"BrokenWaterPipe"))
+	assert_null(pattern.get_node_or_null(^"SevereDamageFx"))
 	assert_true(cell.receive_damage(_fatal_event(city, cell, 31_102)))
 	assert_true(cell.is_destroyed())
 	assert_true(pattern.visible)
@@ -226,10 +192,9 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> 
 	assert_gt(_hollow_extents(pattern).y, damaged_extents.y)
 	assert_eq(pattern.contour().size(), BuildingDamagePattern2D.CONTOUR_POINTS)
 	assert_gt(pattern.crack_count(), 0)
-	assert_eq(pattern.damage_detail_count(), 0)
-	assert_eq(pattern.damage_detail_mask(), 0)
-	assert_false(cable.is_processing())
-	assert_false(pipe.visible)
+	assert_null(pattern.get_node_or_null(^"DanglingCables"))
+	assert_null(pattern.get_node_or_null(^"BrokenWaterPipe"))
+	assert_null(pattern.get_node_or_null(^"SevereDamageFx"))
 	assert_almost_eq(
 		pattern.cavity_darken_strength(),
 		BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH,
@@ -274,7 +239,6 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> 
 	cell.restore_stream_state(captured)
 	assert_eq(pattern.pattern_signature(), signature)
 	assert_true(pattern.is_destroyed_stage())
-	assert_eq(pattern.damage_detail_count(), 0)
 	cell.restore_stream_state({"destroyed": true, "health": 0.0})
 	assert_true(cell.is_destroyed())
 	assert_true(pattern.visible)
@@ -283,7 +247,6 @@ func test_destroyed_segment_keeps_alpha_safe_procedural_hollow_and_details() -> 
 		BuildingDamagePattern2D.RUIN_RUBBLE_SPRITE_COUNT
 	)
 	assert_gt(pattern.pattern_signature().length(), 0)
-	assert_eq(pattern.damage_detail_count(), 0)
 	_record_test_execution()
 
 
@@ -342,8 +305,6 @@ func test_damage_progressively_hollows_the_authored_facade_into_jagged_side_and_
 	assert_gt(0.5 - terminal_extents.x, 0.09)
 	assert_gt(BuildingDamagePattern2D.HOLLOW_CENTER_Y - terminal_extents.y, 0.09)
 	assert_gte(BuildingDamagePattern2D.HOLLOW_CENTER_Y + terminal_extents.y, 0.94)
-	assert_eq(pattern.damage_detail_count(), 0)
-	assert_eq(pattern.damage_detail_mask(), 0)
 	assert_gte(pattern.crack_count(), 1)
 	assert_lte(pattern.crack_count(), BuildingDamagePattern2D.BASE_CRACK_COUNT + 3)
 	assert_lt(BuildingDamagePattern2D.DESTROYED_DARKEN_STRENGTH, 0.5)

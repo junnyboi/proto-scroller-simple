@@ -13,17 +13,6 @@ const BASE_CRACK_COUNT: int = 2
 const EDGE_MARGIN: float = 8.0
 const CRACK_SHADOW: Color = Color(0.015, 0.012, 0.012, 0.50)
 const CRACK_HIGHLIGHT: Color = Color(0.34, 0.27, 0.22, 0.34)
-const CABLE_DETAIL_BIT: int = 1
-const PIPE_DETAIL_BIT: int = 2
-const FIRE_DETAIL_BIT: int = 4
-const CABLE_DISPLAY_SIZE: Vector2 = Vector2(46.0, 68.0)
-const PIPE_DISPLAY_SIZE: Vector2 = Vector2(31.5, 57.0)
-const CABLE_TEXTURE: Texture2D = preload(
-	"res://art/destruction/damage_details/dangling_cables.png"
-)
-const PIPE_TEXTURE: Texture2D = preload(
-	"res://art/destruction/damage_details/broken_water_pipe.png"
-)
 const FACADE_ALPHA_THRESHOLD: float = 0.08
 const DAMAGED_DARKEN_STRENGTH: float = 0.12
 const DESTROYED_DARKEN_STRENGTH: float = 0.38
@@ -201,11 +190,7 @@ var _district_id: StringName = &"BUSINESS"
 var _contour: PackedVector2Array = PackedVector2Array()
 var _cracks: Array[PackedVector2Array] = []
 var _patch: Polygon2D
-var _cable_detail: BuildingDamageAttachment2D
-var _pipe_detail: BuildingDamageAttachment2D
-var _severe_fx: BuildingSevereDamageFx2D
 var _ruin_rubble_root: PersistentRubbleBed2D
-var _detail_mask: int = 0
 var _cavity_material: ShaderMaterial
 var _facade_sprite: Sprite2D
 var _visual_tint: Color = Color.WHITE
@@ -243,22 +228,6 @@ func configure(
 	_configure_cavity_material()
 	add_child(_patch)
 	_create_ruin_rubble_bed()
-	_cable_detail = _create_detail_attachment(
-		"DanglingCables",
-		BuildingDamageAttachment2D.Kind.CABLE,
-		CABLE_TEXTURE,
-		CABLE_DISPLAY_SIZE
-	)
-	_pipe_detail = _create_detail_attachment(
-		"BrokenWaterPipe",
-		BuildingDamageAttachment2D.Kind.PIPE,
-		PIPE_TEXTURE,
-		PIPE_DISPLAY_SIZE
-	)
-	_severe_fx = BuildingSevereDamageFx2D.new()
-	_severe_fx.name = "SevereDamageFx"
-	_severe_fx.configure(_cell_size, _pattern_seed)
-	add_child(_severe_fx)
 	visible = false
 
 
@@ -282,12 +251,6 @@ func reconfigure(
 	_ground_level = ground_level
 	if _patch != null:
 		_configure_cavity_material()
-	if _cable_detail != null:
-		_cable_detail.configure_seed(_pattern_seed)
-	if _pipe_detail != null:
-		_pipe_detail.configure_seed(_pattern_seed)
-	if _severe_fx != null:
-		_severe_fx.configure(_cell_size, _pattern_seed)
 	_configure_ruin_rubble_bed()
 	reset_pattern()
 	visible = false
@@ -322,8 +285,6 @@ func record_damage(event: DamageEvent, health_ratio: float) -> void:
 	_generate(local_hit, severity, event_seed)
 	var terminal: bool = health_ratio <= 0.0
 	set_destroyed_stage(terminal)
-	if not terminal:
-		_emit_attachment_effects(event, severity)
 	visible = true
 	queue_redraw()
 
@@ -341,9 +302,7 @@ func set_destroyed_stage(value: bool) -> void:
 	_destroyed_stage = value
 	if value:
 		_set_hollow_progress(1.0)
-		_apply_detail_mask(0, _contour_center())
 	_update_hollow_material()
-	_update_severe_fx()
 	_update_ruin_rubble_bed()
 
 
@@ -369,21 +328,6 @@ func crack_count() -> int:
 	return _cracks.size()
 
 
-func damage_detail_count() -> int:
-	var total: int = 0
-	if _cable_detail != null and _cable_detail.visible:
-		total += 1
-	if _pipe_detail != null and _pipe_detail.visible:
-		total += 1
-	if _severe_fx != null and _severe_fx.is_active():
-		total += 1
-	return total
-
-
-func damage_detail_mask() -> int:
-	return _detail_mask
-
-
 func _ruin_rubble_sprite_count() -> int:
 	return _ruin_rubble_root.active_piece_count() if _ruin_rubble_root != null else 0
 
@@ -404,38 +348,8 @@ func _district_style_id() -> StringName:
 	return _district_id
 
 
-func damage_effect_activation_count() -> int:
-	var total: int = 0
-	if _cable_detail != null:
-		total += _cable_detail.activation_count
-	if _pipe_detail != null:
-		total += _pipe_detail.activation_count
-	if _severe_fx != null:
-		total += _severe_fx.activation_count
-	return total
-
-
 func _set_damage_progress(value: float) -> void:
 	_set_hollow_progress(value)
-
-
-func active_damage_effect_count() -> int:
-	var total: int = 0
-	if _cable_detail != null:
-		total += _cable_detail.active_effect_count()
-	if _pipe_detail != null:
-		total += _pipe_detail.active_effect_count()
-	if _severe_fx != null and _severe_fx.is_active():
-		total += 1
-	return total
-
-
-func cable_sway_offset() -> float:
-	return _cable_detail.sway_rotation_offset if _cable_detail != null else 0.0
-
-
-func cull_damage_details() -> void:
-	_apply_detail_mask(0, _contour_center())
 
 
 func pattern_signature() -> String:
@@ -448,7 +362,6 @@ func pattern_signature() -> String:
 func reset_pattern() -> void:
 	_contour.clear()
 	_cracks.clear()
-	_detail_mask = 0
 	_destroyed_stage = false
 	_hollow_progress = 0.0
 	_impact_profile = ImpactProfile.GENERIC
@@ -458,9 +371,6 @@ func reset_pattern() -> void:
 		_patch.uv = PackedVector2Array()
 	_update_hollow_material()
 	_update_ruin_rubble_bed()
-	if _severe_fx != null:
-		_severe_fx.reset_effect()
-	cull_damage_details()
 	queue_redraw()
 
 
@@ -471,7 +381,6 @@ func capture_stream_state() -> Dictionary:
 	return {
 		"contour": _contour.duplicate(),
 		"cracks": cracks,
-		"detail_mask": _detail_mask,
 		"hollow_progress": _hollow_progress,
 		"impact_profile": int(_impact_profile),
 		"impact_direction": _impact_direction,
@@ -495,10 +404,6 @@ func restore_stream_state(state: Dictionary) -> void:
 	)
 	_impact_direction = -1.0 if float(state.get("impact_direction", 1.0)) < 0.0 else 1.0
 	_set_hollow_progress(float(state.get("hollow_progress", 0.0)))
-	_apply_detail_mask(
-		int(state.get("detail_mask", 0)),
-		_contour_center()
-	)
 	queue_redraw()
 
 
@@ -570,13 +475,11 @@ func _generate(impact_center: Vector2, severity: float, event_seed: int) -> void
 			outer,
 		])
 		_cracks.append(crack)
-	_apply_detail_mask(_detail_mask_for_severity(severity), center)
 
 
 func _set_hollow_progress(value: float) -> void:
 	_hollow_progress = clampf(value, 0.0, 1.0)
 	_update_hollow_material()
-	_update_severe_fx()
 
 
 func _update_hollow_material() -> void:
@@ -606,15 +509,6 @@ func _update_hollow_material() -> void:
 	_cavity_material.set_shader_parameter("impact_profile", int(_impact_profile))
 	_cavity_material.set_shader_parameter("impact_direction", _impact_direction)
 	_cavity_material.set_shader_parameter("darken_strength", darken_strength)
-
-
-func _update_severe_fx() -> void:
-	if _severe_fx != null:
-		_severe_fx.set_damage_state(
-			_hollow_progress,
-			_destroyed_stage,
-			(_detail_mask & FIRE_DETAIL_BIT) != 0
-		)
 
 
 func _hollow_extents_for_progress(eased_progress: float) -> Vector2:
@@ -669,83 +563,6 @@ func _impact_profile_for_damage_type(damage_type: StringName) -> ImpactProfile:
 func _smooth_progress(value: float) -> float:
 	var clamped: float = clampf(value, 0.0, 1.0)
 	return clamped * clamped * (3.0 - 2.0 * clamped)
-
-
-func _detail_mask_for_severity(severity: float) -> int:
-	if severity < 0.28:
-		return 0
-	var accent_slot: int = posmod(_pattern_seed, 3)
-	if accent_slot == 0 and severity >= BuildingSevereDamageFx2D.SEVERE_THRESHOLD:
-		return FIRE_DETAIL_BIT
-	if accent_slot == 2 or _material_id == &"steel":
-		return PIPE_DETAIL_BIT
-	return CABLE_DETAIL_BIT
-
-
-func _apply_detail_mask(mask: int, center: Vector2) -> void:
-	if _destroyed_stage:
-		mask = 0
-	elif mask != 0 and mask not in [CABLE_DETAIL_BIT, PIPE_DETAIL_BIT, FIRE_DETAIL_BIT]:
-		mask = _detail_mask_for_severity(_hollow_progress)
-	_detail_mask = mask
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = _pattern_seed * 32452843 + mask * 49979687
-	_position_detail(
-		_cable_detail,
-		center,
-		Vector2(rng.randf_range(-28.0, 16.0), 30.0),
-		rng
-	)
-	_position_detail(
-		_pipe_detail,
-		center,
-		Vector2(rng.randf_range(-12.0, 28.0), 34.0),
-		rng
-	)
-	if _cable_detail != null:
-		_cable_detail.set_attachment_visible((mask & CABLE_DETAIL_BIT) != 0)
-	if _pipe_detail != null:
-		_pipe_detail.set_attachment_visible((mask & PIPE_DETAIL_BIT) != 0)
-	_update_severe_fx()
-
-
-func _position_detail(
-	attachment: BuildingDamageAttachment2D,
-	center: Vector2,
-	offset: Vector2,
-	rng: RandomNumberGenerator
-) -> void:
-	if attachment == null:
-		return
-	var half_size: Vector2 = _cell_size * 0.5
-	var visual_center: Vector2 = center + offset
-	visual_center.x = clampf(visual_center.x, -half_size.x + 26.0, half_size.x - 26.0)
-	visual_center.y = clampf(visual_center.y, -half_size.y + 34.0, half_size.y - 34.0)
-	attachment.configure_transform(
-		visual_center,
-		rng.randf_range(-0.11, 0.11),
-		rng.randi_range(0, 1) == 1
-	)
-
-
-func _create_detail_attachment(
-	attachment_name: String,
-	kind: BuildingDamageAttachment2D.Kind,
-	texture: Texture2D,
-	display_size: Vector2
-) -> BuildingDamageAttachment2D:
-	var attachment: BuildingDamageAttachment2D = BuildingDamageAttachment2D.new()
-	attachment.name = attachment_name
-	attachment.setup(kind, texture, display_size, _pattern_seed)
-	add_child(attachment)
-	return attachment
-
-
-func _emit_attachment_effects(event: DamageEvent, severity: float) -> void:
-	if _cable_detail != null and _cable_detail.visible:
-		_cable_detail.emit_damage_effect(event.direction, severity)
-	if _pipe_detail != null and _pipe_detail.visible:
-		_pipe_detail.emit_damage_effect(event.direction, severity)
 
 
 func _contour_center() -> Vector2:
