@@ -33,14 +33,18 @@ layout_mode = 2
 [node name="StageLabel" type="Label" parent="TopMargin/TopBar/Identity"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Current operation"
 theme_override_font_sizes/font_size = 21
 text = "STAGE 1"
+metadata/cursor_role = "inspect"
 
 [node name="StatusLabel" type="Label" parent="TopMargin/TopBar/Identity"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Current combat state"
 theme_override_font_sizes/font_size = 15
 text = "COMBAT ACTIVE"
+metadata/cursor_role = "inspect"
 
 [node name="Health" type="VBoxContainer" parent="TopMargin/TopBar"]
 custom_minimum_size = Vector2(280, 0)
@@ -49,15 +53,19 @@ layout_mode = 2
 [node name="HealthLabel" type="Label" parent="TopMargin/TopBar/Health"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Current and maximum hull integrity"
 text = "HP 120 / 120"
+metadata/cursor_role = "inspect"
 
 [node name="HealthBar" type="ProgressBar" parent="TopMargin/TopBar/Health"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 20)
 layout_mode = 2
+tooltip_text = "Hull integrity"
 max_value = 120.0
 value = 120.0
 show_percentage = false
+metadata/cursor_role = "inspect"
 
 [node name="Spacer" type="Control" parent="TopMargin/TopBar"]
 layout_mode = 2
@@ -66,14 +74,18 @@ size_flags_horizontal = 3
 [node name="WaveLabel" type="Label" parent="TopMargin/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Current and total attack waves"
 theme_override_font_sizes/font_size = 18
 text = "WAVE 1 / 3"
+metadata/cursor_role = "inspect"
 
 [node name="ScoreLabel" type="Label" parent="TopMargin/TopBar"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Current mission score"
 theme_override_font_sizes/font_size = 18
 text = "SCORE 000000"
+metadata/cursor_role = "inspect"
 
 [node name="Controls" type="Label" parent="."]
 layout_mode = 1

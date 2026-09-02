@@ -20,12 +20,20 @@ Controls:
 - Charge and release attack: Space or controller X.
 - Dodge: Shift or controller B.
 
+Mouse input uses the Signal Glass cursor set across every UI surface. Neutral space
+uses the navigation needle, buttons use the command pointer, HUD telemetry uses the
+inspect reticle, and unavailable controls can opt into the blocked reticle with
+`metadata/cursor_role = "blocked"`. Custom cursors are released whenever the
+pointer leaves the game window or the application loses focus, so desktop input
+immediately returns to the operating-system cursor.
+
 ## Project layout
 
-- `art/template/` — the complete retained Stage 1 visual asset set.
+- `art/template/` — the complete retained Stage 1 visual and cursor asset set.
 - `resources/template/` — Stage 1, wave, and enemy definitions.
 - `scenes/template/` — title, stage, HUD, debrief, player, enemy, and prop scenes.
 - `scripts/template/` — the isolated Stage 1 runtime.
+- `scripts/ui/cursor_system.gd` — global semantic cursor installation and routing.
 - `test/` — focused lifecycle and combat unit tests.
 - `selftest/` — deterministic Act 1 runtime scenarios.
 

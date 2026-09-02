@@ -73,7 +73,9 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+tooltip_text = "Deploy into Stage 1"
 text = "START STAGE 1"
+metadata/cursor_role = "command"
 
 [node name="TemplateStatus" type="Label" parent="Center/Panel/Margin/Content"]
 layout_mode = 2

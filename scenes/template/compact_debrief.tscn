@@ -63,10 +63,14 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+tooltip_text = "Restart Stage 1"
 text = "RETRY"
+metadata/cursor_role = "command"
 
 [node name="TitleButton" type="Button" parent="Center/Panel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+tooltip_text = "Return to the title screen"
 text = "TITLE"
+metadata/cursor_role = "command"

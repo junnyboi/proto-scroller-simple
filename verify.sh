@@ -54,7 +54,7 @@ for removed_path in \
 	scripts/actors scripts/audio scripts/camera scripts/combat scripts/destruction \
 	scripts/directives scripts/encounter scripts/feedback scripts/gameplay scripts/hazards \
 	scripts/input scripts/localization scripts/main scripts/narrative scripts/network \
-	scripts/player scripts/quality scripts/rampage scripts/siege scripts/tuning scripts/ui \
+	scripts/player scripts/quality scripts/rampage scripts/siege scripts/tuning \
 	scripts/world scripts/title_screen.gd; do
 	test ! -e "$removed_path"
 done
@@ -77,6 +77,10 @@ if find . \
 fi
 
 EXPECTED_ASSETS="$(printf '%s\n' \
+	art/template/cursors/cursor_blocked.png \
+	art/template/cursors/cursor_command.png \
+	art/template/cursors/cursor_inspect.png \
+	art/template/cursors/cursor_navigate.png \
 	art/template/debris_chunk.png \
 	art/template/destructible_intact.png \
 	art/template/destructible_wreck.png \

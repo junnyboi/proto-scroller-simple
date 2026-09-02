@@ -14,6 +14,10 @@ config/name="Act 1 Scroller Template"
 run/main_scene="res://scenes/template/template_main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
+[autoload]
+
+UiCursors="*res://scripts/ui/cursor_system.gd"
+
 [debug]
 
 gdscript/warnings/untyped_declaration=2
