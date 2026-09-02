@@ -18,7 +18,3 @@ func validation_errors(allowed_enemy_ids: PackedStringArray) -> PackedStringArra
 	if marker_id.is_empty():
 		errors.append("marker_id is required")
 	return errors
-
-
-func is_valid(allowed_enemy_ids: PackedStringArray) -> bool:
-	return validation_errors(allowed_enemy_ids).is_empty()

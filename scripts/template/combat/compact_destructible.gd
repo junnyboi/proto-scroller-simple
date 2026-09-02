@@ -14,10 +14,6 @@ var is_destroyed: bool = false
 
 
 func _ready() -> void:
-	reset()
-
-
-func reset() -> void:
 	current_health = max_health
 	is_destroyed = false
 	intact_visual.visible = true

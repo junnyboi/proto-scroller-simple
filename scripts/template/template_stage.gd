@@ -1,12 +1,10 @@
 class_name TemplateStage
 extends Control
 
-signal run_finished(completed: bool, summary: TemplateRunSummary)
 signal retry_requested
 signal title_requested
 
 var definition: StageDefinition
-var run_seed: int = 0
 var score: int = 0
 
 @onready var lifecycle: CompactRunLifecycle = %CompactRunLifecycle
@@ -19,14 +17,13 @@ var score: int = 0
 @onready var camera_impulse: CompactCameraImpulse = %CameraImpulse
 
 
-func configure(p_definition: StageDefinition, p_run_seed: int = 0) -> void:
+func configure(p_definition: StageDefinition) -> void:
 	definition = p_definition
-	run_seed = p_run_seed
 
 
 func _ready() -> void:
 	assert(definition != null and definition.is_valid(), "TemplateStage requires a valid definition")
-	lifecycle.setup(definition.stage_id, run_seed)
+	lifecycle.setup(definition.stage_id)
 	lifecycle.run_finished.connect(_on_run_finished)
 	debrief.retry_requested.connect(func() -> void: retry_requested.emit())
 	debrief.title_requested.connect(func() -> void: title_requested.emit())
@@ -106,4 +103,3 @@ func _on_run_finished(completed: bool, summary: TemplateRunSummary) -> void:
 	wave_director.stop()
 	hud.set_status("VICTORY" if completed else "DEFEAT")
 	debrief.present(summary)
-	run_finished.emit(completed, summary)

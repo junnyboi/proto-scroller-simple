@@ -34,7 +34,6 @@ var _record_index: int = 0
 var _remaining_in_record: int = 0
 var _spawn_timer: float = 0.0
 var _spawning_done: bool = false
-var _generation: int = 0
 @onready var _enemy_container: Node2D = get_node(enemy_container_path) as Node2D
 
 
@@ -193,12 +192,10 @@ func _spawn_enemy(record: CompactSpawnRecord) -> bool:
 		Vector2(1130.0, 619.0)
 	)
 	var deterministic_offset: float = float(spawned_count % 3) * 24.0
-	_generation += 1
 	if not slot.activate(
 		selected_definition,
 		player,
-		marker + Vector2(deterministic_offset, 0.0),
-		_generation
+		marker + Vector2(deterministic_offset, 0.0)
 	):
 		return false
 	spawned_count += 1

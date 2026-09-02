@@ -43,7 +43,7 @@ Add a direct Web export and package-size check:
 ./verify.sh --full
 ```
 
-CI runs the full gate through `./verify-migration.sh`. Generated evidence is written below ignored `artifacts/`.
+CI runs the same full gate with `./verify.sh --full`. Generated evidence is written below ignored `artifacts/`.
 
 ## Export
 

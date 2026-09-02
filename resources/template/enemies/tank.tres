@@ -5,7 +5,6 @@
 
 [resource]
 script = ExtResource("1_definition")
-enemy_id = &"tank"
 texture = ExtResource("2_texture")
 max_health = 165.0
 move_speed = 66.0

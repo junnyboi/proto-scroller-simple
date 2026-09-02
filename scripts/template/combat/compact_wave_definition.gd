@@ -18,7 +18,3 @@ func validation_errors(allowed_enemy_ids: PackedStringArray) -> PackedStringArra
 		for error: String in record.validation_errors(allowed_enemy_ids):
 			errors.append(error)
 	return errors
-
-
-func is_valid(allowed_enemy_ids: PackedStringArray) -> bool:
-	return validation_errors(allowed_enemy_ids).is_empty()

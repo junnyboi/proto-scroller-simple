@@ -46,7 +46,7 @@ test -s resources/template/stages/stage_01.tres
 grep -Fq 'run/main_scene="res://scenes/template/template_main.tscn"' project.godot
 
 for removed_path in \
-	audio config localization shaders tools \
+	audio config docs localization shaders tools default_bus_layout.tres verify-migration.sh \
 	art/bosses art/city art/enemies art/narrative art/player art/presentation art/robot art/ui \
 	resources/catalysts resources/contracts resources/directives resources/encounters \
 	resources/narrative resources/roles resources/siege resources/traits \
@@ -58,6 +58,23 @@ for removed_path in \
 	scripts/world scripts/title_screen.gd; do
 	test ! -e "$removed_path"
 done
+
+if find . \
+	-path './.git' -prune -o \
+	-path './.godot' -prune -o \
+	-path './addons' -prune -o \
+	-path './artifacts' -prune -o \
+	-path './build' -prune -o \
+	-type f \( \
+		-iname '*todo*' -o \
+		-iname '*to-do*' -o \
+		-iname '*tracker*' -o \
+		-iname '*backlog*' -o \
+		-iname '*roadmap*' \
+	\) -print | grep -q .; then
+	printf '%s\n' '[ACT1-FAIL] TODO/tracker documents remain' >&2
+	exit 1
+fi
 
 EXPECTED_ASSETS="$(printf '%s\n' \
 	art/template/debris_chunk.png \

@@ -1,7 +1,6 @@
 class_name CompactEnemyDefinition
 extends Resource
 
-@export var enemy_id: StringName = &""
 @export var texture: Texture2D
 @export var max_health: float = 60.0
 @export var move_speed: float = 90.0
@@ -15,8 +14,6 @@ extends Resource
 
 func validation_errors() -> PackedStringArray:
 	var errors: PackedStringArray = PackedStringArray()
-	if enemy_id.is_empty():
-		errors.append("enemy_id is required")
 	if texture == null:
 		errors.append("texture is required")
 	if max_health <= 0.0:

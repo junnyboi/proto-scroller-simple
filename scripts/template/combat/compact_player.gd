@@ -10,7 +10,6 @@ signal attack_released(
 	facing: int,
 	charge_ratio: float
 )
-signal dodge_started(facing: int)
 
 @export_group("Movement")
 @export var move_speed: float = 260.0
@@ -136,7 +135,6 @@ func request_dodge(direction: int = 0) -> bool:
 	invulnerability_remaining = dodge_invulnerability_seconds
 	dodge_cooldown_remaining = dodge_cooldown_seconds
 	velocity.x = float(facing) * dodge_speed
-	dodge_started.emit(facing)
 	return true
 
 

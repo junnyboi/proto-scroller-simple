@@ -17,10 +17,9 @@ func _ready() -> void:
 
 func present(summary: TemplateRunSummary) -> void:
 	result_label.text = "VICTORY" if summary.completed else "DEFEAT"
-	summary_label.text = "Stage: %s\nScore: %d\nSeed: %d" % [
+	summary_label.text = "Stage: %s\nScore: %d" % [
 		String(summary.stage_id),
 		summary.score,
-		summary.run_seed,
 	]
 	visible = true
 	retry_button.grab_focus()

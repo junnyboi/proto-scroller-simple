@@ -14,15 +14,19 @@ func _run() -> void:
 		return
 	root.add_child(runtime)
 	await process_frame
-	if runtime.title_screen == null or not runtime.start_stage(&"stage_01"):
+	if runtime.title_screen == null:
+		_fail("title did not initialize")
+		return
+	runtime.start_stage()
+	await process_frame
+	if runtime.current_stage == null:
 		_fail("title did not start stage_01")
 		return
-	await process_frame
 	var first_stage: TemplateStage = runtime.current_stage
 	if first_stage == null or not first_stage.lifecycle.finish_victory(100, 3):
 		_fail("victory did not finalize")
 		return
-	if first_stage.lifecycle.finish_defeat(999, 9) or first_stage.lifecycle.finalization_count != 1:
+	if first_stage.lifecycle.finish_defeat(999, 9):
 		_fail("duplicate terminal request was accepted")
 		return
 	first_stage.debrief.retry_button.pressed.emit()

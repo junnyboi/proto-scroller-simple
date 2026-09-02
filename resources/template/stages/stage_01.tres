@@ -8,11 +8,6 @@
 [resource]
 script = ExtResource("1_stage_definition")
 stage_id = &"stage_01"
-display_name_key = &"STAGE 1 · COMPACT SHELL"
-background_id = &"stage_01_background"
-foreground_id = &"stage_01_foreground"
+display_name = "STAGE 1 · COMPACT SHELL"
 waves = Array[Resource]([ExtResource("2_wave_01"), ExtResource("3_wave_02"), ExtResource("4_wave_03")])
-spawn_interval_seconds = 1.0
 allowed_enemy_ids = PackedStringArray("soldier", "tank")
-objective_key = &"PROVE THE COMPACT RUN LIFECYCLE"
-filter_profile = &"default"

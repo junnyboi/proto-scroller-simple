@@ -11,7 +11,6 @@ var definition: CompactEnemyDefinition
 var target: CompactPlayer
 var current_health: float = 0.0
 var active: bool = false
-var activation_generation: int = 0
 var attack_cooldown_remaining: float = 0.0
 
 @onready var visual: Sprite2D = %Visual
@@ -43,14 +42,12 @@ func configure(p_definition: CompactEnemyDefinition) -> bool:
 func activate(
 	p_definition: CompactEnemyDefinition,
 	p_target: CompactPlayer,
-	world_position: Vector2,
-	generation: int
+	world_position: Vector2
 ) -> bool:
 	if not configure(p_definition):
 		return false
 	target = p_target
 	global_position = world_position
-	activation_generation = generation
 	current_health = definition.max_health
 	attack_cooldown_remaining = definition.attack_interval * 0.5
 	velocity = Vector2.ZERO

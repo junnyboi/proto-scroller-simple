@@ -10,7 +10,7 @@ extends Control
 
 
 func configure(definition: StageDefinition) -> void:
-	stage_label.text = String(definition.display_name_key) if definition != null else ""
+	stage_label.text = definition.display_name if definition != null else ""
 	status_label.text = "COMBAT ACTIVE"
 	set_wave(1, definition.waves.size() if definition != null else 1)
 	set_score(0)

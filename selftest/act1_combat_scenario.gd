@@ -11,11 +11,12 @@ func _run() -> void:
 	var runtime: TemplateMain = TEMPLATE_MAIN_SCENE.instantiate() as TemplateMain
 	root.add_child(runtime)
 	await process_frame
-	if not runtime.start_stage(&"stage_01"):
-		_fail("stage_01 did not start")
-		return
+	runtime.start_stage()
 	await process_frame
 	var stage: TemplateStage = runtime.current_stage
+	if stage == null:
+		_fail("stage_01 did not start")
+		return
 	stage.wave_director.set_physics_process(false)
 	var warm_count: int = _node_count(stage)
 	var charged_attack_exercised: bool = false

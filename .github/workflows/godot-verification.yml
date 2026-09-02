@@ -87,7 +87,7 @@ jobs:
           test -s "$TEMPLATES/web_nothreads_release.zip"
 
       - name: Run Act 1-only template gate
-        run: ./verify-migration.sh
+        run: ./verify.sh --full
 
       - name: Upload verification artifacts
         if: always()

@@ -9,8 +9,9 @@ const COMPACT_ENEMY_SCENE: PackedScene = preload(
 
 
 func test_stage_one_has_three_valid_waves_and_two_allowlisted_enemies() -> void:
-	var factory: StageFactory = StageFactory.new()
-	var definition: StageDefinition = factory.definition(&"stage_01")
+	var definition: StageDefinition = preload(
+		"res://resources/template/stages/stage_01.tres"
+	)
 	assert_not_null(definition)
 	assert_true(definition.is_valid(), ", ".join(definition.validation_errors()))
 	assert_eq(definition.waves.size(), 3)
@@ -75,7 +76,7 @@ func test_parameterized_enemy_moves_and_requests_bounded_damage() -> void:
 	assert_true(tank_enemy.configure(tank))
 	assert_not_same(enemy.collision_shape.shape, tank_enemy.collision_shape.shape)
 	player.global_position = Vector2(200.0, 619.0)
-	assert_true(enemy.activate(soldier, player, Vector2(600.0, 619.0), 1))
+	assert_true(enemy.activate(soldier, player, Vector2(600.0, 619.0)))
 	enemy.set_physics_process(false)
 	var initial_x: float = enemy.global_position.x
 	enemy.simulation_step(0.25)
@@ -90,14 +91,18 @@ func test_parameterized_enemy_moves_and_requests_bounded_damage() -> void:
 
 
 func test_stage_completes_three_waves_without_post_warm_node_growth() -> void:
-	var stage: TemplateStage = StageFactory.new().create(&"stage_01", 91)
-	add_child_autofree(stage)
+	var runtime: TemplateMain = preload(
+		"res://scenes/template/template_main.tscn"
+	).instantiate() as TemplateMain
+	add_child_autofree(runtime)
 	await get_tree().process_frame
+	runtime.start_stage()
+	await get_tree().process_frame
+	var stage: TemplateStage = runtime.current_stage
 	stage.wave_director.set_physics_process(false)
 	var warm_node_count: int = _subtree_node_count(stage)
 	assert_eq(stage.wave_director.pool_node_count(), 8)
 	assert_eq(stage.effect_pool.slot_count(), 8)
-	assert_eq(_forbidden_campaign_nodes(stage), PackedStringArray())
 	for step: int in range(256):
 		stage.wave_director.simulation_step(0.25)
 		for enemy: CompactEnemy in stage.wave_director.active_enemies():
@@ -115,22 +120,31 @@ func test_stage_completes_three_waves_without_post_warm_node_growth() -> void:
 
 
 func test_player_defeat_finalizes_once_and_stops_the_wave_director() -> void:
-	var stage: TemplateStage = StageFactory.new().create(&"stage_01", 17)
-	add_child_autofree(stage)
+	var runtime: TemplateMain = preload(
+		"res://scenes/template/template_main.tscn"
+	).instantiate() as TemplateMain
+	add_child_autofree(runtime)
 	await get_tree().process_frame
+	runtime.start_stage()
+	await get_tree().process_frame
+	var stage: TemplateStage = runtime.current_stage
 	assert_true(stage.player.receive_damage(stage.player.max_health))
 	assert_true(stage.lifecycle.finalized)
 	assert_false(stage.lifecycle.frozen_summary.completed)
-	assert_eq(stage.lifecycle.finalization_count, 1)
 	assert_false(stage.player.receive_damage(1.0))
-	assert_eq(stage.lifecycle.finalization_count, 1)
+	assert_false(stage.lifecycle.finish_victory(999, 3))
 	assert_false(stage.wave_director.started)
 
 
 func test_retained_destructible_and_fixed_effect_pool_are_reusable() -> void:
-	var stage: TemplateStage = StageFactory.new().create(&"stage_01", 5)
-	add_child_autofree(stage)
+	var runtime: TemplateMain = preload(
+		"res://scenes/template/template_main.tscn"
+	).instantiate() as TemplateMain
+	add_child_autofree(runtime)
 	await get_tree().process_frame
+	runtime.start_stage()
+	await get_tree().process_frame
+	var stage: TemplateStage = runtime.current_stage
 	var effect_children: int = stage.effect_pool.get_child_count()
 	assert_true(stage.destructible.receive_damage(stage.destructible.max_health))
 	assert_true(stage.destructible.is_destroyed)
@@ -148,20 +162,3 @@ func _subtree_node_count(root: Node) -> int:
 	for child: Node in root.get_children():
 		count += _subtree_node_count(child)
 	return count
-
-
-func _forbidden_campaign_nodes(root: Node) -> PackedStringArray:
-	var found: PackedStringArray = PackedStringArray()
-	var forbidden: PackedStringArray = PackedStringArray([
-		"CitySlice",
-		"CampaignProgressStore",
-		"DirectiveSession",
-		"ProjectChoirRuntime",
-		"RuntimeTweakService",
-	])
-	for child: Node in root.get_children():
-		for class_name_value: String in forbidden:
-			if child.is_class(class_name_value):
-				found.append(class_name_value)
-		found.append_array(_forbidden_campaign_nodes(child))
-	return found
