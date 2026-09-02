@@ -1,7 +1,0 @@
-# Ground Slam Impact SFX Provenance
-
-The source was regenerated for Proto Scroller on 2026-08-25 with the project-required Mirelo carrier workflow. A GPT Image 2 anchor depicted the game’s colossal cream-and-black robot pulverizing reinforced concrete at street level. That 16:9 anchor drove a Manus built-in Veo 3.1 Fast carrier-video generation whose original prompt requested one extremely loud concrete crack, a 45–70 Hz body hit, a pressure-wave whomp, masonry spray, and a deep industrial-canyon reverberation without music, voices, alarms, gunfire, metallic lead, or a generic explosion. No artist, song, or existing work was referenced.
-
-The carrier audio was extracted, converted to 48 kHz mono PCM16, and trimmed around its cleaner isolated concrete impact to a 1.85-second game cue that satisfies the repository’s strict sub-2.1-second impact contract and preserves Web PCK headroom. The master uses a 26 Hz high-pass filter, reinforcement at 55 Hz, 105 Hz, and 215 Hz, moderate compression, parallel 105/220/390 ms reverb, a controlled fade, and a final limiter. It measures −13.5 LUFS integrated with a −1.3 dBFS true peak and zero flat-clipped samples, 2.7 LU louder than the previous −16.2 LUFS cue. The 35–240 Hz band mean is −11.6 dB, 11.1 dB stronger than the previous cue’s −22.7 dB. Godot retains QOA import compression for the Web PCK budget. Final source SHA-256: `464682ed989f6eb1f93c5e035be47bc98677da81d5befa9efc94bbb6daacdd51`.
-
-Runtime use: `RobotAnimationPresenter.GROUND_SLAM_IMPACT_SFX`, Mechanics bus, signature priority.

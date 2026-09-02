@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  full-gate:
+  act1-gate:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
@@ -26,21 +26,10 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install native verification dependencies
+      - name: Install archive dependency
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg jq unzip xvfb xauth
-          python3 -m pip install --user --break-system-packages gdtoolkit
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          sudo apt-get install -y --no-install-recommends unzip
 
       - name: Cache Godot engine and export templates
         uses: actions/cache@v4
@@ -97,26 +86,14 @@ jobs:
           test -s "$TEMPLATES/web_nothreads_debug.zip"
           test -s "$TEMPLATES/web_nothreads_release.zip"
 
-      - name: Install JavaScript dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Resolve Chromium executable
-        shell: bash
-        run: |
-          set -euo pipefail
-          CHROMIUM_PATH="$(command -v google-chrome || command -v chromium || true)"
-          test -n "$CHROMIUM_PATH"
-          echo "CHROMIUM_PATH=$CHROMIUM_PATH" >> "$GITHUB_ENV"
-
-      - name: Run complete Godot and browser gate
-        working-directory: game
-        run: ./verify.sh --full
+      - name: Run Act 1-only template gate
+        run: ./verify-migration.sh
 
       - name: Upload verification artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: godot-verification-${{ github.run_id }}
-          path: game/artifacts
+          path: artifacts
           if-no-files-found: warn
           retention-days: 14

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CompactEnemyDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/combat/compact_enemy_definition.gd" id="1_definition"]
+[ext_resource type="Texture2D" path="res://art/template/enemy_tank.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_definition")
+enemy_id = &"tank"
+texture = ExtResource("2_texture")
+max_health = 165.0
+move_speed = 66.0
+attack_range = 165.0
+attack_interval = 1.65
+contact_damage = 18.0
+score_value = 250
+collision_size = Vector2(148, 64)
+visual_scale = Vector2(0.32, 0.32)

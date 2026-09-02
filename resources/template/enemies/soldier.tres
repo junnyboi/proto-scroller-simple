@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CompactEnemyDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/combat/compact_enemy_definition.gd" id="1_definition"]
+[ext_resource type="Texture2D" path="res://art/template/enemy_soldier.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_definition")
+enemy_id = &"soldier"
+texture = ExtResource("2_texture")
+max_health = 70.0
+move_speed = 112.0
+attack_range = 118.0
+attack_interval = 1.05
+contact_damage = 8.0
+score_value = 100
+collision_size = Vector2(48, 112)
+visual_scale = Vector2(0.54, 0.54)

@@ -1,0 +1,112 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/template/template_stage.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/template/compact_run_lifecycle.gd" id="2_lifecycle"]
+[ext_resource type="Texture2D" path="res://art/template/stage_01_background.webp" id="3_background"]
+[ext_resource type="PackedScene" path="res://scenes/template/basic_hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/template/compact_debrief.tscn" id="5_debrief"]
+[ext_resource type="Texture2D" path="res://art/template/stage_01_foreground.png" id="6_foreground"]
+[ext_resource type="PackedScene" path="res://scenes/template/combat/compact_player.tscn" id="7_player"]
+[ext_resource type="PackedScene" path="res://scenes/template/combat/compact_destructible.tscn" id="8_destructible"]
+[ext_resource type="Script" path="res://scripts/template/combat/compact_wave_director.gd" id="9_director"]
+[ext_resource type="Script" path="res://scripts/template/combat/compact_effect_pool.gd" id="10_effect_pool"]
+[ext_resource type="Script" path="res://scripts/template/combat/compact_camera_impulse.gd" id="11_camera"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(1600, 100)
+
+[node name="TemplateStage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_stage")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="DistantInfrastructure" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_foreground")
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(0.72, 0.82, 0.92, 0.58)
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.025, 0.045, 0.075, 0.24)
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="GroundVisual" type="Polygon2D" parent="World"]
+polygon = PackedVector2Array(0, 620, 1280, 620, 1280, 720, 0, 720)
+color = Color(0.045, 0.06, 0.08, 1)
+
+[node name="Ground" type="StaticBody2D" parent="World"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape2D" parent="World/Ground"]
+position = Vector2(640, 670)
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="CameraImpulse" type="Camera2D" parent="World"]
+unique_name_in_owner = true
+position = Vector2(640, 360)
+enabled = true
+position_smoothing_enabled = false
+script = ExtResource("11_camera")
+
+[node name="CompactPlayer" parent="World" instance=ExtResource("7_player")]
+unique_name_in_owner = true
+position = Vector2(248, 619)
+
+[node name="CompactDestructible" parent="World" instance=ExtResource("8_destructible")]
+unique_name_in_owner = true
+position = Vector2(750, 619)
+
+[node name="EnemyContainer" type="Node2D" parent="World"]
+
+[node name="EffectPool" type="Node2D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("10_effect_pool")
+
+[node name="CompactWaveDirector" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("9_director")
+enemy_container_path = NodePath("../World/EnemyContainer")
+
+[node name="CompactRunLifecycle" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_lifecycle")
+
+[node name="BasicHud" parent="." instance=ExtResource("4_hud")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="CompactDebrief" parent="." instance=ExtResource("5_debrief")]
+unique_name_in_owner = true
+layout_mode = 1
