@@ -61,7 +61,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="Center/Panel/Margin/Content"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "LIGHTWEIGHT SCROLLER TEMPLATE"
+text = "Game template - scroller"
 horizontal_alignment = 1
 
 [node name="Description" type="Label" parent="Center/Panel/Margin/Content"]

@@ -3,12 +3,12 @@
   "kind": "game",
   "game_genre": "generic",
   "status": "ready",
-  "name": "Act 1 Scroller Template",
+  "name": "Game template - scroller",
   "description": "A compact, single-stage Godot 4 side-scroller template.",
   "capabilities": [
     "static"
   ],
   "files": {
-    "project.godot": "; Engine configuration file.\nconfig_version=5\n\n[application]\n\nconfig/name=\"Act 1 Scroller Template\"\nrun/main_scene=\"res://scenes/template/template_main.tscn\"\n\n[rendering]\n\nrenderer/rendering_method=\"gl_compatibility\"\n"
+    "project.godot": "; Engine configuration file.\nconfig_version=5\n\n[application]\n\nconfig/name=\"Game template - scroller\"\nrun/main_scene=\"res://scenes/template/template_main.tscn\"\n\n[rendering]\n\nrenderer/rendering_method=\"gl_compatibility\"\n"
   }
 }

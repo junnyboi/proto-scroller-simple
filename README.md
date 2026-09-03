@@ -1,4 +1,4 @@
-# Act 1 Scroller Template
+# Game template - scroller
 
 A compact Godot 4.7.2 side-scroller template containing one complete stage. The runtime is intentionally limited to Act 1: three finite waves, two reusable enemy definitions, one destructible prop, victory/defeat, retry, and return to title.
 
