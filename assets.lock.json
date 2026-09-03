@@ -1,0 +1,115 @@
+{
+  "version": 2,
+  "groups": {
+    "template": {
+      "name": "Template",
+      "order": 10
+    }
+  },
+  "assets": {
+    "art/template/cursors/cursor_blocked.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/58799c0f0d17c7154d850c326a7168ca6e71c51d72380c29b8a4af76e0441af2.webp",
+      "sha256": "sha256:851310ca85560d8f44c609c2a812bf76bb42046006c2e9d14d11f0e255f503cb",
+      "size": 5554,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/cursors/cursor_command.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/e00acad545702a045518b3fee39350cd0e37fe5d126e4b37365af44602303f85.webp",
+      "sha256": "sha256:401b7a435c2c0526a93c2b864e95b7fb0fc05e2f96a724379eb2a4f6900258a3",
+      "size": 4234,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/cursors/cursor_inspect.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/65619dc7ff387ad0127ed9f8629bb295adbb5681347b537eb1a42fc8b00cf0bc.webp",
+      "sha256": "sha256:16ea2ef2210d5d4cdc2c9c054c23cac30afec24c98240112bb711594f81dd8a5",
+      "size": 5008,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/cursors/cursor_navigate.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/c22b90c4940eb34d80b5a5717fdb1e68921baeaaf40d65ce0f27fcfb734ce78b.webp",
+      "sha256": "sha256:e186eb423564f2c9c4614bc0f060daa0d39098039e7702d4e6972a7b402d432f",
+      "size": 4305,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/debris_chunk.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/14c9513b8d3b530a32fa2bae649a69b36a55dda5804e33a1b0abb77b1084ff29.webp",
+      "sha256": "sha256:7ae01a7461ba11e0fd9477b8dbeb68d574ac61f83a823a97fb7ff10cedc35285",
+      "size": 21081,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/destructible_intact.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/f5d84f25065477260e6de823a00f33c208089304010c9f2fdea4ece0222289c3.webp",
+      "sha256": "sha256:f6a1a730a781ac2e550df6ca19844706243345a7757cbdbdd802a0403a2ce7df",
+      "size": 79771,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/destructible_wreck.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/4058812015c5125528cb7b39dac99403815ea574d2a2249053567c0648663b2d.webp",
+      "sha256": "sha256:60ca1c37977904bf1e3e62adddaf361e7a9ef54b21bd73441b24ef1ae5cbf43c",
+      "size": 144840,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/enemy_soldier.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/bbb349a16bd83f3bb15024a6fb2613b4f11d0f609bafa03d7cb07b76f2c15abc.webp",
+      "sha256": "sha256:313d06bbb3da445df3345364b36c3b6c1a34267cac35bb6620bfa08c38d0424e",
+      "size": 44294,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/enemy_tank.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/31e5a9fd682426e1786122f3ded03f3d78d37aa6961ba6a784b6505c6e74e39e.webp",
+      "sha256": "sha256:b13fb4490d681d5530a78d6fc77240a72f9cbb1556de31e7af387c6c3a0e2cad",
+      "size": 141106,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/impact_flash.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/f54b272ae9194dfb13dcf7212135a6ccb4382c7fb52f8338182e85b6748d5c27.webp",
+      "sha256": "sha256:41b428e1d551e712fed08b8a9df736787ae8c36d2cbf3bc773a6529284edb07c",
+      "size": 9802,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/player_atlas.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/2f208a1d31a122ab39cb6f73a9212425ea8f1fbb6a2c160dc040ecbe71c1c20d.webp",
+      "sha256": "sha256:f6c23db8e90ca9a10d3cc9c2940697beca2bfc27e88eb989cfcfd08b4782084f",
+      "size": 3406003,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/stage_01_background.webp": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/10a43ba465de6c4798f4cb619122fc706f73ebb459f3e8f1c4604b1473534b0a.webp",
+      "sha256": "sha256:10a43ba465de6c4798f4cb619122fc706f73ebb459f3e8f1c4604b1473534b0a",
+      "size": 74376,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    },
+    "art/template/stage_01_foreground.png": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/ad64b43bb899f5ca207da5bc9c834833bc4346686a95d1632b18f797df4c9f1f.webp",
+      "sha256": "sha256:4c9f3da26b305f77085298b33f2e9a0e73a348c5f0dc92bd5900ee955fb16d35",
+      "size": 437328,
+      "assetType": "image",
+      "groupId": "template",
+      "used": true
+    }
+  }
+}
