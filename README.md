@@ -27,6 +27,8 @@ Use these labels while reasoning and documenting:
 
 The live `project.godot` is authoritative. The abbreviated `project.godot` string inside `template.json` is template metadata, not the complete runtime configuration.
 
+No runtime code reads `template.json`. When renaming or repackaging the template, deliberately synchronize the application name in `project.godot`, the visible title literals in `scenes/template/basic_title.tscn`, and the metadata in `template.json`.
+
 ## 2. Truthful scope
 
 ### CURRENT playable kernel
@@ -38,7 +40,7 @@ Title → Start Stage 1 → three finite waves → Victory or Defeat
       → Retry with a fresh stage OR return to Title
 ```
 
-Stage 1 contains two enemy archetypes, one optional destructible prop, run-local score, a basic HUD, compact impact effects, camera shake, and a terminal debrief. The first terminal result is frozen exactly once.[1] [2]
+Stage 1 contains two enemy archetypes, one always-present destructible whose destruction is optional, run-local score, a basic HUD, compact impact effects, camera shake, and a terminal debrief. The first terminal request is accepted and emitted once per lifecycle setup epoch. The emitted `TemplateRunSummary` is a snapshot by convention, but its fields are currently writable.[1] [2]
 
 | Area | CURRENT implementation |
 | --- | --- |
@@ -47,7 +49,7 @@ Stage 1 contains two enemy archetypes, one optional destructible prop, run-local
 | Player | Horizontal movement, one charge-and-release attack, one dodge |
 | Physics | Grounded `CharacterBody2D` movement, gravity, slide resolution, fixed X bounds |
 | UI | Static start screen, HUD, victory/defeat debrief, Retry, Title |
-| Effects | Eight reusable impact/debris slots and additive camera-offset shake |
+| Effects | Eight reusable impact/debris slots and absolute camera-offset shake |
 | Art | Static/layered 2D assets; player and enemies mirror with `flip_h` |
 | Web | Stock Godot HTML/JavaScript/WASM/PCK export |
 
@@ -78,10 +80,12 @@ The main scene is `res://scenes/template/template_main.tscn`.
 | Action | Keyboard | Controller | Behavior |
 | --- | --- | --- | --- |
 | Move | A/D or Left/Right | Left stick or D-pad | Accelerated horizontal movement |
-| Charge attack | Hold Space | Hold X | Slows horizontal movement while charging |
+| Charge attack | Hold Space | Hold X | Decelerates horizontal movement toward zero and locks facing updates |
 | Release attack | Release Space | Release X | Emits damage/radius scaled by charge |
 | Dodge | Shift | B | Fast horizontal movement with brief invulnerability |
-| Activate focused UI | Enter/Tab | A | Standard `ui_accept`; not a combat action |
+| Activate focused UI | Enter or keypad Enter | A | Standard `ui_accept`; not a combat action |
+
+Tab changes GUI focus through Godot's normal focus-navigation actions; it is not bound to `ui_accept`. The combat actions use a `0.3` deadzone, while `ui_accept` uses `0.5`. Gameplay consumes `move_left`, `move_right`, `stomp`, and `dodge`; title/debrief activation relies on focused `Button` behavior.
 
 Create a stock Web export:
 
@@ -100,9 +104,9 @@ Preserve the existing ownership boundaries. They keep pivots inexpensive and pre
 | --- | --- | --- |
 | `TemplateMain` | Owns title/stage lifetime and route changes | Child screens must emit requests upward |
 | `TemplateStage` | Integrates one active run, resolves attacks, owns score | Do not move persistence/network logic into combat actors |
-| `CompactRunLifecycle` | Accepts one victory/defeat and freezes one summary | Do not finalize twice or use pause as terminal state |
+| `CompactRunLifecycle` | Accepts one victory/defeat and emits one summary per setup epoch | Do not finalize twice or use pause as terminal state |
 | `CompactPlayer` | Owns input, movement, charge/dodge state, health | Do not mutate health/velocity from unrelated UI code |
-| `CompactWaveDirector` | Validates stage data, warms enemy pool, spawns waves | Do not instantiate enemies on the hot spawn path |
+| `CompactWaveDirector` | Validates structural stage data, warms enemy pool, spawns waves | Also preflight runtime IDs, markers, and capacity before extending content |
 | `CompactEnemy` | Executes one archetype's pursuit/attack/health state | Do not hard-code wave progression in an enemy |
 | `CompactEffectPool` | Reuses bounded impact/debris slots | Do not allocate a node per hit |
 | `BasicHud` / `CompactDebrief` | Render state and emit UI requests | Do not make them authoritative gameplay stores |
@@ -117,6 +121,11 @@ Preserve the existing ownership boundaries. They keep pivots inexpensive and pre
 5. Score is non-negative, owned by `TemplateStage`, and copied into `TemplateRunSummary`.
 6. Retry reconstructs the stage, resetting actors, prop, camera, pools, and run state.
 7. Keep these `%` unique nodes unless all references migrate together: `CompactRunLifecycle`, `BasicHud`, `CompactDebrief`, `CompactPlayer`, `CompactDestructible`, `CompactWaveDirector`, `EffectPool`, and `CameraImpulse`.
+8. Route changes immediately deparent the outgoing title/stage and defer destruction with `queue_free()`. Treat retained references and signals from an outgoing screen as stale.
+9. `show_title()` and `start_stage()` are unconditional replacement operations. Current code has no debounce, source-identity check, or terminal-eligibility guard, so callers must not route from hidden, detached, or stale screens.
+10. Title, stage, Stage 1, cursor assets, all required `%` nodes, and valid director configuration are hard boot prerequisites. Missing dependencies reach preload/assert failures; there is no user-facing recovery screen.
+
+`CompactRunLifecycle.setup()` clears the prior summary and reopens finalization. The summary contains `stage_id`, `completed`, non-negative `score`, and non-negative `waves_cleared`; it does not cap waves to the stage total. The current debrief renders only internal `stage_id` and raw score. Retry freshness comes from whole-stage replacement and each new node's `_ready()` initialization, not from one explicit reset transaction.
 
 ## 5. Current gameplay mechanics
 
@@ -143,7 +152,28 @@ The attack is manually resolved by `TemplateStage` using radial distance plus a 
 attack_released(origin, radius, damage, facing, charge_ratio)
 ```
 
-Enemy damage must follow `CompactEnemy.damage_requested → CompactWaveDirector → CompactPlayer.receive_damage`. Do not mutate `current_health` directly.
+**Current hit rule:** release originates at `player.global_position + Vector2(facing * 58, -58)`. `TemplateStage` damages every active enemy, plus the intact prop, whose origin is within the supplied radius and whose horizontal delta multiplied by facing is at least `-28`. Collision extents, sprite bounds, line of sight, active frames, and a per-swing target cap do not participate.[4] [10]
+
+The player is collision layer 2/mask 1; enemies are layer 4/mask 1; both therefore collide only with ground layer 1 and pass through one another. The prop is a collider-free `Node2D`. Enemy damage is horizontal-range signaling rather than physical contact and must follow `CompactEnemy.damage_requested → CompactWaveDirector → CompactPlayer.receive_damage`. Do not mutate `current_health` directly.[10] [11] [12]
+
+Player input is processed in this order: stomp press, stomp release, dodge press, then timer/physics advancement. A release and dodge may therefore succeed in one tick, while a newly started charge blocks a same-tick dodge. Attack cooldown does not block dodge, and dodge cooldown does not block a later attack once dodge movement ends. Cooldown and invulnerability timers decrement at the start of each enabled physics step. Dodge movement lasts `0.16 s`, while invulnerability lasts `0.26 s`, leaving a nominal `0.10 s` post-dash immunity window.
+
+Disabling the player stops all `_physics_process` work and freezes movement, gravity, cooldowns, dodge, and invulnerability rather than clearing every timer. `set_combat_disabled(false)` is not a respawn/reset API: it retains health and transient state. Outside dodge there is no post-hit grace period, so several enemies may stack accepted damage in one frame.
+
+### Derived balance breakpoints
+
+Damage and radius interpolate linearly with charge ratio. These values are arithmetic from the current constants, not playtest evidence:
+
+| Charge ratio | Charge time | Damage | Soldier hits | Tank hits | Prop hits |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0% | 0.000 s | 45 | 2 | 4 | 2 |
+| 15.4% | 0.115 s | 55 | 2 | 3 | 2 |
+| 38.5% | 0.288 s | 70 | 1 | 3 | 2 |
+| 57.7% | 0.433 s | 82.5 | 1 | 2 | 2 |
+| 69.3% | 0.519 s | 90 | 1 | 2 | 1 |
+| 100% | 0.750 s | 110 | 1 | 2 | 1 |
+
+Repeated zero-charge releases have higher theoretical isolated-target throughput than repeated full charges because the former wait only the `0.28 s` cooldown. Full or partial charge primarily buys reach, uncapped cleave, and one-hit/two-hit breakpoints. Preserve or intentionally rebalance this trade-off when adding attack states.
 
 ### Enemies and waves
 
@@ -163,10 +193,16 @@ A spawn record needs an allowlisted `enemy_id`, positive `count`, positive `inte
 | Wave | Delay | Spawn records |
 | --- | ---: | --- |
 | 1 | 0.35 s | 2 soldiers, 0.45 s interval |
-| 2 | 0.55 s | 3 soldiers at 0.35 s, then 1 tank |
-| 3 | 0.65 s | 2 tanks at 0.70 s, then 2 soldiers |
+| 2 | 0.55 s | 3 soldiers at 0.35 s, then 1 tank with authored 0.60 s interval |
+| 3 | 0.65 s | 2 tanks at 0.70 s, then 2 soldiers at 0.30 s |
 
-The director warms eight enemies. A wave clears only after every record has issued and no enemy remains active. Pool exhaustion retries the pending spawn; it does not allocate or discard it. Before increasing peak concurrency, calculate capacity and test `pool_exhaustion_count == 0`.
+The director warms eight enemies. Shipped maximum scheduled concurrency is 2, 4, and 4 for waves 1–3, leaving four slots of headroom; waves do not overlap. A wave clears only after every record has issued and no enemy remains active.
+
+**Scheduler contract:** `wave_started` emits before the start delay. The step that reduces the delay to zero returns, each later simulation step issues at most one successful spawn, excess `delta` is discarded, records are serial, and record/final-issuance transitions require later steps. Record intervals pace the next unit only after a successful spawn; the Wave 2 tank's one-unit `0.60 s` interval is therefore never consumed. Treat authored delays as requested scheduler durations, not exact wall-clock timestamps.[5]
+
+Any failed spawn retains the pending record and increments `pool_exhaustion_count` every spawning step. That failure includes full capacity, a runtime-registry/allowlist mismatch, or activation failure, so the counter is not capacity-only telemetry. An allowlisted but unregistered ID can currently retry forever and block victory. Preflight every ID against `CompactWaveDirector.definition()`, validate marker IDs/types, and fail visibly instead of relying on this retry path.
+
+Successful `configure()` is the fresh-run boundary. `stop()` deactivates slots but retains configuration, counters, and scheduler state; `start()` is not idempotent or restart-safe without successful reconfiguration or a new director. `TemplateMain` avoids this hazard by constructing a fresh stage on Retry.
 
 Current spawn positions are code-owned coordinates:
 
@@ -179,13 +215,21 @@ offset       = (spawned_count % 3) × 24 px
 
 A mistyped marker silently uses the fallback. Replace this with validated stage-local `Marker2D` nodes or typed marker resources before authoring varied layouts.
 
+Offsets count all successful spawns globally, not per wave or record, and ignore collider footprint, player/prop clearance, and viewport bounds. The shipped Wave 2 tank can center at X `1228`; its `148 px` collider extends beyond the 1280-wide authored visual area. This is acceptable only because the current actors do not collide with one another.
+
+Enemy pursuit and attack range use horizontal distance only. Exact range enters the attack branch. The first request begins after half the authored interval (`0.525 s` soldier, `0.825 s` tank), later requests use the full interval, and the countdown advances only while in range. Leaving and re-entering range resumes the retained remainder. There is no wind-up, line of sight, vertical-range check, or attack telegraph.
+
 ### Destruction and effects
 
-The current destructible is a visual-only `Node2D` with 90 HP and 50 score. It has no collision body. On zero health it swaps intact/wreck sprites and emits one `destroyed(score_value, world_position)` signal.[6]
+The current destructible is an always-instanced visual-only `Node2D` with 90 HP and 50 score. It has no collision body and is optional only to destroy. On zero health it swaps intact/wreck sprites and emits one `destroyed(score_value, world_position)` signal.[6]
 
-`CompactEffectPool` preallocates eight two-sprite slots. Each effect lives 0.34 seconds, moves and rotates procedurally, fades, then is reused. A ninth simultaneous effect overwrites a slot. Preserve bounded reuse and define priority/drop behavior before increasing effect density.
+Current score opportunities are deterministic: Wave 1 awards `200`, Wave 2 `550`, and Wave 3 `700`; required enemies total `1,450`. Destroying the prop before terminal shutdown adds `50`, so normal victorious runs finish at `1,450` or `1,500`. There is no completion bonus.
 
-`CompactCameraImpulse` modifies only `Camera2D.offset` and decays to zero. Keep persistent camera progression separate from shake.
+`CompactEffectPool` preallocates eight two-sprite slots. A spawned slot is configured for `0.34 s`, moves and rotates procedurally, and fades unless a later round-robin request overwrites it sooner. A lethal enemy or prop currently creates two nested requests—score feedback, then the enclosing attack impact. There is no priority or critical-slot reservation. Preserve bounded reuse and define priority/drop behavior before increasing effect density.[13]
+
+The enemy **node** pool is bounded, but each activation currently allocates a new `RectangleShape2D` resource. Existing node-count checks do not prove allocation-free spawning. Reuse collider resources or profile the allocation before claiming a zero-allocation hot path.
+
+`CompactCameraImpulse` writes an absolute `Camera2D.offset`, retains the greater of current and requested strength rather than adding impulses, and lets the latest request replace direction. Phase persists between kicks. Keep persistent camera progression separate from shake, and do not assume another system's camera offset will survive this component.[14]
 
 ### Procedural movement animation
 
@@ -198,11 +242,13 @@ The current actor animation is only horizontal mirroring. For a lightweight pivo
 - Damage: brief white tint plus small positional kick.
 - Death: short tilt/drop/fade before pool deactivation when compatible.
 
-Animate `position`, `rotation`, `scale`, and `modulate`; do not change collision geometry for cosmetic motion. Reset every transform/modulate value on pooled activation/deactivation.
+Animate `position`, `rotation`, `scale`, and `modulate`; do not change collision geometry for cosmetic motion. **INVARIANT for new animation/effect work:** reset every transform/modulate value on pooled activation/deactivation. The current effect pool resets presentation on spawn but only hides a slot at expiry, and current enemy deactivation does not clear every presentation field; migrate and test those paths before treating the stronger reset rule as CURRENT.
 
 ## 6. UI, HUD, and alignment rules
 
 The authored reference canvas is **1280×720** with `canvas_items` and `aspect="expand"`. Treat it as a design reference, not proof that fixed widths fit portrait screens.[7]
+
+`expand` changes the visible canvas but does not make gameplay geometry responsive. The ground art, fixed camera `(640,360)`, player clamp X `72..1208`, prop, and spawn coordinates remain authored in 1280-wide space. HUD and debrief are ordinary Controls in the stage canvas, not an isolating `CanvasLayer`, so `CameraImpulse.offset` may move the HUD and terminal modal with the world. Move fixed UI into an explicit screen-space layer before adding camera follow or when UI shake is undesirable.[12] [14]
 
 ### Screen composition
 
@@ -227,6 +273,8 @@ Rules:
 10. Preserve the high-contrast focus ring in `resources/title_theme.tres`.
 11. Add wrapping/reflow or a compact HUD mode before adding density. Test 1280×720, narrow landscape, ultrawide, and portrait.
 12. When adding Chinese, allow greater label width/height, use a CJK-capable font, and test every glyph and focus state.
+
+The current HUD shows `StageDefinition.display_name`, health, current/total wave, and a score padded to at least six digits. The debrief instead shows internal `stage_id` and unpadded score; it does not render the available `waves_cleared` field. Current accessibility consists of visible labels/tooltips, semantic cursors, and a focus ring. Charge, cooldown, invulnerability, wave-delay, reduced-motion, and localized-state presentation are **TO BUILD**. The `blocked` cursor/theme path is prebuilt infrastructure but no current reachable command is disabled.
 
 ### Cursor roles
 
@@ -266,7 +314,7 @@ Dimensions, alpha, atlas regions, pivots, and scene scales are part of the asset
 - Stage plates aspect-cover 1280×720. At the base viewport, source X `160..1184` is guaranteed visible.
 - Avoid indispensable scenery under HUD Y `0..110` and controls Y `670..702`.
 - The title panel covers approximately X `400..880`, Y `220..500`.
-- Actor, enemy, prop, effect, and foreground art must be lateral/orthographic and bottom-ground aligned.
+- Replacement actor, enemy, prop, effect, and foreground art must be lateral/orthographic and deliberately bottom-ground aligned. This is a reskin acceptance target, not a guarantee of the current source alpha bounds; centered sprites, transparent padding, and differing canvas heights can shift visible baselines.
 - Enemy/player art may be mirrored. Avoid readable directional text, asymmetrical insignia with gameplay meaning, or baked lighting that fails when flipped.
 - Do not bake scene tint/shade into source art. Foreground modulate and title/stage darkening remain runtime composition.
 
@@ -319,6 +367,8 @@ Constraints: true alpha, no opaque backdrop, no text, no watermark.
 7. Update changed entries in `assets.lock.json` with the new source URL, size, and checksum. `title.jpg` is currently used but absent from the lock; add it during the next complete reskin or document the exception explicitly.
 
 Do not depend on nearest-neighbor or linear filtering until the project pins and tests a texture-filter policy.
+
+The player scene samples only `Rect2(0,1536,256,256)` from the 6400×1792 atlas. Keeping the full atlas preserves the current scene ABI but carries substantial unused source area. A compact pivot may migrate to a standalone texture, but must update the scene, lock, verifier inventory, import output, and visual tests together before deleting the atlas.
 
 ## 8. Minimum systems for a complete pivot
 
@@ -476,17 +526,29 @@ Before a release candidate when full verification is requested:
 ./verify.sh --full
 ```
 
-The verifier checks project structure, exact retained asset inventory, clean import, every script parse, focused GUT tests, deterministic lifecycle/combat scenarios, bounded launch, and—under `--full`—the Web bundle and a **16 MiB PCK cap**.[9]
+The verifier performs an import invocation using the current workspace, parses first-party `.gd` files under `scripts/`, `selftest/`, and `test/`, runs focused GUT tests plus two direct/manual headless scenarios, and performs a bounded Dummy-audio launch. Under `--full`, it additionally exports four nonempty Web artifacts and enforces a **16 MiB cap on the PCK only**.[9]
+
+| The current gate proves | The current gate does not prove |
+| --- | --- |
+| Compact structure and exact retained filename inventory | A clean-room import; `.godot/` is not cleared |
+| First-party scripts in the three checked paths parse | Vendor/add-on parsing or an expected test-discovery count |
+| Fourteen current GUT cases and two deterministic scenarios can run | Real keyboard/controller dispatch, natural combat timing, or attack geometry |
+| Positive-path lifecycle, shipped pool counts, and selected cursor metadata | Pool exhaustion recovery, negative resource cases, graphical native cursor behavior, or responsive layout |
+| Bounded headless boot | Exact local Godot version enforcement or a graphical boot |
+| Full mode emits nonempty HTML/JS/WASM/PCK and checks PCK size | Aggregate payload budget, PCK-content exclusions, HTTP serving, or browser execution |
+| Exact retained filenames match verifier policy | `assets.lock.json` checksum/size correctness or one-to-one provenance coverage |
+
+The deterministic combat scenario disables normal physics processing, manually advances the wave director, and kills active enemies directly. It proves coarse lifecycle and bounded-node outcomes, not real encounter cadence, enemy-to-player contact, player attack selection, or strategy. Treat native cursor checks, target-aspect visual checks, and an HTTP-served Web browser smoke test as complementary release acceptance.
 
 CURRENT executable invariants include:
 
 - Stage 1 has three waves and only soldier/tank definitions.
-- Enemy pool count is eight with zero exhaustion for shipped content.
+- Enemy pool count is eight with zero failed spawn attempts for shipped content; the counter is not capacity-only.
 - Effect pool count is eight with no post-warm node growth.
 - Victory/defeat finalizes once.
 - Retry creates one fresh stage; Title removes it.
-- Pooled effects never increase node count.
-- Cursor textures, semantic roles, tooltips, and focus/window cleanup remain valid.
+- Pooled effects never increase node count in the covered scenarios; overwrite, expiry reset, and priority behavior need separate tests.
+- Cursor textures, semantic roles, tooltips, and internal exit/focus-loss state transitions pass headless tests; native cursor installation/reset remains a graphical integration check.
 
 When adding a feature, add focused GUT coverage and a deterministic self-test for its contract. Examples include pause/resume input capture, settings round-trip, tutorial seen/skip/replay, EN/CN key completeness, leaderboard ordering/no double record, sync fallback, audio deduplication, stage catalog routing, marker validation, pool overload policy, telegraph cancellation, attack-state timing, knockback physics, and parallax wrap seams.
 
@@ -506,8 +568,8 @@ A pivot is complete when:
 6. Required pause, settings/tweaks, tutorial, localization, audio, filter, and leaderboard decisions are implemented or explicitly waived.
 7. Local play never depends on remote config or leaderboard availability.
 8. Pools remain bounded and no hot-path node growth is introduced.
-9. Focused tests pass; the exact Godot version imports and boots the project.
-10. Any release export contains HTML, JavaScript, WASM, and PCK and is served over HTTP for browser testing.
+9. Focused tests pass; manual preflight confirms the exact compatible Godot version, because `verify.sh` does not compare `godot --version`.
+10. Any release export contains HTML, JavaScript, WASM, and PCK and is served over HTTP for browser testing; the current verifier does not perform that browser step.
 
 ## 12. Source map
 
@@ -535,3 +597,8 @@ A pivot is complete when:
 [7]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scenes/template/basic_hud.tscn "Basic HUD layout"
 [8]: https://github.com/junnyboi/proto-scroller-simple/blob/main/assets.lock.json "Template asset lock"
 [9]: https://github.com/junnyboi/proto-scroller-simple/blob/main/verify.sh "Repository verification contract"
+[10]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scripts/template/template_stage.gd "Stage attack integration"
+[11]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scenes/template/combat/compact_enemy.tscn "Compact enemy collision configuration"
+[12]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scenes/template/template_stage.tscn "Template stage scene topology"
+[13]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scripts/template/combat/compact_effect_pool.gd "Compact effect pool"
+[14]: https://github.com/junnyboi/proto-scroller-simple/blob/main/scripts/template/combat/compact_camera_impulse.gd "Compact camera impulse"
