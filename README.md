@@ -106,7 +106,7 @@ Preserve the existing ownership boundaries. They keep pivots inexpensive and pre
 | `TemplateStage` | Integrates one active run, resolves attacks, owns score | Do not move persistence/network logic into combat actors |
 | `CompactRunLifecycle` | Accepts one victory/defeat and emits one summary per setup epoch | Do not finalize twice or use pause as terminal state |
 | `CompactPlayer` | Owns input, movement, charge/dodge state, health | Do not mutate health/velocity from unrelated UI code |
-| `CompactWaveDirector` | Validates structural stage data, warms enemy pool, spawns waves | Also preflight runtime IDs, markers, and capacity before extending content |
+| `CompactWaveDirector` | Validates stage data plus runtime enemy/marker bindings, warms enemy pool, spawns waves | Do not bypass `configure()` or treat every failed spawn as capacity pressure |
 | `CompactEnemy` | Executes one archetype's pursuit/attack/health state | Do not hard-code wave progression in an enemy |
 | `CompactEffectPool` | Reuses bounded impact/debris slots | Do not allocate a node per hit |
 | `BasicHud` / `CompactDebrief` | Render state and emit UI requests | Do not make them authoritative gameplay stores |
@@ -123,7 +123,7 @@ Preserve the existing ownership boundaries. They keep pivots inexpensive and pre
 7. Keep these `%` unique nodes unless all references migrate together: `CompactRunLifecycle`, `BasicHud`, `CompactDebrief`, `CompactPlayer`, `CompactDestructible`, `CompactWaveDirector`, `EffectPool`, and `CameraImpulse`.
 8. Route changes immediately deparent the outgoing title/stage and defer destruction with `queue_free()`. Treat retained references and signals from an outgoing screen as stale.
 9. `show_title()` and `start_stage()` are unconditional replacement operations. Current code has no debounce, source-identity check, or terminal-eligibility guard, so callers must not route from hidden, detached, or stale screens.
-10. Title, stage, Stage 1, cursor assets, all required `%` nodes, and valid director configuration are hard boot prerequisites. Missing dependencies reach preload/assert failures; there is no user-facing recovery screen.
+10. Title, stage, Stage 1, cursor assets, and all required `%` nodes are hard boot prerequisites. Invalid stage/director data emits a diagnostic and returns an entered stage to Title; missing preload/scene dependencies can still fail before that recovery path exists.
 
 `CompactRunLifecycle.setup()` clears the prior summary and reopens finalization. The summary contains `stage_id`, `completed`, non-negative `score`, and non-negative `waves_cleared`; it does not cap waves to the stage total. The current debrief renders only internal `stage_id` and raw score. Retry freshness comes from whole-stage replacement and each new node's `_ready()` initialization, not from one explicit reset transaction.
 
@@ -183,7 +183,7 @@ Content uses this data chain:
 StageDefinition → CompactWaveDefinition[] → CompactSpawnRecord[]
 ```
 
-A spawn record needs an allowlisted `enemy_id`, positive `count`, positive `interval_seconds`, and a marker ID. The current director registry resolves only `soldier` and `tank`; adding a resource alone is insufficient.[5]
+A spawn record needs an allowlisted `enemy_id`, positive `count`, positive `interval_seconds`, and a marker ID. The current director registry resolves only `soldier` and `tank`; adding a resource alone is insufficient. `CompactWaveDirector.configure()` now validates every record against the runtime registry, verifies the resolved definition, and requires every referenced marker to exist as a finite `Vector2` before `start()` can succeed.[5]
 
 | Unit | HP | Speed | Range | Attack interval | Damage | Score | Collision |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -200,7 +200,7 @@ The director warms eight enemies. Shipped maximum scheduled concurrency is 2, 4,
 
 **Scheduler contract:** `wave_started` emits before the start delay. The step that reduces the delay to zero returns, each later simulation step issues at most one successful spawn, excess `delta` is discarded, records are serial, and record/final-issuance transitions require later steps. Record intervals pace the next unit only after a successful spawn; the Wave 2 tank's one-unit `0.60 s` interval is therefore never consumed. Treat authored delays as requested scheduler durations, not exact wall-clock timestamps.[5]
 
-Any failed spawn retains the pending record and increments `pool_exhaustion_count` every spawning step. That failure includes full capacity, a runtime-registry/allowlist mismatch, or activation failure, so the counter is not capacity-only telemetry. An allowlisted but unregistered ID can currently retry forever and block victory. Preflight every ID against `CompactWaveDirector.definition()`, validate marker IDs/types, and fail visibly instead of relying on this retry path.
+Only a genuinely unavailable pooled slot now retains the pending record and increments `pool_exhaustion_count`. Impossible runtime contracts—an enemy ID or allowlist changed after configuration, a marker removed, or activation rejected despite preflight—stop the director, populate `configuration_errors`, emit `configuration_failed`, and produce one explicit error instead of retrying forever. `TemplateStage` disables combat and requests Title on that signal, preventing a dead run.
 
 Successful `configure()` is the fresh-run boundary. `stop()` deactivates slots but retains configuration, counters, and scheduler state; `start()` is not idempotent or restart-safe without successful reconfiguration or a new director. `TemplateMain` avoids this hazard by constructing a fresh stage on Retry.
 
@@ -209,11 +209,10 @@ Current spawn positions are code-owned coordinates:
 ```text
 right_ground = (1120, 619)
 right_armor  = (1180, 619)
-fallback     = (1130, 619)
 offset       = (spawned_count % 3) × 24 px
 ```
 
-A mistyped marker silently uses the fallback. Replace this with validated stage-local `Marker2D` nodes or typed marker resources before authoring varied layouts.
+A mistyped, missing, non-`Vector2`, or non-finite marker now rejects configuration; there is no fallback coordinate. The current marker dictionary remains code-owned. Replace it with validated stage-local `Marker2D` nodes or typed marker resources before authoring varied layouts.
 
 Offsets count all successful spawns globally, not per wave or record, and ignore collider footprint, player/prop clearance, and viewport bounds. The shipped Wave 2 tank can center at X `1228`; its `148 px` collider extends beyond the 1280-wide authored visual area. This is acceptable only because the current actors do not collide with one another.
 
@@ -532,8 +531,8 @@ The verifier performs an import invocation using the current workspace, parses f
 | --- | --- |
 | Compact structure and exact retained filename inventory | A clean-room import; `.godot/` is not cleared |
 | First-party scripts in the three checked paths parse | Vendor/add-on parsing or an expected test-discovery count |
-| Fourteen current GUT cases and two deterministic scenarios can run | Real keyboard/controller dispatch, natural combat timing, or attack geometry |
-| Positive-path lifecycle, shipped pool counts, and selected cursor metadata | Pool exhaustion recovery, negative resource cases, graphical native cursor behavior, or responsive layout |
+| Twenty current GUT cases and two deterministic scenarios can run | Real keyboard/controller dispatch, natural combat timing, or attack geometry |
+| Positive-path lifecycle, shipped pool counts, fail-fast enemy/marker rejection, and selected cursor metadata | Pool exhaustion recovery, every negative resource case, graphical native cursor behavior, or responsive layout |
 | Bounded headless boot | Exact local Godot version enforcement or a graphical boot |
 | Full mode emits nonempty HTML/JS/WASM/PCK and checks PCK size | Aggregate payload budget, PCK-content exclusions, HTTP serving, or browser execution |
 | Exact retained filenames match verifier policy | `assets.lock.json` checksum/size correctness or one-to-one provenance coverage |
@@ -543,7 +542,9 @@ The deterministic combat scenario disables normal physics processing, manually a
 CURRENT executable invariants include:
 
 - Stage 1 has three waves and only soldier/tank definitions.
-- Enemy pool count is eight with zero failed spawn attempts for shipped content; the counter is not capacity-only.
+- Enemy pool count is eight with zero capacity-exhaustion attempts for shipped content.
+- Allowlisted-but-unregistered enemy IDs and missing/malformed spawn markers fail during configuration, before a wave can start.
+- A post-configuration enemy contract mutation stops the director, emits a configuration failure, and returns the stage to Title without incrementing pool exhaustion.
 - Effect pool count is eight with no post-warm node growth.
 - Victory/defeat finalizes once.
 - Retry creates one fresh stage; Title removes it.

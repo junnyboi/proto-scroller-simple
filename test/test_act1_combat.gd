@@ -23,6 +23,108 @@ func test_stage_one_has_three_valid_waves_and_two_allowlisted_enemies() -> void:
 	director.free()
 
 
+func test_wave_director_rejects_allowlisted_enemy_without_runtime_definition() -> void:
+	var fixture: Dictionary = await _create_wave_director_fixture()
+	var director: CompactWaveDirector = fixture["director"]
+	var player: CompactPlayer = fixture["player"]
+	var definition: StageDefinition = _single_spawn_stage(&"ghost", &"right_ground")
+	var failures: Array = []
+	director.configuration_failed.connect(
+		func(errors: PackedStringArray) -> void: failures.append(errors)
+	)
+	assert_false(director.configure(
+		definition,
+		player,
+		{&"right_ground": Vector2(1120.0, 619.0)}
+	))
+	assert_push_error("enemy_id 'ghost' has no runtime definition")
+	assert_false(director.start())
+	assert_false(director.started)
+	assert_eq(director.pool_exhaustion_count, 0)
+	assert_eq(failures.size(), 1)
+	assert_true(_contains_text(director.configuration_errors, "wave 1 spawn 1"))
+
+
+func test_wave_director_rejects_missing_spawn_marker() -> void:
+	var fixture: Dictionary = await _create_wave_director_fixture()
+	var director: CompactWaveDirector = fixture["director"]
+	var player: CompactPlayer = fixture["player"]
+	var definition: StageDefinition = _single_spawn_stage(&"soldier", &"missing_marker")
+	assert_false(director.configure(definition, player, {}))
+	assert_push_error("marker_id 'missing_marker' is not configured")
+	assert_false(director.start())
+	assert_eq(director.pool_exhaustion_count, 0)
+
+
+func test_wave_director_rejects_non_vector_spawn_marker() -> void:
+	var fixture: Dictionary = await _create_wave_director_fixture()
+	var director: CompactWaveDirector = fixture["director"]
+	var player: CompactPlayer = fixture["player"]
+	var definition: StageDefinition = _single_spawn_stage(&"soldier", &"right_ground")
+	assert_false(director.configure(
+		definition,
+		player,
+		{&"right_ground": "1120,619"}
+	))
+	assert_push_error("marker_id 'right_ground' must resolve to Vector2")
+	assert_false(director.start())
+	assert_eq(director.pool_exhaustion_count, 0)
+
+
+func test_runtime_definition_mutation_stops_instead_of_retrying_forever() -> void:
+	var fixture: Dictionary = await _create_wave_director_fixture()
+	var director: CompactWaveDirector = fixture["director"]
+	var player: CompactPlayer = fixture["player"]
+	var definition: StageDefinition = _single_spawn_stage(&"soldier", &"right_ground")
+	assert_true(director.configure(
+		definition,
+		player,
+		{&"right_ground": Vector2(1120.0, 619.0)}
+	))
+	assert_true(director.start())
+	var wave: CompactWaveDefinition = definition.waves[0] as CompactWaveDefinition
+	wave.spawns[0].enemy_id = &"ghost"
+	director.simulation_step(0.1)
+	assert_push_error("enemy_id 'ghost' no longer resolves to a runtime definition")
+	assert_false(director.started)
+	assert_eq(director.pool_exhaustion_count, 0)
+	assert_true(_contains_text(director.configuration_errors, "no longer resolves"))
+
+
+func test_runtime_marker_mutation_stops_instead_of_retrying_forever() -> void:
+	var fixture: Dictionary = await _create_wave_director_fixture()
+	var director: CompactWaveDirector = fixture["director"]
+	var player: CompactPlayer = fixture["player"]
+	var definition: StageDefinition = _single_spawn_stage(&"soldier", &"right_ground")
+	assert_true(director.configure(
+		definition,
+		player,
+		{&"right_ground": Vector2(1120.0, 619.0)}
+	))
+	assert_true(director.start())
+	director.marker_positions[&"right_ground"] = "corrupted"
+	director.simulation_step(0.1)
+	assert_push_error("marker_id 'right_ground' no longer resolves to Vector2")
+	assert_false(director.started)
+	assert_eq(director.pool_exhaustion_count, 0)
+	assert_true(_contains_text(director.configuration_errors, "no longer resolves"))
+
+
+func test_stage_configuration_failure_requests_title_instead_of_stalling() -> void:
+	var stage: TemplateStage = preload(
+		"res://scenes/template/template_stage.tscn"
+	).instantiate() as TemplateStage
+	stage.configure(_single_spawn_stage(&"ghost", &"right_ground"))
+	var title_request_count: Array[int] = []
+	stage.title_requested.connect(func() -> void: title_request_count.append(1))
+	add_child_autofree(stage)
+	assert_push_error("enemy_id 'ghost' has no runtime definition")
+	await get_tree().process_frame
+	assert_eq(title_request_count.size(), 1)
+	assert_false(stage.wave_director.started)
+	assert_true(stage.player.disabled)
+
+
 func test_compact_player_charge_damage_and_dodge_invulnerability() -> void:
 	var player: CompactPlayer = COMPACT_PLAYER_SCENE.instantiate() as CompactPlayer
 	add_child_autofree(player)
@@ -162,3 +264,47 @@ func _subtree_node_count(root: Node) -> int:
 	for child: Node in root.get_children():
 		count += _subtree_node_count(child)
 	return count
+
+
+func _create_wave_director_fixture() -> Dictionary:
+	var root: Node2D = Node2D.new()
+	var container: Node2D = Node2D.new()
+	container.name = "EnemyContainer"
+	root.add_child(container)
+	var player: CompactPlayer = COMPACT_PLAYER_SCENE.instantiate() as CompactPlayer
+	root.add_child(player)
+	var director: CompactWaveDirector = CompactWaveDirector.new()
+	director.enemy_container_path = ^"../EnemyContainer"
+	root.add_child(director)
+	add_child_autofree(root)
+	await get_tree().process_frame
+	player.set_physics_process(false)
+	director.set_physics_process(false)
+	return {
+		"director": director,
+		"player": player,
+	}
+
+
+func _single_spawn_stage(enemy_id: StringName, marker_id: StringName) -> StageDefinition:
+	var record: CompactSpawnRecord = CompactSpawnRecord.new()
+	record.enemy_id = enemy_id
+	record.count = 1
+	record.interval_seconds = 0.1
+	record.marker_id = marker_id
+	var wave: CompactWaveDefinition = CompactWaveDefinition.new()
+	wave.start_delay_seconds = 0.0
+	wave.spawns = [record]
+	var definition: StageDefinition = StageDefinition.new()
+	definition.stage_id = &"validation_fixture"
+	definition.display_name = "Validation Fixture"
+	definition.allowed_enemy_ids = PackedStringArray([String(enemy_id)])
+	definition.waves = [wave]
+	return definition
+
+
+func _contains_text(errors: PackedStringArray, expected: String) -> bool:
+	for error: String in errors:
+		if error.contains(expected):
+			return true
+	return false

@@ -22,7 +22,19 @@ func configure(p_definition: StageDefinition) -> void:
 
 
 func _ready() -> void:
-	assert(definition != null and definition.is_valid(), "TemplateStage requires a valid definition")
+	if definition == null:
+		push_error("TemplateStage requires a stage definition")
+		_abort_configuration_failure()
+		return
+	var definition_errors: PackedStringArray = definition.validation_errors()
+	if not definition_errors.is_empty():
+		push_error(
+			"TemplateStage received an invalid definition: %s" % [
+				"; ".join(definition_errors)
+			]
+		)
+		_abort_configuration_failure()
+		return
 	lifecycle.setup(definition.stage_id)
 	lifecycle.run_finished.connect(_on_run_finished)
 	debrief.retry_requested.connect(func() -> void: retry_requested.emit())
@@ -35,6 +47,7 @@ func _ready() -> void:
 	wave_director.wave_cleared.connect(_on_wave_cleared)
 	wave_director.score_awarded.connect(_on_score_awarded)
 	wave_director.victory.connect(_on_victory)
+	wave_director.configuration_failed.connect(_on_wave_configuration_failed)
 	hud.configure(definition)
 	hud.set_health(player.current_health, player.max_health)
 	hud.set_score(score)
@@ -43,8 +56,10 @@ func _ready() -> void:
 		&"right_ground": Vector2(1120.0, 619.0),
 		&"right_armor": Vector2(1180.0, 619.0),
 	}
-	assert(wave_director.configure(definition, player, markers))
-	assert(wave_director.start())
+	if not wave_director.configure(definition, player, markers):
+		return
+	if not wave_director.start():
+		_abort_configuration_failure()
 
 
 func _on_player_attack_released(
@@ -103,3 +118,22 @@ func _on_run_finished(completed: bool, summary: TemplateRunSummary) -> void:
 	wave_director.stop()
 	hud.set_status("VICTORY" if completed else "DEFEAT")
 	debrief.present(summary)
+
+
+func _on_wave_configuration_failed(_errors: PackedStringArray) -> void:
+	_abort_configuration_failure()
+
+
+func _abort_configuration_failure() -> void:
+	if player != null:
+		player.set_combat_disabled(true)
+	if wave_director != null:
+		wave_director.stop()
+	if hud != null:
+		hud.set_status("CONFIGURATION ERROR")
+	call_deferred("_return_to_title_after_configuration_failure")
+
+
+func _return_to_title_after_configuration_failure() -> void:
+	if is_inside_tree():
+		title_requested.emit()
