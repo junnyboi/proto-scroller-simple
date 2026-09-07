@@ -317,4 +317,3 @@ func parse(thing, inner_thing=null):
 				scripts[key] = parsed
 
 	return parsed
-

@@ -1,6 +1,8 @@
 # Godot editor and generated project data
 /.godot/
+/dist/
 /artifacts/
+dist/
 /build/*
 !/build/.gdignore
 /export.cfg

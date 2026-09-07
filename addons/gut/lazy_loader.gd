@@ -34,6 +34,3 @@ func get_loaded():
 		_loaded = WarningsManager.load_script_ignoring_all_warnings(_path)
 	usage_counter.add(self)
 	return _loaded
-
-
-

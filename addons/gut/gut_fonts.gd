@@ -91,4 +91,3 @@ func get_font_for_theme_font_name(theme_font_name, custom_font_name):
 		push_error(str("Unknown theme font name ", theme_font_name))
 		return get_font(custom_font_name)
 	return get_font(custom_font_name, THEME_FONT_TO_FONT_TYPES_MAP[theme_font_name])
-

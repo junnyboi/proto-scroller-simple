@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="DistrictDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/siege/district_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/siege/district_act.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/siege/district_beat.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/encounter/enemy_spawn_entry.gd" id="4"]
+
+[sub_resource type="Resource" id="SoldierAheadLate"]
+script = ExtResource("4")
+kind = &"soldier"
+delay = 3.0
+position = Vector2(0, 542.5)
+spawn_anchor = "AHEAD"
+offset = Vector2(150, 0)
+role_id = &"SUPPRESSOR"
+
+[sub_resource type="Resource" id="Needle"]
+script = ExtResource("4")
+kind = &"needle"
+position = Vector2(0, 155)
+spawn_anchor = "CAMERA_RIGHT"
+offset = Vector2(0, 0)
+
+[sub_resource type="Resource" id="Bulwark"]
+script = ExtResource("4")
+kind = &"bulwark"
+position = Vector2(0, 540)
+spawn_anchor = "AHEAD"
+offset = Vector2(100, 0)
+role_id = &"ADVANCING_SOLDIER"
+
+[sub_resource type="Resource" id="Jackal"]
+script = ExtResource("4")
+kind = &"jackal"
+position = Vector2(0, 554)
+spawn_anchor = "AHEAD"
+offset = Vector2(250, 0)
+
+[sub_resource type="Resource" id="Contact01"]
+script = ExtResource("3")
+beat_id = &"SCOUT_PROBE"
+pressure_seconds = 9.0
+recovery_seconds = 3.0
+spawns = Array[ExtResource("4")]([SubResource("Needle")])
+catalyst_slot = 0
+
+[sub_resource type="Resource" id="Contact02"]
+script = ExtResource("3")
+beat_id = &"REAR_CONTACT"
+pressure_seconds = 10.0
+recovery_seconds = 3.0
+spawns = Array[ExtResource("4")]([SubResource("Bulwark")])
+
+[sub_resource type="Resource" id="Contact03"]
+script = ExtResource("3")
+beat_id = &"SCOUT_REINFORCEMENT"
+pressure_seconds = 11.0
+recovery_seconds = 3.0
+spawns = Array[ExtResource("4")]([SubResource("Jackal"), SubResource("SoldierAheadLate")])
+
+[sub_resource type="Resource" id="Contact04"]
+script = ExtResource("3")
+beat_id = &"CROSSFIRE_ARRIVAL"
+pressure_seconds = 12.0
+recovery_seconds = 3.0
+spawns = Array[ExtResource("4")]([SubResource("Needle"), SubResource("Bulwark"), SubResource("Jackal")])
+
+[sub_resource type="Resource" id="ContactAct"]
+script = ExtResource("2")
+act_id = &"CONTACT"
+display_name = "encounter.contact"
+target_duration = 70.0
+beats = Array[ExtResource("3")]([SubResource("Contact01"), SubResource("Contact02"), SubResource("Contact03"), SubResource("Contact04")])
+
+[resource]
+script = ExtResource("1")
+district_id = &"URBAN_SIEGE_01"
+display_name = "district.urban_siege"
+acts = Array[ExtResource("2")]([SubResource("ContactAct")])

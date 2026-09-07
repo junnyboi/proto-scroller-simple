@@ -1,0 +1,1223 @@
+{
+  "schema_version": 1,
+  "catalog_revision": "2026.09.05.1",
+  "descriptors": [
+    {
+      "id": "audio.master.muted",
+      "category": "AUDIO",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_master_muted",
+      "description_key": "tuning.desc.audio_master_muted",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "audio.master.volume",
+      "category": "AUDIO",
+      "type": "float",
+      "default": 100.0,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_master_volume",
+      "description_key": "tuning.desc.audio_master_volume",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "step": 1.0
+    },
+    {
+      "id": "audio.music.muted",
+      "category": "AUDIO",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_music_muted",
+      "description_key": "tuning.desc.audio_music_muted",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "audio.music.volume",
+      "category": "AUDIO",
+      "type": "float",
+      "default": 80.0,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_music_volume",
+      "description_key": "tuning.desc.audio_music_volume",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "step": 1.0
+    },
+    {
+      "id": "audio.sfx.muted",
+      "category": "AUDIO",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_sfx_muted",
+      "description_key": "tuning.desc.audio_sfx_muted",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "audio.sfx.volume",
+      "category": "AUDIO",
+      "type": "float",
+      "default": 100.0,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_sfx_volume",
+      "description_key": "tuning.desc.audio_sfx_volume",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "step": 1.0
+    },
+    {
+      "id": "audio.ui.muted",
+      "category": "AUDIO",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_ui_muted",
+      "description_key": "tuning.desc.audio_ui_muted",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "audio.ui.volume",
+      "category": "AUDIO",
+      "type": "float",
+      "default": 100.0,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_ui_volume",
+      "description_key": "tuning.desc.audio_ui_volume",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "step": 1.0
+    },
+    {
+      "id": "audio.voice.muted",
+      "category": "AUDIO",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_voice_muted",
+      "description_key": "tuning.desc.audio_voice_muted",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "audio.voice.volume",
+      "category": "AUDIO",
+      "type": "float",
+      "default": 100.0,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.audio_voice_volume",
+      "description_key": "tuning.desc.audio_voice_volume",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "step": 1.0
+    },
+    {
+      "id": "boss.animation_moving_fps",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 6.0,
+      "unit": "FPS",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.boss_animation_moving_fps",
+      "description_key": "tuning.desc.boss_animation_moving_fps",
+      "tags": [
+        "animation"
+      ],
+      "enabled": true,
+      "minimum": 4.0,
+      "maximum": 10.0,
+      "step": 0.5
+    },
+    {
+      "id": "boss.exposed_health_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_SPAWN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.boss_exposed_health_multiplier",
+      "description_key": "tuning.desc.boss_exposed_health_multiplier",
+      "tags": [
+        "boss"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "boss.intro_screen_seconds",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 4.0,
+      "unit": "s",
+      "apply_mode": "NEXT_SPAWN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.boss_intro_screen_seconds",
+      "description_key": "tuning.desc.boss_intro_screen_seconds",
+      "tags": [
+        "boss"
+      ],
+      "enabled": true,
+      "minimum": 2.0,
+      "maximum": 6.0,
+      "step": 0.25
+    },
+    {
+      "id": "boss.reinforcement_interval_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_SPAWN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.boss_reinforcement_interval_multiplier",
+      "description_key": "tuning.desc.boss_reinforcement_interval_multiplier",
+      "tags": [
+        "boss"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "boss.s04_release_camera_impulse",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 10.0,
+      "unit": "impulse",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.boss_s04_release_camera_impulse",
+      "description_key": "tuning.desc.boss_s04_release_camera_impulse",
+      "tags": [
+        "feedback"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 16.0,
+      "step": 1.0
+    },
+    {
+      "id": "boss.standard_projectile_damage_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.boss_standard_projectile_damage_multiplier",
+      "description_key": "tuning.desc.boss_standard_projectile_damage_multiplier",
+      "tags": [
+        "boss"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.aegis_aura_radius",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 560.0,
+      "unit": "px",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.enemy_aegis_aura_radius",
+      "description_key": "tuning.desc.enemy_aegis_aura_radius",
+      "tags": [
+        "aura"
+      ],
+      "enabled": true,
+      "minimum": 360.0,
+      "maximum": 700.0,
+      "step": 20.0
+    },
+    {
+      "id": "enemy.aegis_damage_taken_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 0.65,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.enemy_aegis_damage_taken_multiplier",
+      "description_key": "tuning.desc.enemy_aegis_damage_taken_multiplier",
+      "tags": [
+        "aura"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 0.85,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.outgoing_damage_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 0.75,
+      "unit": "×",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.enemy_outgoing_damage_multiplier",
+      "description_key": "tuning.desc.enemy_outgoing_damage_multiplier",
+      "tags": [
+        "damage"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.0,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.static_attack_interval_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 0.82,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.enemy_static_attack_interval_multiplier",
+      "description_key": "tuning.desc.enemy_static_attack_interval_multiplier",
+      "tags": [
+        "aura"
+      ],
+      "enabled": true,
+      "minimum": 0.65,
+      "maximum": 0.95,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.target_mark_damage_multiplier",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 1.15,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.enemy_target_mark_damage_multiplier",
+      "description_key": "tuning.desc.enemy_target_mark_damage_multiplier",
+      "tags": [
+        "aura"
+      ],
+      "enabled": true,
+      "minimum": 1.0,
+      "maximum": 1.3,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.visual.scale",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.enemy_visual_scale",
+      "description_key": "tuning.desc.enemy_visual_scale",
+      "tags": [
+        "appearance",
+        "size"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.75,
+      "step": 0.05
+    },
+    {
+      "id": "enemy.visual.tint",
+      "category": "ENEMIES",
+      "type": "color",
+      "default": "#ffffff",
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.enemy_visual_tint",
+      "description_key": "tuning.desc.enemy_visual_tint",
+      "tags": [
+        "appearance",
+        "color"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "feedback.full_charge_hit_stop_ms",
+      "category": "PLAYER",
+      "type": "int",
+      "default": 110,
+      "unit": "ms",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.feedback_full_charge_hit_stop_ms",
+      "description_key": "tuning.desc.feedback_full_charge_hit_stop_ms",
+      "tags": [
+        "feedback"
+      ],
+      "enabled": true,
+      "minimum": 25,
+      "maximum": 110,
+      "step": 5
+    },
+    {
+      "id": "feedback.player_jab_camera_impulse",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 22.0,
+      "unit": "impulse",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.feedback_player_jab_camera_impulse",
+      "description_key": "tuning.desc.feedback_player_jab_camera_impulse",
+      "tags": [
+        "feedback"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 32.0,
+      "step": 1.0
+    },
+    {
+      "id": "feedback.player_slam_camera_impulse",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 26.0,
+      "unit": "impulse",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.feedback_player_slam_camera_impulse",
+      "description_key": "tuning.desc.feedback_player_slam_camera_impulse",
+      "tags": [
+        "feedback"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 32.0,
+      "step": 1.0
+    },
+    {
+      "id": "input.controller_vibration_enabled",
+      "category": "UI",
+      "type": "bool",
+      "default": true,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.input_controller_vibration_enabled",
+      "description_key": "tuning.desc.input_controller_vibration_enabled",
+      "tags": [
+        "controller"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "input.mobile_deadzone",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 0.14,
+      "unit": "ratio",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.input_mobile_deadzone",
+      "description_key": "tuning.desc.input_mobile_deadzone",
+      "tags": [
+        "mobile"
+      ],
+      "enabled": true,
+      "minimum": 0.05,
+      "maximum": 0.3,
+      "step": 0.01
+    },
+    {
+      "id": "input.mobile_response_speed",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 18.0,
+      "unit": "response",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.input_mobile_response_speed",
+      "description_key": "tuning.desc.input_mobile_response_speed",
+      "tags": [
+        "mobile"
+      ],
+      "enabled": true,
+      "minimum": 8.0,
+      "maximum": 30.0,
+      "step": 0.5
+    },
+    {
+      "id": "input.mobile_smash_cooldown",
+      "category": "UI",
+      "type": "float",
+      "default": 0.4,
+      "unit": "s",
+      "apply_mode": "LIVE",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.input_mobile_smash_cooldown",
+      "description_key": "tuning.desc.input_mobile_smash_cooldown",
+      "tags": [
+        "mobile"
+      ],
+      "enabled": true,
+      "minimum": 0.15,
+      "maximum": 0.75,
+      "step": 0.05
+    },
+    {
+      "id": "interface.filter_enabled",
+      "category": "UI",
+      "type": "bool",
+      "default": true,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_filter_enabled",
+      "description_key": "tuning.desc.interface_filter_enabled",
+      "tags": [
+        "ui"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "interface.filter_intensity",
+      "category": "UI",
+      "type": "float",
+      "default": 0.18,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_filter_intensity",
+      "description_key": "tuning.desc.interface_filter_intensity",
+      "tags": [
+        "ui"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "step": 0.01
+    },
+    {
+      "id": "interface.hud.scale",
+      "category": "UI",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_hud_scale",
+      "description_key": "tuning.desc.interface_hud_scale",
+      "tags": [
+        "appearance",
+        "size",
+        "hud"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.35,
+      "step": 0.05
+    },
+    {
+      "id": "interface.hud.tint",
+      "category": "UI",
+      "type": "color",
+      "default": "#ffffff",
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_hud_tint",
+      "description_key": "tuning.desc.interface_hud_tint",
+      "tags": [
+        "appearance",
+        "color",
+        "hud"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "interface.leaderboard_timeout_seconds",
+      "category": "UI",
+      "type": "float",
+      "default": 4.0,
+      "unit": "s",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_leaderboard_timeout_seconds",
+      "description_key": "tuning.desc.interface_leaderboard_timeout_seconds",
+      "tags": [
+        "network"
+      ],
+      "enabled": true,
+      "minimum": 2.0,
+      "maximum": 10.0,
+      "step": 0.5
+    },
+    {
+      "id": "interface.reduced_motion",
+      "category": "UI",
+      "type": "bool",
+      "default": false,
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_reduced_motion",
+      "description_key": "tuning.desc.interface_reduced_motion",
+      "tags": [
+        "ui"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "interface.title_transition_duration_scale",
+      "category": "UI",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_title_transition_duration_scale",
+      "description_key": "tuning.desc.interface_title_transition_duration_scale",
+      "tags": [
+        "transition"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "interface.upgrade_modal_shade_opacity",
+      "category": "UI",
+      "type": "float",
+      "default": 0.88,
+      "unit": "opacity",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.interface_upgrade_modal_shade_opacity",
+      "description_key": "tuning.desc.interface_upgrade_modal_shade_opacity",
+      "tags": [
+        "ui"
+      ],
+      "enabled": true,
+      "minimum": 0.65,
+      "maximum": 0.95,
+      "step": 0.01
+    },
+    {
+      "id": "player.melee.charge_duration",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 2.0,
+      "unit": "s",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.player_melee_charge_duration",
+      "description_key": "tuning.desc.player_melee_charge_duration",
+      "tags": [
+        "melee"
+      ],
+      "enabled": true,
+      "minimum": 1.2,
+      "maximum": 3.0,
+      "step": 0.1
+    },
+    {
+      "id": "player.melee.ground_smash_damage",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 180.0,
+      "unit": "damage",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.player_melee_ground_smash_damage",
+      "description_key": "tuning.desc.player_melee_ground_smash_damage",
+      "tags": [
+        "melee"
+      ],
+      "enabled": true,
+      "minimum": 100.0,
+      "maximum": 260.0,
+      "step": 10.0
+    },
+    {
+      "id": "player.melee.ground_smash_radius",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 320.0,
+      "unit": "px",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.player_melee_ground_smash_radius",
+      "description_key": "tuning.desc.player_melee_ground_smash_radius",
+      "tags": [
+        "melee"
+      ],
+      "enabled": true,
+      "minimum": 220.0,
+      "maximum": 400.0,
+      "step": 10.0
+    },
+    {
+      "id": "player.move.ground_acceleration",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 1800.0,
+      "unit": "px/s²",
+      "apply_mode": "LIVE",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.player_move_ground_acceleration",
+      "description_key": "tuning.desc.player_move_ground_acceleration",
+      "tags": [
+        "movement"
+      ],
+      "enabled": true,
+      "minimum": 1000.0,
+      "maximum": 2800.0,
+      "step": 100.0
+    },
+    {
+      "id": "player.move.max_speed",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 260.0,
+      "unit": "px/s",
+      "apply_mode": "LIVE",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.player_move_max_speed",
+      "description_key": "tuning.desc.player_move_max_speed",
+      "tags": [
+        "movement"
+      ],
+      "enabled": true,
+      "minimum": 180.0,
+      "maximum": 340.0,
+      "step": 10.0
+    },
+    {
+      "id": "player.visual.scale",
+      "category": "PLAYER",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.player_visual_scale",
+      "description_key": "tuning.desc.player_visual_scale",
+      "tags": [
+        "appearance",
+        "size"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "player.visual.tint",
+      "category": "PLAYER",
+      "type": "color",
+      "default": "#ffffff",
+      "unit": "",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.player_visual_tint",
+      "description_key": "tuning.desc.player_visual_tint",
+      "tags": [
+        "appearance",
+        "color"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "progression.combo.base_grace_seconds",
+      "category": "GAMEPLAY",
+      "type": "float",
+      "default": 3.0,
+      "unit": "s",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_combo_base_grace_seconds",
+      "description_key": "tuning.desc.progression_combo_base_grace_seconds",
+      "tags": [
+        "combo"
+      ],
+      "enabled": true,
+      "minimum": 2.0,
+      "maximum": 5.0,
+      "step": 0.25
+    },
+    {
+      "id": "progression.combo.max_multiplier",
+      "category": "GAMEPLAY",
+      "type": "int",
+      "default": 5,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_combo_max_multiplier",
+      "description_key": "tuning.desc.progression_combo_max_multiplier",
+      "tags": [
+        "combo"
+      ],
+      "enabled": true,
+      "minimum": 3,
+      "maximum": 5,
+      "step": 1
+    },
+    {
+      "id": "progression.rewards.named_boss_multiplier",
+      "category": "GAMEPLAY",
+      "type": "int",
+      "default": 3,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_rewards_named_boss_multiplier",
+      "description_key": "tuning.desc.progression_rewards_named_boss_multiplier",
+      "tags": [
+        "reward"
+      ],
+      "enabled": true,
+      "minimum": 1,
+      "maximum": 5,
+      "step": 1
+    },
+    {
+      "id": "progression.score.bank_base_seconds",
+      "category": "GAMEPLAY",
+      "type": "float",
+      "default": 1.0,
+      "unit": "s",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_score_bank_base_seconds",
+      "description_key": "tuning.desc.progression_score_bank_base_seconds",
+      "tags": [
+        "score"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 3.0,
+      "step": 0.25
+    },
+    {
+      "id": "progression.shop.price_multiplier",
+      "category": "GAMEPLAY",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_shop_price_multiplier",
+      "description_key": "tuning.desc.progression_shop_price_multiplier",
+      "tags": [
+        "shop"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "progression.xp.base_requirement",
+      "category": "GAMEPLAY",
+      "type": "int",
+      "default": 500,
+      "unit": "XP",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_xp_base_requirement",
+      "description_key": "tuning.desc.progression_xp_base_requirement",
+      "tags": [
+        "xp"
+      ],
+      "enabled": true,
+      "minimum": 250,
+      "maximum": 1000,
+      "step": 25
+    },
+    {
+      "id": "progression.xp.growth_factor",
+      "category": "GAMEPLAY",
+      "type": "float",
+      "default": 1.35,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.progression_xp_growth_factor",
+      "description_key": "tuning.desc.progression_xp_growth_factor",
+      "tags": [
+        "xp"
+      ],
+      "enabled": true,
+      "minimum": 1.1,
+      "maximum": 1.5,
+      "step": 0.01
+    },
+    {
+      "id": "projectile.hostile_impact_pitch_jitter",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 0.035,
+      "unit": "ratio",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.projectile_hostile_impact_pitch_jitter",
+      "description_key": "tuning.desc.projectile_hostile_impact_pitch_jitter",
+      "tags": [
+        "audio"
+      ],
+      "enabled": true,
+      "minimum": 0.0,
+      "maximum": 0.1,
+      "step": 0.005
+    },
+    {
+      "id": "projectile.hostile_lifetime",
+      "category": "ENEMIES",
+      "type": "float",
+      "default": 2.5,
+      "unit": "s",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.projectile_hostile_lifetime",
+      "description_key": "tuning.desc.projectile_hostile_lifetime",
+      "tags": [
+        "projectile"
+      ],
+      "enabled": true,
+      "minimum": 1.0,
+      "maximum": 3.0,
+      "step": 0.1
+    },
+    {
+      "id": "spawn.interval_scale",
+      "category": "GAMEPLAY",
+      "type": "float",
+      "default": 0.5,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.spawn_interval_scale",
+      "description_key": "tuning.desc.spawn_interval_scale",
+      "tags": [
+        "spawn"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.0,
+      "step": 0.05
+    },
+    {
+      "id": "spawn.quantity_multiplier",
+      "category": "GAMEPLAY",
+      "type": "int",
+      "default": 2,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.spawn_quantity_multiplier",
+      "description_key": "tuning.desc.spawn_quantity_multiplier",
+      "tags": [
+        "spawn"
+      ],
+      "enabled": true,
+      "minimum": 1,
+      "maximum": 2,
+      "step": 1
+    },
+    {
+      "id": "world.facade.chain_delay_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.world_facade_chain_delay_multiplier",
+      "description_key": "tuning.desc.world_facade_chain_delay_multiplier",
+      "tags": [
+        "destruction"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "world.facade.damaged_stage_ratio",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 0.65,
+      "unit": "ratio",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_facade_damaged_stage_ratio",
+      "description_key": "tuning.desc.world_facade_damaged_stage_ratio",
+      "tags": [
+        "destruction"
+      ],
+      "enabled": true,
+      "minimum": 0.45,
+      "maximum": 0.85,
+      "step": 0.05
+    },
+    {
+      "id": "world.facade.health_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 0.75,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.world_facade_health_multiplier",
+      "description_key": "tuning.desc.world_facade_health_multiplier",
+      "tags": [
+        "destruction"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "world.facade.support_transfer_ratio",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 0.5,
+      "unit": "ratio",
+      "apply_mode": "NEXT_ATTACK",
+      "integrity": "SCORE_AFFECTING",
+      "label_key": "tuning.param.world_facade_support_transfer_ratio",
+      "description_key": "tuning.desc.world_facade_support_transfer_ratio",
+      "tags": [
+        "destruction"
+      ],
+      "enabled": true,
+      "minimum": 0.25,
+      "maximum": 0.75,
+      "step": 0.05
+    },
+    {
+      "id": "world.parallax.motion_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_parallax_motion_multiplier",
+      "description_key": "tuning.desc.world_parallax_motion_multiplier",
+      "tags": [
+        "parallax"
+      ],
+      "enabled": true,
+      "minimum": 0.75,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "world.repair_drop.amount",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 50.0,
+      "unit": "HP",
+      "apply_mode": "NEXT_SPAWN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.world_repair_drop_amount",
+      "description_key": "tuning.desc.world_repair_drop_amount",
+      "tags": [
+        "repair"
+      ],
+      "enabled": true,
+      "minimum": 20.0,
+      "maximum": 80.0,
+      "step": 5.0
+    },
+    {
+      "id": "world.repair_drop.lifetime_seconds",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 12.0,
+      "unit": "s",
+      "apply_mode": "NEXT_SPAWN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.world_repair_drop_lifetime_seconds",
+      "description_key": "tuning.desc.world_repair_drop_lifetime_seconds",
+      "tags": [
+        "repair"
+      ],
+      "enabled": true,
+      "minimum": 6.0,
+      "maximum": 20.0,
+      "step": 1.0
+    },
+    {
+      "id": "world.sky.day_night_cycle_seconds",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 360.0,
+      "unit": "s",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_sky_day_night_cycle_seconds",
+      "description_key": "tuning.desc.world_sky_day_night_cycle_seconds",
+      "tags": [
+        "sky"
+      ],
+      "enabled": true,
+      "minimum": 120.0,
+      "maximum": 900.0,
+      "step": 30.0
+    },
+    {
+      "id": "world.sky.traffic_speed_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_sky_traffic_speed_multiplier",
+      "description_key": "tuning.desc.world_sky_traffic_speed_multiplier",
+      "tags": [
+        "sky"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.25,
+      "step": 0.05
+    },
+    {
+      "id": "world.street_prop.health_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "NEXT_RUN",
+      "integrity": "GAMEPLAY",
+      "label_key": "tuning.param.world_street_prop_health_multiplier",
+      "description_key": "tuning.desc.world_street_prop_health_multiplier",
+      "tags": [
+        "destruction"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "world.weather.density_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_weather_density_multiplier",
+      "description_key": "tuning.desc.world_weather_density_multiplier",
+      "tags": [
+        "weather"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.1,
+      "step": 0.05
+    },
+    {
+      "id": "world.weather.motion_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_weather_motion_multiplier",
+      "description_key": "tuning.desc.world_weather_motion_multiplier",
+      "tags": [
+        "weather"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.5,
+      "step": 0.05
+    },
+    {
+      "id": "world.weather.opacity_multiplier",
+      "category": "ENVIRONMENT",
+      "type": "float",
+      "default": 1.0,
+      "unit": "×",
+      "apply_mode": "LIVE",
+      "integrity": "COSMETIC",
+      "label_key": "tuning.param.world_weather_opacity_multiplier",
+      "description_key": "tuning.desc.world_weather_opacity_multiplier",
+      "tags": [
+        "weather"
+      ],
+      "enabled": true,
+      "minimum": 0.5,
+      "maximum": 1.1,
+      "step": 0.05
+    }
+  ]
+}

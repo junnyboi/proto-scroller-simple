@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EnemyTraitProfile" format=3]
+
+[ext_resource type="Script" path="res://scripts/encounter/enemy_trait_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+trait_id = &"PHASED"
+display_name = "trait.phased"
+health_multiplier = 1.0
+movement_multiplier = 1.2
+attack_interval_multiplier = 0.82
+projectile_damage_multiplier = 1.1
+telegraph_multiplier = 0.88
+first_hit_damage_ratio = 0.55
+death_pulse_damage = 0.0
+death_pulse_radius = 0.0
+badge_shape = &"diamond"
+badge_color = Color(0.62, 0.38, 1, 1)
