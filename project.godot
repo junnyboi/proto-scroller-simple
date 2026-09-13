@@ -36,6 +36,8 @@ enabled=PackedStringArray()
 
 [gui]
 
+theme/custom_font="res://resources/manuscc0_font.tres"
+
 theme/custom="res://resources/title_theme.tres"
 
 [input]
