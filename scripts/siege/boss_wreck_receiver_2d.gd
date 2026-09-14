@@ -74,7 +74,7 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, color, 6.0)
 	draw_line(Vector2(-radius * 0.55, 0.0), Vector2(radius * 0.55, 0.0), color, 5.0)
 	draw_line(Vector2(0.0, -radius * 0.55), Vector2(0.0, radius * 0.55), color, 5.0)
-	var font: Font = ThemeDB.fallback_font
+	var font: Font = preload("res://resources/manuscc0_font.tres")
 	var text_size: Vector2 = font.get_string_size(display_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16)
 	draw_string(
 		font,

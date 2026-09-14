@@ -8,7 +8,7 @@ const CATALOG_PATHS: Dictionary = {
 	"zh-CN": "res://localization/zh-CN.json",
 }
 const LOCALE_OVERRIDE_ENV: String = "PROTO_SCROLLER_LOCALE"
-const CJK_FONT_PATH: String = "res://assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf"
+const UI_FONT_PATH: String = "res://resources/manuscc0_font.tres"
 const PREFERENCE_PATH: String = "user://localization.cfg"
 const PREFERENCE_SECTION: String = "localization"
 const PREFERENCE_KEY: String = "locale"
@@ -16,7 +16,7 @@ const PREFERENCE_KEY: String = "locale"
 static var _catalogs: Dictionary = {}
 static var _locale: String = ""
 static var _loaded: bool = false
-static var _cjk_font: Font
+static var _locale_font: Font
 
 
 static func t(key: String, placeholders: Dictionary = {}) -> String:
@@ -91,7 +91,7 @@ static func clear_locale_preference(preference_path: String = PREFERENCE_PATH) -
 
 static func apply_locale_font(root: Node) -> void:
 	_ensure_loaded()
-	if _locale == "zh-CN" and not _load_cjk_font():
+	if _locale == "zh-CN" and not _load_locale_font():
 		return
 	_apply_font_to_control(root as Control if root is Control else null)
 	for node: Node in root.find_children("*", "Control", true, false):
@@ -99,9 +99,9 @@ static func apply_locale_font(root: Node) -> void:
 
 
 static func apply_cjk_font(control: Control) -> bool:
-	if control == null or not _load_cjk_font():
+	if control == null or not _load_locale_font():
 		return false
-	control.add_theme_font_override(&"font", _cjk_font)
+	control.add_theme_font_override(&"font", _locale_font)
 	return true
 
 
@@ -110,8 +110,8 @@ static func apply_locale_popup_font(popup: PopupMenu) -> void:
 		return
 	_ensure_loaded()
 	if _locale == "zh-CN":
-		if _load_cjk_font():
-			popup.add_theme_font_override(&"font", _cjk_font)
+		if _load_locale_font():
+			popup.add_theme_font_override(&"font", _locale_font)
 	else:
 		popup.remove_theme_font_override(&"font")
 
@@ -183,14 +183,12 @@ static func _save_preferred_locale(locale: String, preference_path: String) -> b
 	return config.save(preference_path) == OK
 
 
-static func _load_cjk_font() -> bool:
-	if _cjk_font == null:
-		_cjk_font = load(CJK_FONT_PATH) as Font
-	if _cjk_font == null:
-		push_error("Unable to load Simplified Chinese font: %s" % CJK_FONT_PATH)
+static func _load_locale_font() -> bool:
+	if _locale_font == null:
+		_locale_font = load(UI_FONT_PATH) as Font
+	if _locale_font == null:
+		push_error("Unable to load ManusCC0 with Simplified Chinese fallback: %s" % UI_FONT_PATH)
 		return false
-	if _cjk_font.fallbacks.is_empty() and ThemeDB.fallback_font != null:
-		_cjk_font.fallbacks = [ThemeDB.fallback_font]
 	return true
 
 
@@ -198,7 +196,7 @@ static func _apply_font_to_control(control: Control) -> void:
 	if control == null:
 		return
 	if _locale == "zh-CN":
-		control.add_theme_font_override(&"font", _cjk_font)
+		control.add_theme_font_override(&"font", _locale_font)
 	else:
 		control.remove_theme_font_override(&"font")
 
