@@ -5,9 +5,9 @@ import {join} from 'node:path';
 function files(dir) { return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(dir,e.name)):[join(dir,e.name)]); }
 const lock=JSON.parse(readFileSync('assets.lock.json','utf8'));
 assert.equal(lock.version,2);
-// Primary ManusCC0 and the complete CJK face are bundled source typography.
+// Primary ManusCC0 and the bounded common-Chinese face are bundled source typography.
 const bundledFonts={
-  "assets/fonts/NotoSansCJKsc-Regular.otf": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+  "assets/fonts/ManusGameSC-Common.woff2": "150544e032d5a266d214799dbab5c6b6e9bad78645bdeaff5d11aba8cae43f7c",
   "assets/fonts/ManusCC0-Bold.ttf": "099f6d50114f83533f689ddc37028fcff2bd2a2c4871a332488c1a433f440804",
   "assets/fonts/ManusCC0-Medium.ttf": "f28a0f3aee8f427798bf972504d5640d5d28b8692a73102ac39556fa7ffb1ee2",
   "assets/fonts/ManusCC0-Regular.ttf": "b5124032e8e51434e05a51c327a9a614ac96b85ecf9b6cdcfc58834a9ae1347d"
