@@ -11,7 +11,7 @@
 # An instance of this could be used to allow users to specify their own fonts.
 # It's not perect for that yet, but it is feasible.
 # ------------------------------------------------------------------------------
-const DEFAULT_CUSTOM_FONT_NAME = 'CourierPrime'
+const DEFAULT_CUSTOM_FONT_NAME = 'ManusCC0'
 const THEME_FONT_TO_FONT_TYPES_MAP = {
 	'font':FONT_TYPES.REGULAR,
 	'normal_font': FONT_TYPES.REGULAR,
@@ -21,8 +21,7 @@ const THEME_FONT_TO_FONT_TYPES_MAP = {
 }
 
 
-# Values for FONT_TYPES are based on Google font file suffix (not extension).
-# A font file will be a key from fonts + - + FONT_TYPE value + .ttf.
+# Keep GUT's semantic font roles while using only approved ManusCC0 faces.
 const FONT_TYPES = {
 	REGULAR = 'Regular',
 	BOLD = 'Bold',
@@ -31,51 +30,36 @@ const FONT_TYPES = {
 }
 
 
-var fonts = {
-	'AnonymousPro':{},
-	'CourierPrime':{},
-	'LobsterTwo':{},
-	'Default':{}
+const FONT_RESOURCE_PATHS = {
+	'Regular': 'res://resources/manuscc0_font.tres',
+	'Bold': 'res://resources/manuscc0_bold_font.tres',
+	# The pack has no italic faces; emphasis uses upright Medium or Bold.
+	'Italic': 'res://resources/manuscc0_medium_font.tres',
+	'BoldItalic': 'res://resources/manuscc0_bold_font.tres'
 }
 
 
-var custom_font_path = 'res://addons/gut/fonts/'
-
-
-func _init():
-	_populate_default_fonts()
-
-
-func _populate_default_fonts():
-	var ctrl = TextEdit.new()
-	var f = ctrl.get_theme_font('font')
-	for key in FONT_TYPES:
-		fonts['Default'][FONT_TYPES[key]] = f
-	ctrl.free()
+var fonts = {'ManusCC0': {}}
 
 
 func _load_font(font_name, font_type, font_path):
-	var dynamic_font = FontFile.new()
-	dynamic_font.load_dynamic_font(font_path)
-	fonts[font_name][font_type] = dynamic_font
+	fonts[font_name][font_type] = load(font_path)
 
 
 func get_font(font_name, font_type='Regular'):
+	# Preserve the requested weight when migrating saved GUT preferences.
+	if(font_name == null or font_name in ['Default', 'AnonymousPro', 'CourierPrime', 'LobsterTwo']):
+		font_name = DEFAULT_CUSTOM_FONT_NAME
 	if(!fonts.has(font_name)):
 		push_error(str("Invalid font name '", font_name, "'"))
-		return fonts['Default'][FONT_TYPES.REGULAR]
+		return get_font(DEFAULT_CUSTOM_FONT_NAME)
 
 	if(!FONT_TYPES.values().has(font_type)):
 		push_error(str("Invalid font type '", font_type, "'"))
-		return fonts['Default'][FONT_TYPES.REGULAR]
+		return get_font(DEFAULT_CUSTOM_FONT_NAME)
 
 	if(!fonts[font_name].has(font_type)):
-		var filename = custom_font_path.path_join(str(font_name, '-', font_type, '.ttf'))
-		if(FileAccess.file_exists(filename)):
-			_load_font(font_name, font_type, filename)
-		else:
-			push_error(str("Missing custom font ", filename))
-			return fonts['Default'][FONT_TYPES.REGULAR]
+		_load_font(font_name, font_type, FONT_RESOURCE_PATHS[font_type])
 
 	return fonts.get(font_name, {}).get(font_type, null)
 

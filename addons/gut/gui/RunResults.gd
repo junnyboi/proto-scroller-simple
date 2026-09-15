@@ -233,7 +233,6 @@ func set_font(font_name, size):
 	pass
 #	var dyn_font = FontFile.new()
 #	var font_data = FontFile.new()
-#	font_data.font_path = 'res://addons/gut/fonts/' + font_name + '-Regular.ttf'
 #	font_data.antialiased = true
 #	dyn_font.font_data = font_data
 #

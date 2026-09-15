@@ -108,7 +108,7 @@ func _test_running_setup():
 	_ctrls.show_search.text = 'search'
 	_ctrls.word_wrap.text = 'ww'
 
-	set_all_fonts("CourierPrime")
+	set_all_fonts(GutUtils.gut_fonts.DEFAULT_CUSTOM_FONT_NAME)
 	set_font_size(30)
 
 	_ctrls.output.queue_redraw()
@@ -145,6 +145,8 @@ func _add_other_ctrls():
 	var fname = GutUtils.gut_fonts.DEFAULT_CUSTOM_FONT_NAME
 	if(_user_prefs != null):
 		fname = _user_prefs.output_font_name.value
+	if(!GutUtils.avail_fonts.has(fname)):
+		fname = GutUtils.gut_fonts.DEFAULT_CUSTOM_FONT_NAME
 	_font_name_pctrl = PanelControls.GpcSelect.new('Font', fname, GutUtils.avail_fonts,
 		"The font, you know, for the text below.  Change it, see what it does.")
 	_font_name_pctrl.changed.connect(_on_font_name_changed)
@@ -305,13 +307,13 @@ func _set_font(custom_name, theme_font_name):
 
 
 func set_all_fonts(base_name):
-	_font_name = GutUtils.nvl(base_name, 'Default')
+	_font_name = GutUtils.nvl(base_name, GutUtils.gut_fonts.DEFAULT_CUSTOM_FONT_NAME)
 
-	_set_font(base_name, 'font')
-	_set_font(base_name, 'normal_font')
-	_set_font(base_name, 'bold_font')
-	_set_font(base_name, 'italics_font')
-	_set_font(base_name, 'bold_italics_font')
+	_set_font(_font_name, 'font')
+	_set_font(_font_name, 'normal_font')
+	_set_font(_font_name, 'bold_font')
+	_set_font(_font_name, 'italics_font')
+	_set_font(_font_name, 'bold_italics_font')
 
 
 func set_font_size(new_size):

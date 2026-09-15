@@ -87,28 +87,10 @@ func set_font(font_name):
 	_set_all_fonts_in_rtl(_normal_gui.get_textbox(), font_name)
 
 
-func _set_font(rtl, font_name, custom_name):
-	if(font_name == null):
-		rtl.remove_theme_font_override(custom_name)
-	else:
-		var font_path = 'res://addons/gut/fonts/' + font_name + '.ttf'
-		if(FileAccess.file_exists(font_path)):
-			var dyn_font = FontFile.new()
-			dyn_font.load_dynamic_font('res://addons/gut/fonts/' + font_name + '.ttf')
-			rtl.add_theme_font_override(custom_name, dyn_font)
-
-
 func _set_all_fonts_in_rtl(rtl, base_name):
-	if(base_name == 'Default'):
-		_set_font(rtl, null, 'normal_font')
-		_set_font(rtl, null, 'bold_font')
-		_set_font(rtl, null, 'italics_font')
-		_set_font(rtl, null, 'bold_italics_font')
-	else:
-		_set_font(rtl, base_name + '-Regular', 'normal_font')
-		_set_font(rtl, base_name + '-Bold', 'bold_font')
-		_set_font(rtl, base_name + '-Italic', 'italics_font')
-		_set_font(rtl, base_name + '-BoldItalic', 'bold_italics_font')
+	for theme_font_name in ['normal_font', 'bold_font', 'italics_font', 'bold_italics_font']:
+		var font = GutUtils.gut_fonts.get_font_for_theme_font_name(theme_font_name, base_name)
+		rtl.add_theme_font_override(theme_font_name, font)
 
 
 func set_default_font_color(color):

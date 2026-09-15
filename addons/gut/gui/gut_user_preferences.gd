@@ -45,7 +45,7 @@ var gut_window_on_top = null
 
 
 func _init(editor_settings):
-	output_font_name = GutEditorPref.new('output_font_name', 'CourierPrime', editor_settings)
+	output_font_name = GutEditorPref.new('output_font_name', 'ManusCC0', editor_settings)
 	output_font_size = GutEditorPref.new('output_font_size', 30, editor_settings)
 	hide_result_tree = GutEditorPref.new('hide_result_tree', false, editor_settings)
 	hide_output_text = GutEditorPref.new('hide_output_text', false, editor_settings)
