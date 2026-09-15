@@ -11,10 +11,13 @@ const MAX_COUNTER: int = 2_147_483_647
 const MAX_HISTORY_ENTRIES: int = 30
 const MAX_HISTORY_WEAPONS: int = 16
 const MIN_CALLSIGN_LENGTH: int = 3
+const MIN_CHINESE_CALLSIGN_LENGTH: int = 2
 const MAX_CALLSIGN_LENGTH: int = 20
 
 var save_path: String = SAVE_PATH
 var _profile: Dictionary = {}
+var _callsign_pattern := RegEx.create_from_string("^(?:[A-Za-z0-9\\p{Han}]\\p{M}*|[ _-])+$")
+var _chinese_pattern := RegEx.create_from_string("\\p{Han}")
 
 
 func setup(path: String = SAVE_PATH) -> void:
@@ -32,20 +35,13 @@ func callsign() -> String:
 
 func validate_callsign(candidate: String) -> StringName:
 	var normalized: String = _normalize_callsign(candidate)
-	if normalized.length() < MIN_CALLSIGN_LENGTH:
+	var minimum: int = MIN_CHINESE_CALLSIGN_LENGTH if _chinese_pattern.search(normalized) != null else MIN_CALLSIGN_LENGTH
+	if normalized.length() < minimum:
 		return &"too_short"
 	if normalized.length() > MAX_CALLSIGN_LENGTH:
 		return &"too_long"
-	for index: int in range(normalized.length()):
-		var codepoint: int = normalized.unicode_at(index)
-		var allowed: bool = (
-			(codepoint >= 48 and codepoint <= 57)
-			or (codepoint >= 65 and codepoint <= 90)
-			or (codepoint >= 97 and codepoint <= 122)
-			or codepoint in [32, 45, 95]
-		)
-		if not allowed:
-			return &"invalid_characters"
+	if _callsign_pattern.search(normalized) == null:
+		return &"invalid_characters"
 	var moderation: StringName = CallsignModeration.validate(normalized)
 	if moderation != &"ok":
 		return moderation

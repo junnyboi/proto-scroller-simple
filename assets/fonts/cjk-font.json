@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "family": "Noto Sans CJK SC",
+  "style": "Regular",
+  "primaryFamily": "ManusCC0",
+  "role": "in-game glyph fallback including unbounded player names",
+  "source": "https://github.com/notofonts/noto-cjk",
+  "sourceUrl": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/03/2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b.otf",
+  "sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+  "bytes": 16437364,
+  "subset": false,
+  "unicodeCodepoints": 44810,
+  "glyphs": 65535,
+  "license": "assets/fonts/NotoSansCJK-COPYRIGHT.txt",
+  "coverageLimit": "Complete upstream face, not every Unicode CJK extension or script. Loader subsets remain separate and unchanged."
+}
