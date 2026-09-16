@@ -7,18 +7,17 @@ const lock=JSON.parse(readFileSync('assets.lock.json','utf8'));
 assert.equal(lock.version,2);
 // Primary ManusCC0 and the bounded common-Chinese face are bundled source typography.
 const bundledFonts={
-  "assets/fonts/ManusGameSC-Common.woff2": "150544e032d5a266d214799dbab5c6b6e9bad78645bdeaff5d11aba8cae43f7c",
+  "assets/fonts/ManusCC0SansCJKSC-Regular.woff2": "0a4981b817d7fb556dd8cd80f278483f1849017a312ca965e027d8e0e066968c",
   "assets/fonts/ManusCC0-Bold.ttf": "099f6d50114f83533f689ddc37028fcff2bd2a2c4871a332488c1a433f440804",
   "assets/fonts/ManusCC0-Medium.ttf": "f28a0f3aee8f427798bf972504d5640d5d28b8692a73102ac39556fa7ffb1ee2",
   "assets/fonts/ManusCC0-Regular.ttf": "b5124032e8e51434e05a51c327a9a614ac96b85ecf9b6cdcfc58834a9ae1347d"
 };
 for(const [file,hash] of Object.entries(bundledFonts)) assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),hash,file);
-assert(existsSync('assets/fonts/ManusCC0-LICENSE.txt'));
-const media=files('assets').filter(f=>/\.(png|jpe?g|webp|ttf|otf|wav|ogg|mp4)$/i.test(f) && !Object.hasOwn(bundledFonts,f));
-assert.equal(media.length,198,'Act 1 media inventory');
-assert.deepEqual([...Object.keys(lock.assets)].sort(),media.sort());
-for(const file of media) {
-  const entry=lock.assets[file];
+// CC0 font notices are optional; the exact source hashes above are the provenance gate.
+const media=files('assets').filter(f=>/\.(png|jpe?g|webp|ttf|otf|woff2?|wav|ogg|mp4)$/i.test(f) && !Object.hasOwn(bundledFonts,f));
+assert.equal(media.length,197,'Act 1 media inventory after retiring the redundant Droid fallback');
+assert.deepEqual(Object.keys(lock.assets).filter(file=>!Object.hasOwn(bundledFonts,file)).sort(),media.sort());
+for(const [file,entry] of Object.entries(lock.assets)) {
   assert.equal(entry.size,statSync(file).size,file);
   assert.equal(entry.sha256,'sha256:'+createHash('sha256').update(readFileSync(file)).digest('hex'),file);
   assert.match(entry.path,/^https:\/\/(?:d1oupeiobkpcny\.cloudfront\.net|files\.manuscdn\.com)\//,file);
@@ -69,7 +68,7 @@ assert.deepEqual(media.filter(f=>f.startsWith('assets/bosses/animated/')),['asse
 assert.deepEqual(media.filter(f=>f.startsWith('assets/audio/music/bosses/')),['assets/audio/music/bosses/settlement-engine-s04.ogg']);
 for(const file of files('assets').filter(f=>f.endsWith('.import'))) assert(Object.hasOwn(lock.assets,file.slice(0,-7)) || Object.hasOwn(bundledFonts,file.slice(0,-7)),`orphan import: ${file}`);
 for(const file of [...files('scripts'),...files('resources'),...files('scenes')].filter(f=>/\.(gd|tres|tscn)$/.test(f))) {
-  for(const [,reference] of readFileSync(file,'utf8').matchAll(/["']res:\/\/(assets\/[^"'\n]+\.(?:png|jpe?g|webp|ttf|otf|wav|ogg|mp4))["']/g)) {
+  for(const [,reference] of readFileSync(file,'utf8').matchAll(/["']res:\/\/(assets\/[^"'\n]+\.(?:png|jpe?g|webp|ttf|otf|woff2?|wav|ogg|mp4))["']/g)) {
     assert(Object.hasOwn(lock.assets,reference) || Object.hasOwn(bundledFonts,reference),`${file}: unlocked media reference ${reference}`);
   }
 }

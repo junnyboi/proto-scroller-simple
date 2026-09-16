@@ -30,11 +30,11 @@ for(const locale of ['en','zh-CN']) {
  assert(resolution.width<=720 && resolution.height<=1280);
 }
 const html=readFileSync('web/shell.html','utf8');
-assert(html.includes('ScrollerCJK'));
+assert(html.includes('ManusCC0CJKSC'));
 assert(!html.includes('__TITLE_ASSETS__'));
 const fontFaces=[...html.matchAll(/@font-face\s*\{([^}]+)\}/g)].map(match=>match[1]);
 assert.equal(fontFaces.length,4,'three ManusCC0 weights and one CJK fallback');
 assert(fontFaces.every(face=>face.includes('src:url("data:font/')),'loader fonts must work offline');
-assert(fontFaces.some(face=>face.includes('font-family:ScrollerCJK') && face.includes('data:font/woff2;base64,')));
+assert(fontFaces.some(face=>face.includes('font-family:ManusCC0CJKSC') && face.includes('data:font/woff2;base64,')));
 for(const weight of [400,500,700]) assert(fontFaces.some(face=>face.includes('font-family:ManusCC0') && face.includes('font-weight:'+weight+';')));
 console.log('Loader locale selection, blocked storage, translated states, progress/ETA and render bounds passed.');

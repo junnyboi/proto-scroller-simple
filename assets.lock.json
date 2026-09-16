@@ -1068,14 +1068,6 @@
       "groupId": "finale",
       "used": true
     },
-    "assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf": {
-      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/05/game-template/game-scroller/2026.09.05-act1-contracts-v2/678fc4e549f04ccfddcbce5483542f9d77e745f4e10595b97802a7d86896fc9e/assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf",
-      "sha256": "sha256:678fc4e549f04ccfddcbce5483542f9d77e745f4e10595b97802a7d86896fc9e",
-      "size": 156672,
-      "assetType": "font",
-      "groupId": "fonts",
-      "used": true
-    },
     "assets/narrative/continuity-cradle.jpg": {
       "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/05/game-template/game-scroller/2026.09.05-original-act1-v2/bc2a5119bfc2cb08434f20e65ab3f22bc522b0aa881760b918a59d4e22283ed9/assets/narrative/continuity-cradle.jpg",
       "sha256": "sha256:bc2a5119bfc2cb08434f20e65ab3f22bc522b0aa881760b918a59d4e22283ed9",
@@ -1642,6 +1634,14 @@
       "size": 31418,
       "assetType": "image",
       "groupId": "ui",
+      "used": true
+    },
+    "assets/fonts/ManusCC0SansCJKSC-Regular.woff2": {
+      "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/16/game-template/shared-typography/2026.09.16-manus-cc0-cjk-v1/0a4981b817d7fb556dd8cd80f278483f1849017a312ca965e027d8e0e066968c/assets/template/fonts/ManusCC0SansCJKSC-Regular.woff2",
+      "sha256": "sha256:0a4981b817d7fb556dd8cd80f278483f1849017a312ca965e027d8e0e066968c",
+      "size": 965224,
+      "assetType": "font",
+      "groupId": "fonts",
       "used": true
     }
   }

@@ -2,13 +2,12 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://ojixjila5plq"
-path="res://.godot/imported/DroidSansFallbackFull-ProtoScroller.ttf-4d4f43260382d64dc306cf26e2005a74.fontdata"
+path="res://.godot/imported/ManusCC0SansCJKSC-Regular.woff2-72caee52ebddb8de4868f2cc69fb012c.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf"
-dest_files=["res://.godot/imported/DroidSansFallbackFull-ProtoScroller.ttf-4d4f43260382d64dc306cf26e2005a74.fontdata"]
+source_file="res://assets/fonts/ManusCC0SansCJKSC-Regular.woff2"
+dest_files=["res://.godot/imported/ManusCC0SansCJKSC-Regular.woff2-72caee52ebddb8de4868f2cc69fb012c.fontdata"]
 
 [params]
 
@@ -19,7 +18,7 @@ disable_embedded_bitmaps=true
 multichannel_signed_distance_field=false
 msdf_pixel_range=8
 msdf_size=48
-allow_system_fallback=true
+allow_system_fallback=false
 force_autohinter=false
 modulate_color_glyphs=false
 hinting=3

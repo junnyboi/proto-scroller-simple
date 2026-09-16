@@ -1,15 +1,15 @@
 {
-  "source": "assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf",
-  "sourceSha256": "678fc4e549f04ccfddcbce5483542f9d77e745f4e10595b97802a7d86896fc9e",
-  "sourceUrl": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/05/game-template/game-scroller/2026.09.05-act1-contracts-v2/678fc4e549f04ccfddcbce5483542f9d77e745f4e10595b97802a7d86896fc9e/assets/fonts/DroidSansFallbackFull-ProtoScroller.ttf",
-  "license": "assets/fonts/DroidSansFallbackFull-LICENSE.txt",
-  "licenseSha256": "56cf0ba47c456cf2182720f8e4881c3df5a622891d4380edd1b1c0ad0da734b9",
+  "source": "assets/fonts/ManusCC0SansCJKSC-Regular.woff2",
+  "sourceSha256": "0a4981b817d7fb556dd8cd80f278483f1849017a312ca965e027d8e0e066968c",
+  "sourceUrl": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/16/game-template/shared-typography/2026.09.16-manus-cc0-cjk-v1/0a4981b817d7fb556dd8cd80f278483f1849017a312ca965e027d8e0e066968c/assets/template/fonts/ManusCC0SansCJKSC-Regular.woff2",
+  "license": "assets/fonts/ManusCC0-CJK-LICENSE.txt",
+  "licenseSha256": "6f77f58862252569faf238c4e5cd98b54197980e217fd709b20f5e2f2c1ebc2c",
   "primarySha256": {
     "Regular": "b5124032e8e51434e05a51c327a9a614ac96b85ecf9b6cdcfc58834a9ae1347d",
     "Medium": "f28a0f3aee8f427798bf972504d5640d5d28b8692a73102ac39556fa7ffb1ee2",
     "Bold": "099f6d50114f83533f689ddc37028fcff2bd2a2c4871a332488c1a433f440804"
   },
-  "fontToolsVersion": "4.64.0",
+  "fontToolsVersion": "4.60.2",
   "corpusSha256": "78035b7dd7f094c216b6880a07b1cbabae382c09c23f8889657b1f34409657b6",
   "requiredCodepoints": [
     12290,
@@ -221,7 +221,7 @@
     39318,
     65306
   ],
-  "woff2Sha256": "b1970a5ec695c148f042608d6bdbcdab96ce4338561fd1d6a07d200d38cac43a",
-  "woff2Bytes": 10064,
-  "cssSha256": "3b89a465982632c09f370a96e042f5636ecbf7b77714e073830b3a074ee728d1"
+  "woff2Sha256": "5051e06e8449bb13277cb492ea39665689660387a893fda6ae86fdf9d888db07",
+  "woff2Bytes": 17112,
+  "cssSha256": "a3ff36b370375ae45ff4505e4147b8729d0c4cd770bf365d49a9276c148f5bbe"
 }

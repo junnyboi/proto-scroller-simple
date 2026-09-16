@@ -1,5 +1,5 @@
 :root {
-  font-family: "ManusCC0", ScrollerCJK, sans-serif;
+  font-family: "ManusCC0", ManusCC0CJKSC, sans-serif;
   color-scheme: dark;
   background: #000;
 }
@@ -115,7 +115,7 @@ body.title-backdrop-active .title-video-backdrop.is-ready {
       transparent 34rem
     ),
     #020607;
-  font-family: "ManusCC0", ScrollerCJK, sans-serif;
+  font-family: "ManusCC0", ManusCC0CJKSC, sans-serif;
   text-align: left;
 }
 

@@ -11,7 +11,7 @@ const sha256=value=>createHash('sha256').update(value).digest('hex');
 const corpus=Object.values(catalogs).flatMap(catalog=>Object.values(catalog)).join('')+['loader.js','i18n.js','loader.css'].map(name=>[...readFileSync(join(dir,name),'utf8')].filter(character=>character.codePointAt(0)>127).join('')).join('');
 const fallbackData=fallbackCss.match(/data:font\/woff2;base64,([A-Za-z0-9+/=]+)/)?.[1];
 if (sha256(corpus)!==fontSource.corpusSha256 || sha256(fallbackCss)!==fontSource.cssSha256 || !fallbackData || sha256(Buffer.from(fallbackData,'base64'))!==fontSource.woff2Sha256 || sha256(readFileSync(join(dir,'..',fontSource.source)))!==fontSource.sourceSha256) {
-  throw new Error('Loader CJK font inputs changed. Run tools/build-loader-cjk-font.py with fonttools[woff]==4.64.0, then rebuild the shell.');
+  throw new Error('Loader CJK font inputs changed. Run tools/build-loader-cjk-font.py with fonttools[woff]==4.60.2, then rebuild the shell.');
 }
 let js='const WEB_CATALOGS = '+JSON.stringify(catalogs).replaceAll('<','\\u003c')+';\n'+readFileSync(join(dir,'i18n.js'),'utf8')+'\n'+readFileSync(join(dir,'loader.js'),'utf8');
 for (const name of ['title-loop-landscape.mp4','title-loop-portrait.mp4','title-poster-landscape.jpg','title-poster-portrait.jpg']) {
